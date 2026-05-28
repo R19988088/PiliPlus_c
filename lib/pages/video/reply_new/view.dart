@@ -290,7 +290,7 @@ class _ReplyPageState extends CommonRichTextPubPageState<ReplyPage> {
         children: [
           item(
             onTap: () async {
-              controller.keepChatPanel();
+              keepChatPanel();
               final ({String title, String url})? res = await Get.to(
                 ReplySearchPage(type: widget.replyType, oid: widget.oid),
               );
@@ -301,7 +301,7 @@ class _ReplyPageState extends CommonRichTextPubPageState<ReplyPage> {
                   rawText: '${res.url} ',
                 );
               }
-              controller.restoreChatPanel();
+              restoreChatPanel();
             },
             icon: Icon(Icons.post_add, size: 28, color: color),
             title: '插入内容',

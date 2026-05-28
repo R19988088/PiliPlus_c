@@ -112,7 +112,7 @@ abstract class CommonRichTextPubPageState<T extends CommonRichTextPubPage>
       children: [
         GestureDetector(
           onTap: () async {
-            controller.keepChatPanel();
+            keepChatPanel();
             await PageUtils.imageView(
               imgList: imageList
                   .map(
@@ -130,7 +130,7 @@ abstract class CommonRichTextPubPageState<T extends CommonRichTextPubPage>
                   .toList(),
               initialPage: index,
             );
-            controller.restoreChatPanel();
+            restoreChatPanel();
           },
           onLongPress: () {
             Feedback.forLongPress(context);
@@ -328,7 +328,7 @@ abstract class CommonRichTextPubPageState<T extends CommonRichTextPubPage>
 
   late double _mentionOffset = 0;
   Future<void>? onMention([bool fromClick = false]) async {
-    controller.keepChatPanel();
+    keepChatPanel();
     final res = await DynMentionPanel.onDynMention(
       context,
       offset: _mentionOffset,
@@ -345,7 +345,7 @@ abstract class CommonRichTextPubPageState<T extends CommonRichTextPubPage>
         res.clear();
       }
     }
-    controller.restoreChatPanel();
+    restoreChatPanel();
   }
 
   void _onInsertUser(MentionItem e, bool fromClick) {
