@@ -98,7 +98,7 @@ jobs:
                   fi
 
             - name: Set and Extract version
-              if: ${{ github.event_name == 'workflow_dispatch' }}
+              if: ${{ github.event_name != 'pull_request' }}
               shell: pwsh
               run: lib/scripts/build.ps1 android
 
@@ -107,7 +107,7 @@ jobs:
               run: flutter build apk --release --split-per-abi --dart-define-from-file=pili_release.json --pub
 
             - name: Flutter Build Dev Apk
-              if: ${{ github.event_name == 'pull_request' }}
+              if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
               run: |
                   flutter build apk --release --split-per-abi --android-project-arg dev=1 --pub
 
@@ -149,7 +149,7 @@ jobs:
                   path: PiliPlus_android_*_x86_64.apk
 
     ios:
-        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.repository == 'bggRGjQaUbCoE/PiliPlus') || github.event.inputs.build_ios == 'true' }}
+        if: ${{ (github.event_name == 'pull_request' && github.repository == 'bggRGjQaUbCoE/PiliPlus') || github.event.inputs.build_ios == 'true' }}
         uses: ./.github/workflows/ios.yml
         permissions: write-all
         with:
@@ -163,14 +163,14 @@ jobs:
             tag: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || '' }}
 
     win_x64:
-        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.repository == 'bggRGjQaUbCoE/PiliPlus') || github.event.inputs.build_win_x64 == 'true' }}
+        if: ${{ (github.event_name == 'pull_request' && github.repository == 'bggRGjQaUbCoE/PiliPlus') || github.event.inputs.build_win_x64 == 'true' }}
         uses: ./.github/workflows/win_x64.yml
         permissions: write-all
         with:
             tag: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || '' }}
 
     linux_x64:
-        if: ${{ github.event_name == 'push' || github.event.inputs.build_linux_x64 == 'true' }}
+        if: ${{ github.event.inputs.build_linux_x64 == 'true' }}
         uses: ./.github/workflows/linux_x64.yml
         permissions: write-all
         with:
