@@ -194,7 +194,6 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
                 style: subTitleStyle,
               ),
             ),
-          ),
           Padding(
             padding: padding,
             child: ExcludeFocus(
