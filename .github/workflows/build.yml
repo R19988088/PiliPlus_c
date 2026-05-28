@@ -100,16 +100,69 @@ jobs:
             - name: Set and Extract version
               if: ${{ github.event_name != 'pull_request' }}
               shell: pwsh
-              run: lib/scripts/build.ps1 android
+              run: |
+                  try {
+                    lib/scripts/build.ps1 android *>&1 | Tee-Object -FilePath android-version.log
+                    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) {
+                      exit $LASTEXITCODE
+                    }
+                  } catch {
+                    $_ | Tee-Object -FilePath android-version.log -Append
+                    exit 1
+                  }
 
             - name: Flutter Build Release Apk
               if: ${{ github.event_name == 'workflow_dispatch' }}
-              run: flutter build apk --release --split-per-abi --dart-define-from-file=pili_release.json --pub
+              shell: bash
+              run: |
+                  set -o pipefail
+                  flutter build apk --release --split-per-abi --dart-define-from-file=pili_release.json --pub 2>&1 | tee android-build.log
 
             - name: Flutter Build Dev Apk
               if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+              shell: bash
               run: |
-                  flutter build apk --release --split-per-abi --android-project-arg dev=1 --dart-define-from-file=pili_release.json --pub
+                  set -o pipefail
+                  flutter build apk --release --split-per-abi --android-project-arg dev=1 --dart-define-from-file=pili_release.json --pub 2>&1 | tee android-build.log
+
+            - name: Show Android build failure details
+              if: ${{ failure() }}
+              shell: bash
+              run: |
+                  {
+                    echo "## Android build failed"
+                    echo
+                    echo "Commit: \`${{ github.sha }}\`"
+                    echo "Branch: \`${{ github.ref_name }}\`"
+                    echo
+                    echo "### Version script log"
+                    echo '```text'
+                    if [ -f android-version.log ]; then
+                      tail -n 120 android-version.log
+                    else
+                      echo "android-version.log was not created."
+                    fi
+                    echo '```'
+                    echo
+                    echo "### Flutter build log"
+                    echo '```text'
+                    if [ -f android-build.log ]; then
+                      tail -n 200 android-build.log
+                    else
+                      echo "android-build.log was not created. The failure happened before Flutter build started."
+                    fi
+                    echo '```'
+                  } >> "$GITHUB_STEP_SUMMARY"
+
+                  if [ -f android-build.log ]; then
+                    message="$(tail -n 40 android-build.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
+                    echo "::error title=Android build failed::$message"
+                  elif [ -f android-version.log ]; then
+                    message="$(tail -n 40 android-version.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
+                    echo "::error title=Android version script failed::$message"
+                  else
+                    echo "::error title=Android build failed::android build logs were not created. The failure happened before version/build steps started."
+                  fi
 
             - name: Rename
               run: |
