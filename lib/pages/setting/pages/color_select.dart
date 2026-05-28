@@ -1,13 +1,10 @@
 import 'dart:io' show Platform;
 
-import 'package:PiliPlus/common/widgets/color_palette.dart';
-import 'package:PiliPlus/main.dart' show MyApp;
 import 'package:PiliPlus/models/common/nav_bar_config.dart';
 import 'package:PiliPlus/models/common/theme/theme_color_type.dart';
 import 'package:PiliPlus/models/common/theme/theme_type.dart';
 import 'package:PiliPlus/pages/home/view.dart';
 import 'package:PiliPlus/pages/mine/controller.dart';
-import 'package:PiliPlus/pages/setting/widgets/popup_item.dart';
 import 'package:PiliPlus/pages/setting/widgets/select_dialog.dart';
 import 'package:PiliPlus/utils/extension/get_ext.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
@@ -15,9 +12,7 @@ import 'package:PiliPlus/utils/storage.dart';
 import 'package:PiliPlus/utils/storage_key.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/theme_utils.dart';
-import 'package:flex_seed_scheme/flex_seed_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 
 class ColorSelectPage extends StatefulWidget {
@@ -27,31 +22,49 @@ class ColorSelectPage extends StatefulWidget {
   State<ColorSelectPage> createState() => _ColorSelectPageState();
 }
 
-class Item {
-  Item({
-    required this.expandedValue,
-    required this.headerValue,
-    this.isExpanded = false,
-  });
-
-  String expandedValue;
-  String headerValue;
-  bool isExpanded;
-}
-
 class _ColorSelectPageState extends State<ColorSelectPage> {
   final ctr = Get.put(_ColorSelectController());
-  FlexSchemeVariant _dynamicSchemeVariant = Pref.schemeVariant;
 
-  Future<void> _onChanged([bool? val]) async {
-    val ??= !ctr.dynamicColor.value;
-    if (val && !await MyApp.initPlatformState()) {
-      SmartDialog.showToast('设备可能不支持动态取色');
-      return;
-    }
-    ctr.dynamicColor.value = val;
-    await GStorage.setting.put(SettingBoxKey.dynamicColor, val);
+  Future<void> _updateThemeColor(Color color) async {
+    ctr.currentColor.value = color.toARGB32();
+    await GStorage.setting.put(SettingBoxKey.customColor, color.toARGB32());
     Get.updateMyAppTheme();
+  }
+
+  Widget _channelSlider({
+    required BuildContext context,
+    required String title,
+    required int value,
+    required ValueChanged<int> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          SizedBox(width: 22, child: Text(title)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Slider(
+              min: 0,
+              max: 255,
+              divisions: 255,
+              value: value.toDouble(),
+              label: value.toString(),
+              onChanged: (newValue) => onChanged(newValue.round()),
+            ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 36,
+            child: Text(
+              value.toString(),
+              textAlign: TextAlign.end,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -98,94 +111,87 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
               ),
             ),
           ),
-          Obx(
-            () => PopupListTile<FlexSchemeVariant>(
-              enabled: !ctr.dynamicColor.value,
-              leading: const Icon(Icons.palette_outlined),
-              title: const Text('调色板风格'),
-              value: () =>
-                  (_dynamicSchemeVariant, _dynamicSchemeVariant.variantName),
-              itemBuilder: (_) => FlexSchemeVariant.values
-                  .map(
-                    (e) => PopupMenuItem(value: e, child: Text(e.variantName)),
-                  )
-                  .toList(),
-              onSelected: (value, setState) {
-                _dynamicSchemeVariant = value;
-                GStorage.setting
-                    .put(SettingBoxKey.schemeVariant, value.index)
-                    .whenComplete(Get.updateMyAppTheme);
-              },
-            ),
-          ),
-          if (!Platform.isIOS)
-            Obx(
-              () => ListTile(
-                title: const Text('动态取色'),
-                leading: ExcludeFocus(
-                  child: Checkbox(
-                    value: ctr.dynamicColor.value,
-                    onChanged: _onChanged,
-                    materialTapTargetSize: .shrinkWrap,
-                    visualDensity: const .new(horizontal: -4, vertical: -4),
-                  ),
-                ),
-                onTap: _onChanged,
-              ),
-            ),
           Padding(
             padding: padding,
-            child: AnimatedSize(
-              curve: Curves.easeInOut,
-              alignment: Alignment.topCenter,
-              duration: const Duration(milliseconds: 200),
-              child: Obx(
-                () => ctr.dynamicColor.value
-                    ? const SizedBox.shrink()
-                    : Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 22,
-                          runSpacing: 18,
-                          children: colorThemeTypes.indexed.map(
-                            (e) {
-                              final index = e.$1;
-                              final item = e.$2;
-                              return GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () {
-                                  ctr.currentColor.value = index;
-                                  GStorage.setting
-                                      .put(SettingBoxKey.customColor, index)
-                                      .whenComplete(Get.updateMyAppTheme);
-                                },
-                                child: Column(
-                                  spacing: 3,
-                                  children: [
-                                    ColorPalette(
-                                      colorScheme: item.color.asColorSchemeSeed(
-                                        _dynamicSchemeVariant,
-                                        theme.brightness,
-                                      ),
-                                      selected: ctr.currentColor.value == index,
-                                    ),
-                                    Text(
-                                      item.label,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: ctr.currentColor.value != index
-                                            ? theme.colorScheme.outline
-                                            : null,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ).toList(),
+            child: Obx(() {
+              final currentColor = resolveThemeColor(ctr.currentColor.value);
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: currentColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: theme.colorScheme.outlineVariant,
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                colorThemeTypes.single.label,
+                                style: titleStyle,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '当前颜色：${formatThemeColorHex(currentColor)}',
+                                style: subTitleStyle,
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => _updateThemeColor(amberThemeColor),
+                          child: const Text('重置'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _channelSlider(
+                      context: context,
+                      title: 'R',
+                      value: currentColor.red,
+                      onChanged: (value) => _updateThemeColor(
+                        currentColor.withRed(value),
                       ),
+                    ),
+                    _channelSlider(
+                      context: context,
+                      title: 'G',
+                      value: currentColor.green,
+                      onChanged: (value) => _updateThemeColor(
+                        currentColor.withGreen(value),
+                      ),
+                    ),
+                    _channelSlider(
+                      context: context,
+                      title: 'B',
+                      value: currentColor.blue,
+                      onChanged: (value) => _updateThemeColor(
+                        currentColor.withBlue(value),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+          if (!Platform.isIOS)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Text(
+                '已移除动态取色与调色板风格，主题色基于琥珀色并支持滑条微调。',
+                style: subTitleStyle,
               ),
             ),
           ),
@@ -223,7 +229,6 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
 }
 
 class _ColorSelectController extends GetxController {
-  final RxBool dynamicColor = Pref.dynamicColor.obs;
   final RxInt currentColor = Pref.customColor.obs;
   final Rx<ThemeType> themeType = Pref.themeType.obs;
 }

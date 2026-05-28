@@ -299,18 +299,19 @@ List<SettingsModel> get styleSettings => [
     onTap: (context, setState) => Get.toNamed('/colorSetting'),
     leading: const Icon(Icons.color_lens_outlined),
     title: '应用主题',
-    getSubtitle: () => '当前主题：${Pref.dynamicColor ? '动态取色' : '指定颜色'}',
-    getTrailing: (theme) => Pref.dynamicColor
-        ? Icon(Icons.color_lens_rounded, color: theme.colorScheme.primary)
-        : SizedBox.square(
-            dimension: 20,
-            child: ColorPalette(
-              colorScheme: colorThemeTypes[Pref.customColor].color
-                  .asColorSchemeSeed(Pref.schemeVariant, theme.brightness),
-              selected: false,
-              showBgColor: false,
-            ),
-          ),
+    getSubtitle: () =>
+        '当前主题：${formatThemeColorHex(resolveThemeColor(Pref.customColor))}',
+    getTrailing: (theme) => SizedBox.square(
+      dimension: 20,
+      child: ColorPalette(
+        colorScheme: resolveThemeColor(Pref.customColor).asColorSchemeSeed(
+          Pref.schemeVariant,
+          theme.brightness,
+        ),
+        selected: false,
+        showBgColor: false,
+      ),
+    ),
   ),
   NormalModel(
     leading: const Icon(Icons.home_outlined),

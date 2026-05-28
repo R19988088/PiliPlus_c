@@ -345,10 +345,7 @@ abstract final class Pref {
       _setting.get(SettingBoxKey.dynamicPeriod, defaultValue: 5);
 
   static FlexSchemeVariant get schemeVariant =>
-      FlexSchemeVariant.values[_setting.get(
-        SettingBoxKey.schemeVariant,
-        defaultValue: FlexSchemeVariant.material3Legacy.index,
-      )];
+      FlexSchemeVariant.material3Legacy;
 
   static double get danmakuFontScaleFS => _setting.get(
     SettingBoxKey.danmakuFontScaleFS,
@@ -711,9 +708,7 @@ abstract final class Pref {
   static int get customColor =>
       _setting.get(SettingBoxKey.customColor, defaultValue: 0);
 
-  static bool get dynamicColor =>
-      !Platform.isIOS &&
-      _setting.get(SettingBoxKey.dynamicColor, defaultValue: true);
+  static bool get dynamicColor => false;
 
   static bool get autoClearCache =>
       _setting.get(SettingBoxKey.autoClearCache, defaultValue: false);
