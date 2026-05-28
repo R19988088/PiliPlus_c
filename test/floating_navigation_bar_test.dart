@@ -1,6 +1,7 @@
 import 'package:PiliPlus/common/widgets/floating_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 void main() {
   testWidgets('悬浮底栏渲染液态玻璃背景滤镜层', (tester) async {
@@ -34,6 +35,6 @@ void main() {
       ),
     );
 
-    expect(find.byType(BackdropFilter), findsOneWidget);
+    expect(find.byType(GlassContainer), findsOneWidget);
   });
 }

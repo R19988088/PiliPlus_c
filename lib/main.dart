@@ -41,6 +41,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -96,6 +97,7 @@ Future<void> _initSdkInt() async {
 void main() async {
   ScaledWidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
+  await LiquidGlassWidgets.initialize();
   await _initAppPath();
   try {
     await GStorage.init();
@@ -200,13 +202,25 @@ void main() async {
 
     Catcher2(
       [?fileHandler, const ConsoleHandler()],
-      const MyApp(),
+      _buildAppRoot(),
       logger: logger,
       customParameters: customParameters,
     );
   } else {
-    runApp(const MyApp());
+    runApp(_buildAppRoot());
   }
+}
+
+Widget _buildAppRoot() {
+  return LiquidGlassWidgets.wrap(
+    adaptiveQuality: true,
+    theme: GlassThemeData.simple(
+      blur: 18,
+      thickness: 28,
+      quality: GlassQuality.standard,
+    ),
+    child: const MyApp(),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -285,6 +299,7 @@ class MyApp extends StatelessWidget {
     final uiScale = Pref.uiScale;
     final mediaQuery = MediaQuery.of(context);
     final textScaler = TextScaler.linear(Pref.defaultTextScale);
+    child = GlassBackdropScope(child: child!);
     if (uiScale != 1.0) {
       child = MediaQuery(
         data: mediaQuery.copyWith(
@@ -295,7 +310,7 @@ class MyApp extends StatelessWidget {
           viewPadding: tmpPadding ?? mediaQuery.viewPadding / uiScale,
           devicePixelRatio: mediaQuery.devicePixelRatio * uiScale,
         ),
-        child: child!,
+        child: child,
       );
     } else {
       child = MediaQuery(
@@ -304,7 +319,7 @@ class MyApp extends StatelessWidget {
           padding: tmpPadding,
           viewPadding: tmpPadding,
         ),
-        child: child!,
+        child: child,
       );
     }
     if (PlatformUtils.isDesktop) {
