@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:PiliPlus/common/widgets/liquid_glass_surface.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:flutter/material.dart';
 
@@ -64,6 +65,8 @@ class FloatingNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final defaults = _NavigationBarDefaultsM3(context);
 
     final navigationBarTheme = NavigationBarTheme.of(context);
@@ -73,6 +76,23 @@ class FloatingNavigationBar extends StatelessWidget {
         defaults.labelBehavior!;
 
     final padding = MediaQuery.viewPaddingOf(context);
+    final effectiveBackgroundColor = ElevationOverlay.applySurfaceTint(
+      backgroundColor ??
+          navigationBarTheme.backgroundColor ??
+          defaults.backgroundColor!,
+      surfaceTintColor ??
+          navigationBarTheme.surfaceTintColor ??
+          defaults.surfaceTintColor,
+      elevation ?? navigationBarTheme.elevation ?? defaults.elevation!,
+    );
+    final navigationShape = RoundedSuperellipseBorder(
+      side: BorderSide(
+        color: colorScheme.outlineVariant.withValues(
+          alpha: theme.brightness == Brightness.dark ? 0.20 : 0.34,
+        ),
+      ),
+      borderRadius: _kBorderRadius,
+    );
 
     return UnconstrainedBox(
       child: Padding(
@@ -85,24 +105,9 @@ class FloatingNavigationBar extends StatelessWidget {
         child: SizedBox(
           height: _kNavigationHeight,
           width: destinations.length * _kIndicatorWidth,
-          child: DecoratedBox(
-            decoration: ShapeDecoration(
-              color: ElevationOverlay.applySurfaceTint(
-                backgroundColor ??
-                    navigationBarTheme.backgroundColor ??
-                    defaults.backgroundColor!,
-                surfaceTintColor ??
-                    navigationBarTheme.surfaceTintColor ??
-                    defaults.surfaceTintColor,
-                elevation ??
-                    navigationBarTheme.elevation ??
-                    defaults.elevation!,
-              ),
-              shape: RoundedSuperellipseBorder(
-                side: defaults.borderSide,
-                borderRadius: _kBorderRadius,
-              ),
-            ),
+          child: LiquidGlassSurface(
+            shape: navigationShape,
+            backgroundColor: effectiveBackgroundColor,
             child: Padding(
               padding: _kIndicatorPadding,
               child: Row(
@@ -168,9 +173,17 @@ class FloatingNavigationDestination extends StatelessWidget {
     const unselectedState = <WidgetState>{};
     const disabledState = <WidgetState>{WidgetState.disabled};
 
+    final theme = Theme.of(context);
     final navigationBarTheme = NavigationBarTheme.of(context);
     final defaults = _NavigationBarDefaultsM3(context);
     final animation = info.selectedAnimation;
+    final indicatorColor =
+        info.indicatorColor ??
+        navigationBarTheme.indicatorColor ??
+        defaults.indicatorColor!;
+    final glassIndicatorColor = indicatorColor.withValues(
+      alpha: theme.brightness == Brightness.dark ? 0.28 : 0.38,
+    );
 
     return Stack(
       alignment: .center,
@@ -178,10 +191,7 @@ class FloatingNavigationDestination extends StatelessWidget {
       children: [
         NavigationIndicator(
           animation: animation,
-          color:
-              info.indicatorColor ??
-              navigationBarTheme.indicatorColor ??
-              defaults.indicatorColor!,
+          color: glassIndicatorColor,
         ),
         _NavigationDestinationBuilder(
           label: label,
