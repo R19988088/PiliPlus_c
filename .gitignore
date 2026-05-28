@@ -151,3 +151,4 @@ test*
 test/*
 !test/floating_nav_bar_default_test.dart
 !test/floating_navigation_bar_test.dart
+!test/liquid_glass_shader_asset_test.dart

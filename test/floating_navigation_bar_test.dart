@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('悬浮底栏渲染玻璃背景模糊层', (tester) async {
+  testWidgets('悬浮底栏渲染液态玻璃背景滤镜层', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: ThemeData(useMaterial3: true),

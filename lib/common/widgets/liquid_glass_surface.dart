@@ -1,6 +1,14 @@
-import 'dart:ui' show ImageFilter;
+import 'dart:ui' as ui show FragmentProgram, ImageFilter;
 
 import 'package:flutter/material.dart';
+
+const liquidGlassRefractionShaderAsset = 'shaders/liquid_glass_refraction.frag';
+
+Future<ui.FragmentProgram>? _liquidGlassRefractionProgram;
+
+Future<ui.FragmentProgram> _loadLiquidGlassRefractionProgram() =>
+    _liquidGlassRefractionProgram ??=
+        ui.FragmentProgram.fromAsset(liquidGlassRefractionShaderAsset);
 
 class LiquidGlassSurface extends StatelessWidget {
   const LiquidGlassSurface({
@@ -22,7 +30,7 @@ class LiquidGlassSurface extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final fillColor = (backgroundColor ?? colorScheme.surfaceContainer)
-        .withValues(alpha: isDark ? 0.46 : 0.58);
+        .withValues(alpha: isDark ? 0.40 : 0.44);
 
     return DecoratedBox(
       decoration: ShapeDecoration(
@@ -42,32 +50,82 @@ class LiquidGlassSurface extends StatelessWidget {
       ),
       child: ClipPath(
         clipper: ShapeBorderClipper(shape: shape),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-          child: DecoratedBox(
-            decoration: ShapeDecoration(
-              color: fillColor,
-              shape: shape,
-            ),
-            child: DecoratedBox(
-              decoration: ShapeDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withValues(alpha: isDark ? 0.18 : 0.52),
-                    Colors.white.withValues(alpha: isDark ? 0.05 : 0.16),
-                    colorScheme.primary.withValues(alpha: isDark ? 0.07 : 0.05),
-                  ],
-                  stops: const [0.0, 0.46, 1.0],
-                ),
-                shape: shape,
-              ),
-              child: child,
-            ),
-          ),
+        child: FutureBuilder<ui.FragmentProgram>(
+          future: _loadLiquidGlassRefractionProgram(),
+          builder: (context, snapshot) {
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final size = constraints.biggest;
+                final filter = _createBackdropFilter(snapshot.data, size);
+
+                return BackdropFilter(
+                  filter: filter,
+                  child: DecoratedBox(
+                    decoration: ShapeDecoration(
+                      color: fillColor,
+                      shape: shape,
+                    ),
+                    child: DecoratedBox(
+                      decoration: ShapeDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.white.withValues(
+                              alpha: isDark ? 0.16 : 0.34,
+                            ),
+                            Colors.white.withValues(
+                              alpha: isDark ? 0.04 : 0.10,
+                            ),
+                            colorScheme.primary.withValues(
+                              alpha: isDark ? 0.08 : 0.06,
+                            ),
+                          ],
+                          stops: const [0.0, 0.46, 1.0],
+                        ),
+                        shape: shape,
+                      ),
+                      child: child,
+                    ),
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
+    );
+  }
+
+  ui.ImageFilter _createBackdropFilter(
+    ui.FragmentProgram? refractionProgram,
+    Size size,
+  ) {
+    final blurFilter = ui.ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma);
+    if (refractionProgram == null ||
+        !ui.ImageFilter.isShaderFilterSupported ||
+        !size.width.isFinite ||
+        !size.height.isFinite ||
+        size.isEmpty) {
+      return blurFilter;
+    }
+
+    final radius = size.height / 2;
+    // ImageFilter.shader fills the first vec2 uniform with the input texture
+    // size. The remaining float uniforms begin at index 2.
+    final shader = refractionProgram.fragmentShader()
+      ..setFloat(2, radius)
+      ..setFloat(3, radius)
+      ..setFloat(4, radius)
+      ..setFloat(5, radius)
+      ..setFloat(6, 24)
+      ..setFloat(7, 24)
+      ..setFloat(8, 0)
+      ..setFloat(9, 0.45);
+
+    return ui.ImageFilter.compose(
+      outer: ui.ImageFilter.shader(shader),
+      inner: blurFilter,
     );
   }
 }
