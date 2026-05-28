@@ -4,7 +4,6 @@ import 'dart:math' show max;
 
 import 'package:PiliPlus/models/common/publish_panel_type.dart';
 import 'package:PiliPlus/utils/extension/context_ext.dart';
-import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:chat_bottom_container/chat_bottom_container.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,14 +27,13 @@ abstract class CommonPublishPageState<T extends CommonPublishPage>
     extends State<T>
     with WidgetsBindingObserver {
   late final FocusNode focusNode;
-  late final controller = ChatBottomPanelContainerController<PanelType>(
-    uiScale: Pref.uiScale,
-  );
+  late final controller = ChatBottomPanelContainerController<PanelType>();
   TextEditingController get editController;
 
   final Rx<PanelType> panelType = PanelType.none.obs;
   late final RxBool readOnly = false.obs;
   late final RxBool enablePublish = false.obs;
+  PanelType? _keptPanelType;
 
   bool isPublishing = false;
 
@@ -86,7 +84,7 @@ abstract class CommonPublishPageState<T extends CommonPublishPage>
           widget.autofocus &&
           (panelType.value == PanelType.keyboard ||
               panelType.value == PanelType.none)) {
-        controller.restoreChatPanel();
+        restoreChatPanel();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (focusNode.hasFocus) {
             focusNode.unfocus();
@@ -97,11 +95,26 @@ abstract class CommonPublishPageState<T extends CommonPublishPage>
         });
       }
     } else if (state == AppLifecycleState.paused) {
-      controller.keepChatPanel();
+      keepChatPanel();
       if (focusNode.hasFocus) {
         focusNode.unfocus();
       }
     }
+  }
+
+  void keepChatPanel() {
+    _keptPanelType = panelType.value;
+  }
+
+  void restoreChatPanel() {
+    final type = _keptPanelType ?? panelType.value;
+    _keptPanelType = null;
+    if (!mounted) return;
+    if (type == PanelType.none) {
+      controller.updatePanelType(ChatBottomPanelType.none);
+      return;
+    }
+    updatePanelType(type);
   }
 
   void updatePanelType(PanelType type) {
