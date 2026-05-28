@@ -87,7 +87,7 @@ jobs:
               continue-on-error: true
 
             - name: Write key
-              if: github.event_name == 'workflow_dispatch'
+              if: github.event_name != 'pull_request'
               run: |
                   if [ ! -z "${{ secrets.SIGN_KEYSTORE_BASE64 }}" ]; then
                     echo "${{ secrets.SIGN_KEYSTORE_BASE64 }}" | base64 --decode > android/app/key.jks
@@ -95,6 +95,8 @@ jobs:
                     echo storePassword='${{ secrets.KEYSTORE_PASSWORD }}' >> android/key.properties
                     echo keyAlias='${{ secrets.KEY_ALIAS }}' >> android/key.properties
                     echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> android/key.properties
+                  else
+                    echo "SIGN_KEYSTORE_BASE64 is not set; falling back to debug signing."
                   fi
 
             - name: Set and Extract version
