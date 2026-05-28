@@ -86,13 +86,10 @@ class FloatingNavigationBar extends StatelessWidget {
           defaults.surfaceTintColor,
       elevation ?? navigationBarTheme.elevation ?? defaults.elevation!,
     );
-    final canUseGlassBottomBar =
-        onDestinationSelected != null &&
-        destinations.every(
-          (destination) =>
-              destination is FloatingNavigationDestination &&
-              destination.enabled,
-        );
+    final canUseGlassBottomBar = destinations.every(
+      (destination) =>
+          destination is FloatingNavigationDestination && destination.enabled,
+    );
     final glassBottomBarTabs = destinations
         .map(
           (destination) => destination is FloatingNavigationDestination
@@ -115,7 +112,7 @@ class FloatingNavigationBar extends StatelessWidget {
             ? GlassBottomBar(
                 tabs: glassBottomBarTabs,
                 selectedIndex: selectedIndex,
-                onTabSelected: onDestinationSelected!,
+                onTabSelected: onDestinationSelected ?? (_) {},
                 horizontalPadding: 0,
                 verticalPadding: 0,
                 spacing: 0,
