@@ -6,6 +6,8 @@
 
 **架构：** 当前 PiliPlus 是 Flutter 项目，底部导航已经有 `FloatingNavigationBar` 自定义实现。用户指定直接使用 `liquid_glass_widgets`，因此不再维护项目内自定义 shader 移植；本次用 package 的 `GlassContainer` 替换悬浮导航栏外壳，同时在 app 启动时调用 `LiquidGlassWidgets.initialize()` 并用 `LiquidGlassWidgets.wrap()` 包住根组件。
 
+**视觉修正：** 仅用 `GlassContainer` 包住旧 Material 导航栏外壳不够；旧的 `NavigationIndicator` 仍然是普通 Material 色块。需要在普通 `FloatingNavigationDestination` 场景下直接使用 `GlassBottomBar`，启用 package 的 magic-lens masking、jelly indicator、交互 glow 和 premium quality。
+
 **技术栈：** Flutter / Dart、Material 3、现有 `FloatingNavigationBar`、`material_new_shapes`、`liquid_glass_widgets`、`flutter_test`。
 
 ## 现状依据
@@ -15,7 +17,7 @@
 - 主页面已接入悬浮底栏：`lib/pages/main/view.dart` 会在 `_mainController.floatingNavBar` 为真时使用 `FloatingNavigationBar`。
 - 悬浮底栏现有实现：`lib/common/widgets/floating_navigation_bar.dart` 当前是圆角超椭圆容器 + Material 表面色，没有背景采样模糊和玻璃高光。
 - 项目已有 `flutter_test`，但当前测试集中在主题色；本次需要补充导航默认值或组件级 smoke test。
-- `liquid_glass_widgets` 提供 `GlassContainer`、`LiquidGlassSettings` 和 `LiquidRoundedSuperellipse`，可以承载现有导航栏的内容与尺寸。
+- `liquid_glass_widgets` 提供 `GlassBottomBar`、`GlassBottomBarTab`、`GlassContainer`、`LiquidGlassSettings` 和 `LiquidRoundedSuperellipse`，可以承载现有导航栏的内容与尺寸。
 
 ## 设计边界
 
@@ -91,6 +93,9 @@ const SwitchModel(
 ## 任务 5：接入到 `FloatingNavigationBar`
 
 - [ ] 在 `lib/common/widgets/floating_navigation_bar.dart` 引入 `LiquidGlassSurface`。
+- [ ] 当 `destinations` 全部是 `FloatingNavigationDestination` 时，转换为 `GlassBottomBarTab` 并直接渲染 `GlassBottomBar`。
+- [ ] `GlassBottomBar` 使用 `MaskingQuality.high`、`GlassInteractionBehavior.full`、`quality: GlassQuality.premium`、`magnification` 和 `innerBlur`。
+- [ ] 保留原有 `LiquidGlassSurface + Row` 路径作为非标准 destination fallback。
 - [ ] 保持 `_kNavigationHeight`、`_kIndicatorWidth`、`_kIndicatorPadding` 不变，避免导航尺寸和隐藏动画发生漂移。
 - [ ] 将当前 `DecoratedBox` 外壳替换为 `LiquidGlassSurface`，内部 `Padding` 和 `Row` 结构保持原样。
 - [ ] `backgroundColor` 参数仍生效，作为玻璃填充的基色。

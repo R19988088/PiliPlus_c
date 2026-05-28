@@ -5,6 +5,7 @@
 import 'package:PiliPlus/common/widgets/liquid_glass_surface.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 const double _kMaxLabelTextScaleFactor = 1.3;
 
@@ -85,14 +86,21 @@ class FloatingNavigationBar extends StatelessWidget {
           defaults.surfaceTintColor,
       elevation ?? navigationBarTheme.elevation ?? defaults.elevation!,
     );
-    final navigationShape = RoundedSuperellipseBorder(
-      side: BorderSide(
-        color: colorScheme.outlineVariant.withValues(
-          alpha: theme.brightness == Brightness.dark ? 0.20 : 0.34,
-        ),
-      ),
-      borderRadius: _kBorderRadius,
-    );
+    final canUseGlassBottomBar =
+        onDestinationSelected != null &&
+        destinations.every(
+          (destination) =>
+              destination is FloatingNavigationDestination &&
+              destination.enabled,
+        );
+    final glassBottomBarTabs = destinations
+        .map(
+          (destination) => destination is FloatingNavigationDestination
+              ? destination._glassBottomBarTab(context)
+              : null,
+        )
+        .nonNulls
+        .toList(growable: false);
 
     return UnconstrainedBox(
       child: Padding(
@@ -102,46 +110,143 @@ class FloatingNavigationBar extends StatelessWidget {
           padding.right,
           bottomPadding + padding.bottom,
         ),
-        child: SizedBox(
-          height: _kNavigationHeight,
-          width: destinations.length * _kIndicatorWidth,
-          child: LiquidGlassSurface(
-            shape: navigationShape,
-            backgroundColor: effectiveBackgroundColor,
-            child: Padding(
-              padding: _kIndicatorPadding,
-              child: Row(
-                crossAxisAlignment: .stretch,
-                children: <Widget>[
-                  for (int i = 0; i < destinations.length; i++)
-                    Expanded(
-                      child: _SelectableAnimatedBuilder(
-                        duration: animationDuration,
-                        isSelected: i == selectedIndex,
-                        builder: (context, animation) {
-                          return _NavigationDestinationInfo(
-                            index: i,
-                            selectedIndex: selectedIndex,
-                            totalNumberOfDestinations: destinations.length,
-                            selectedAnimation: animation,
-                            labelBehavior: effectiveLabelBehavior,
-                            indicatorColor: indicatorColor,
-                            indicatorShape: indicatorShape,
-                            overlayColor: overlayColor,
-                            onTap: _handleTap(i),
-                            labelTextStyle: labelTextStyle,
-                            labelPadding: labelPadding,
-                            child: destinations[i],
-                          );
-                        },
-                      ),
+        child: canUseGlassBottomBar &&
+                glassBottomBarTabs.length == destinations.length
+            ? GlassBottomBar(
+                tabs: glassBottomBarTabs,
+                selectedIndex: selectedIndex,
+                onTabSelected: onDestinationSelected!,
+                horizontalPadding: 0,
+                verticalPadding: 0,
+                spacing: 0,
+                barHeight: _kNavigationHeight,
+                barBorderRadius: _kNavigationHeight / 2,
+                tabWidth: _kIndicatorWidth,
+                tabPadding: _kIndicatorPadding,
+                iconLabelSpacing: 2,
+                glassSettings: _barGlassSettings(
+                  effectiveBackgroundColor,
+                  theme.brightness,
+                ),
+                indicatorSettings: _indicatorGlassSettings(
+                  indicatorColor,
+                  navigationBarTheme.indicatorColor,
+                  defaults.indicatorColor,
+                  theme.brightness,
+                ),
+                indicatorColor: (indicatorColor ??
+                        navigationBarTheme.indicatorColor ??
+                        defaults.indicatorColor!)
+                    .withValues(
+                      alpha: theme.brightness == Brightness.dark ? 0.30 : 0.42,
                     ),
-                ],
+                selectedIconColor: colorScheme.primary,
+                unselectedIconColor: colorScheme.onSurfaceVariant,
+                labelFontSize: 11,
+                textStyle: defaults.labelTextStyle?.resolve(<WidgetState>{}),
+                quality: GlassQuality.premium,
+                magnification: 1.12,
+                innerBlur: 4,
+                maskingQuality: MaskingQuality.high,
+                indicatorExpansion: 14,
+                interactionGlowColor: colorScheme.primary,
+                interactionGlowRadius: 1.7,
+                interactionBehavior: GlassInteractionBehavior.full,
+                pressScale: 1.04,
+              )
+            : SizedBox(
+                height: _kNavigationHeight,
+                width: destinations.length * _kIndicatorWidth,
+                child: LiquidGlassSurface(
+                  shape: _navigationShape(colorScheme, theme.brightness),
+                  backgroundColor: effectiveBackgroundColor,
+                  child: Padding(
+                    padding: _kIndicatorPadding,
+                    child: Row(
+                      crossAxisAlignment: .stretch,
+                      children: <Widget>[
+                        for (int i = 0; i < destinations.length; i++)
+                          Expanded(
+                            child: _SelectableAnimatedBuilder(
+                              duration: animationDuration,
+                              isSelected: i == selectedIndex,
+                              builder: (context, animation) {
+                                return _NavigationDestinationInfo(
+                                  index: i,
+                                  selectedIndex: selectedIndex,
+                                  totalNumberOfDestinations:
+                                      destinations.length,
+                                  selectedAnimation: animation,
+                                  labelBehavior: effectiveLabelBehavior,
+                                  indicatorColor: indicatorColor,
+                                  indicatorShape: indicatorShape,
+                                  overlayColor: overlayColor,
+                                  onTap: _handleTap(i),
+                                  labelTextStyle: labelTextStyle,
+                                  labelPadding: labelPadding,
+                                  child: destinations[i],
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
+      ),
+    );
+  }
+
+  RoundedSuperellipseBorder _navigationShape(
+    ColorScheme colorScheme,
+    Brightness brightness,
+  ) {
+    return RoundedSuperellipseBorder(
+      side: BorderSide(
+        color: colorScheme.outlineVariant.withValues(
+          alpha: brightness == Brightness.dark ? 0.20 : 0.34,
         ),
       ),
+      borderRadius: _kBorderRadius,
+    );
+  }
+
+  LiquidGlassSettings _barGlassSettings(Color baseColor, Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    return LiquidGlassSettings(
+      glassColor: baseColor.withValues(alpha: isDark ? 0.22 : 0.18),
+      blur: 8,
+      thickness: 34,
+      chromaticAberration: 0.06,
+      refractiveIndex: 1.22,
+      saturation: 1.45,
+      lightIntensity: isDark ? 0.42 : 0.56,
+      ambientStrength: isDark ? 0.10 : 0.14,
+      glowIntensity: 0.68,
+    );
+  }
+
+  LiquidGlassSettings _indicatorGlassSettings(
+    Color? indicatorColor,
+    Color? themeIndicatorColor,
+    Color? defaultIndicatorColor,
+    Brightness brightness,
+  ) {
+    final baseColor = indicatorColor ?? themeIndicatorColor ?? defaultIndicatorColor;
+    final isDark = brightness == Brightness.dark;
+    return LiquidGlassSettings(
+      glassColor: (baseColor ?? Colors.white).withValues(
+        alpha: isDark ? 0.24 : 0.30,
+      ),
+      blur: 4,
+      thickness: 46,
+      chromaticAberration: 0.16,
+      refractiveIndex: 1.34,
+      saturation: 1.55,
+      lightIntensity: isDark ? 0.50 : 0.68,
+      ambientStrength: isDark ? 0.10 : 0.16,
+      glowIntensity: 0.90,
     );
   }
 }
@@ -165,6 +270,17 @@ class FloatingNavigationDestination extends StatelessWidget {
   final String? tooltip;
 
   final bool enabled;
+
+  GlassBottomBarTab _glassBottomBarTab(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return GlassBottomBarTab(
+      label: label,
+      icon: icon,
+      activeIcon: selectedIcon ?? icon,
+      glowColor: colorScheme.primary,
+      thickness: 30,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

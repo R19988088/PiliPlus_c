@@ -35,6 +35,6 @@ void main() {
       ),
     );
 
-    expect(find.byType(GlassContainer), findsOneWidget);
+    expect(find.byType(GlassBottomBar), findsOneWidget);
   });
 }
