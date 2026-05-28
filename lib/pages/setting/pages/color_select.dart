@@ -31,12 +31,17 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
     Get.updateMyAppTheme();
   }
 
-  Widget _channelSlider({
+  Widget _hsbSlider({
     required BuildContext context,
     required String title,
-    required int value,
-    required ValueChanged<int> onChanged,
+    required double value,
+    required double max,
+    required int divisions,
+    required String Function(double value) labelFor,
+    required ValueChanged<double> onChanged,
   }) {
+    final clampedValue = value.clamp(0.0, max).toDouble();
+    final label = labelFor(clampedValue);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -46,18 +51,18 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
           Expanded(
             child: Slider(
               min: 0,
-              max: 255,
-              divisions: 255,
-              value: value.toDouble(),
-              label: value.toString(),
-              onChanged: (newValue) => onChanged(newValue.round()),
+              max: max,
+              divisions: divisions,
+              value: clampedValue,
+              label: label,
+              onChanged: onChanged,
             ),
           ),
           const SizedBox(width: 12),
           SizedBox(
-            width: 36,
+            width: 48,
             child: Text(
-              value.toString(),
+              label,
               textAlign: TextAlign.end,
               style: Theme.of(context).textTheme.labelLarge,
             ),
@@ -115,6 +120,12 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
             padding: padding,
             child: Obx(() {
               final currentColor = resolveThemeColor(ctr.currentColor.value);
+              final currentHsbColor = HSVColor.fromColor(currentColor);
+              final hue = currentHsbColor.hue;
+              final saturation = currentHsbColor.saturation * 100;
+              final brightness = currentHsbColor.value * 100;
+              final hsbText =
+                  '${hue.round()}° / ${saturation.round()}% / ${brightness.round()}%';
               return Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -144,7 +155,7 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '当前颜色：${formatThemeColorHex(currentColor)}',
+                                '当前颜色：HSB $hsbText',
                                 style: subTitleStyle,
                               ),
                             ],
@@ -157,28 +168,37 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _channelSlider(
+                    _hsbSlider(
                       context: context,
-                      title: 'R',
-                      value: currentColor.red,
+                      title: 'H',
+                      value: hue,
+                      max: 359,
+                      divisions: 359,
+                      labelFor: (value) => '${value.round()}°',
                       onChanged: (value) => _updateThemeColor(
-                        currentColor.withRed(value),
+                        currentHsbColor.withHue(value).toColor(),
                       ),
                     ),
-                    _channelSlider(
+                    _hsbSlider(
                       context: context,
-                      title: 'G',
-                      value: currentColor.green,
+                      title: 'S',
+                      value: saturation,
+                      max: 100,
+                      divisions: 100,
+                      labelFor: (value) => '${value.round()}%',
                       onChanged: (value) => _updateThemeColor(
-                        currentColor.withGreen(value),
+                        currentHsbColor.withSaturation(value / 100).toColor(),
                       ),
                     ),
-                    _channelSlider(
+                    _hsbSlider(
                       context: context,
                       title: 'B',
-                      value: currentColor.blue,
+                      value: brightness,
+                      max: 100,
+                      divisions: 100,
+                      labelFor: (value) => '${value.round()}%',
                       onChanged: (value) => _updateThemeColor(
-                        currentColor.withBlue(value),
+                        currentHsbColor.withValue(value / 100).toColor(),
                       ),
                     ),
                   ],
@@ -190,7 +210,7 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: Text(
-                '已移除动态取色与调色板风格，主题色基于琥珀色并支持滑条微调。',
+                '已移除动态取色与调色板风格，主题色基于琥珀色并支持 HSB 滑条微调。',
                 style: subTitleStyle,
               ),
             ),
