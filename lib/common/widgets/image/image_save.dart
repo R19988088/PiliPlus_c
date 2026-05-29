@@ -17,6 +17,7 @@ void imageSaveDialog({
   String? bvid,
 }) {
   final double imgWidth = MediaQuery.sizeOf(Get.context!).shortestSide - 16;
+  final isPlaying = ValueNotifier<bool>(false);
   SmartDialog.show(
     animationType: SmartAnimationType.centerScale_otherSlide,
     clickMaskDismiss: true,
@@ -28,6 +29,7 @@ void imageSaveDialog({
         child: const SizedBox.expand(),
       ),
     ),
+    onDismiss: isPlaying.dispose,
     builder: (context) {
       const iconSize = 20.0;
       final theme = Theme.of(context);
@@ -37,6 +39,13 @@ void imageSaveDialog({
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: Style.mdRadius,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.18),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -45,13 +54,36 @@ void imageSaveDialog({
               clipBehavior: Clip.none,
               children: [
                 GestureDetector(
-                  onTap: SmartDialog.dismiss,
-                  child: NetworkImgLayer(
-                    src: cover,
-                    quality: 100,
-                    width: imgWidth,
-                    height: imgWidth / Style.aspectRatio16x9,
-                    borderRadius: const .vertical(top: Style.imgRadius),
+                  onTap: () => isPlaying.value = !isPlaying.value,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      NetworkImgLayer(
+                        src: cover,
+                        quality: 100,
+                        width: imgWidth,
+                        height: imgWidth / Style.aspectRatio16x9,
+                        borderRadius: const .vertical(top: Style.imgRadius),
+                      ),
+                      ValueListenableBuilder<bool>(
+                        valueListenable: isPlaying,
+                        builder: (context, playing, _) => Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.38),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            playing
+                                ? Icons.pause_rounded
+                                : Icons.play_arrow_rounded,
+                            color: Colors.white,
+                            size: 34,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Positioned(

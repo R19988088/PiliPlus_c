@@ -15,5 +15,11 @@ void main() {
     expect(imageSaveDialog, contains('ImageFilter.blur'));
     expect(imageSaveDialog, contains('sigmaX: 2.0'));
     expect(imageSaveDialog, contains('sigmaY: 2.0'));
+    expect(imageSaveDialog, contains('boxShadow:'));
+    expect(imageSaveDialog, contains('ValueNotifier<bool>'));
+    expect(imageSaveDialog, contains('onDismiss: isPlaying.dispose'));
+    expect(imageSaveDialog, contains('Icons.pause_rounded'));
+    expect(imageSaveDialog, contains('Icons.play_arrow_rounded'));
+    expect(imageSaveDialog, isNot(contains('onTap: SmartDialog.dismiss')));
   });
 }
