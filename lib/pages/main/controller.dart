@@ -30,6 +30,8 @@ class MainController extends GetxController
 
   List<NavigationBarType> navigationBars = <NavigationBarType>[];
 
+  RxDouble? barOffset;
+  RxBool? showBottomBar;
   late final barHideType = Pref.barHideType;
   bool useBottomNav = false;
   late dynamic controller;
@@ -320,6 +322,7 @@ class MainController extends GetxController
 
   @override
   void onClose() {
+    barOffset?.close();
     controller.dispose();
     super.onClose();
   }

@@ -36,4 +36,11 @@ void main() {
 
     expect(bottomBarHideSettings, isEmpty);
   });
+
+  test('主页面不再包装底栏滑动隐藏动画', () {
+    final mainView = File('lib/pages/main/view.dart').readAsStringSync();
+
+    expect(mainView, isNot(contains('AnimatedSlide')));
+    expect(mainView, isNot(contains('FractionalTranslation')));
+  });
 }
