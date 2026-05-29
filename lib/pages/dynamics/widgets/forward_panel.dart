@@ -59,16 +59,19 @@ Widget forwardPanel(
 
   void showMore() {
     String? title, cover, bvid;
+    int? aid;
     switch (orig.type) {
       case 'DYNAMIC_TYPE_AV':
         title = major?.archive?.title;
         cover = major?.archive?.cover;
         bvid = major?.archive?.bvid;
+        aid = major?.archive?.aid;
         break;
       case 'DYNAMIC_TYPE_UGC_SEASON':
         title = major?.ugcSeason?.title;
         cover = major?.ugcSeason?.cover;
         bvid = major?.ugcSeason?.bvid;
+        aid = major?.ugcSeason?.aid;
         break;
       case 'DYNAMIC_TYPE_PGC' || 'DYNAMIC_TYPE_PGC_UNION':
         title = major?.pgc?.title;
@@ -89,6 +92,7 @@ Widget forwardPanel(
       imageSaveDialog(
         title: title,
         cover: cover,
+        aid: aid,
         bvid: bvid,
       );
     }

@@ -85,7 +85,9 @@ class VideoCardV extends StatelessWidget {
     void onLongPress() => imageSaveDialog(
       title: videoItem.title,
       cover: videoItem.cover,
+      aid: videoItem.goto == 'av' ? videoItem.aid : null,
       bvid: videoItem.bvid,
+      cid: videoItem.goto == 'av' ? videoItem.cid : null,
     );
     return Stack(
       clipBehavior: Clip.none,

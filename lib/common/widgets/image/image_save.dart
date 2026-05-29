@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
-import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
+import 'package:PiliPlus/common/widgets/video_preview/cover_preview_player.dart';
 import 'package:PiliPlus/http/user.dart';
 import 'package:PiliPlus/utils/image_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
@@ -15,9 +15,9 @@ void imageSaveDialog({
   required String? cover,
   dynamic aid,
   String? bvid,
+  int? cid,
 }) {
   final double imgWidth = MediaQuery.sizeOf(Get.context!).shortestSide - 16;
-  final isPlaying = ValueNotifier<bool>(false);
   SmartDialog.show(
     animationType: SmartAnimationType.centerScale_otherSlide,
     clickMaskDismiss: true,
@@ -29,7 +29,6 @@ void imageSaveDialog({
         child: const SizedBox.expand(),
       ),
     ),
-    onDismiss: isPlaying.dispose,
     builder: (context) {
       const iconSize = 20.0;
       final theme = Theme.of(context);
@@ -53,37 +52,15 @@ void imageSaveDialog({
             Stack(
               clipBehavior: Clip.none,
               children: [
-                GestureDetector(
-                  onTap: () => isPlaying.value = !isPlaying.value,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      NetworkImgLayer(
-                        src: cover,
-                        quality: 100,
-                        width: imgWidth,
-                        height: imgWidth / Style.aspectRatio16x9,
-                        borderRadius: const .vertical(top: Style.imgRadius),
-                      ),
-                      ValueListenableBuilder<bool>(
-                        valueListenable: isPlaying,
-                        builder: (context, playing, _) => Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.38),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            playing
-                                ? Icons.pause_rounded
-                                : Icons.play_arrow_rounded,
-                            color: Colors.white,
-                            size: 34,
-                          ),
-                        ),
-                      ),
-                    ],
+                ClipRRect(
+                  borderRadius: const .vertical(top: Style.imgRadius),
+                  child: CoverPreviewPlayer(
+                    cover: cover,
+                    width: imgWidth,
+                    height: imgWidth / Style.aspectRatio16x9,
+                    aid: aid,
+                    bvid: bvid,
+                    cid: cid,
                   ),
                 ),
                 Positioned(

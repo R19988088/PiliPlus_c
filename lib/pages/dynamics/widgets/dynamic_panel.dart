@@ -147,6 +147,7 @@ class DynamicPanel extends StatelessWidget {
     String? title;
     String? cover;
     String? bvid;
+    int? aid;
     late final major = item.modules.moduleDynamic?.major;
     switch (item.type) {
       case 'DYNAMIC_TYPE_AV':
@@ -154,6 +155,7 @@ class DynamicPanel extends StatelessWidget {
           title = archive.title;
           cover = archive.cover;
           bvid = archive.bvid;
+          aid = archive.aid;
         }
         break;
       case 'DYNAMIC_TYPE_UGC_SEASON':
@@ -161,6 +163,7 @@ class DynamicPanel extends StatelessWidget {
           title = ugcSeason.title;
           cover = ugcSeason.cover;
           bvid = ugcSeason.bvid;
+          aid = ugcSeason.aid;
         }
         break;
       case 'DYNAMIC_TYPE_PGC' || 'DYNAMIC_TYPE_PGC_UNION':
@@ -201,6 +204,7 @@ class DynamicPanel extends StatelessWidget {
     imageSaveDialog(
       title: title,
       cover: cover,
+      aid: aid,
       bvid: bvid,
     );
   }

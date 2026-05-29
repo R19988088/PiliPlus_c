@@ -31,7 +31,13 @@ class VideoCardH extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     void onLongPress() => imageSaveDialog(
+      aid: (videoItem.isPugv ?? false) || (videoItem.isLive ?? false)
+          ? null
+          : videoItem.aid,
       bvid: videoItem.bvid,
+      cid: (videoItem.isPugv ?? false) || (videoItem.isLive ?? false)
+          ? null
+          : videoItem.cid,
       title: videoItem.title,
       cover: videoItem.cover,
     );
