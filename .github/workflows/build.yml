@@ -151,8 +151,11 @@ jobs:
                     echo "::error title=Missing APK::app-arm64-v8a-release.apk was not produced."
                     exit 1
                   fi
-                  "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/aapt" dump badging "$apk" | grep "package: name='com.example.piliplus'"
-                  "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner" verify --print-certs "$apk" | grep -E 'Signer #1 certificate SHA-256 digest:|Signer #1 certificate SHA-1 digest:'
+                  build_tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)"
+                  "$build_tools/aapt" dump badging "$apk" | tee apk-badging.log
+                  grep "package: name='com.example.piliplus'" apk-badging.log
+                  "$build_tools/apksigner" verify --print-certs "$apk" | tee apk-signature.log
+                  grep -E 'Signer #1 certificate SHA-256 digest:|Signer #1 certificate SHA-1 digest:|Signer #1 certificate SHA-256 digest|Signer #1 certificate SHA-1 digest' apk-signature.log
 
             - name: Show Android build failure details
               if: ${{ failure() }}
