@@ -29,5 +29,9 @@ void main() {
     expect(main, contains('LiquidGlassWidgets.wrap'));
     expect(main, contains('GlassThemeData.simple'));
     expect(main, contains('GlassBackdropScope'));
+    expect(main, contains('respectSystemAccessibility: false'));
+    expect(main, contains('quality: GlassQuality.premium'));
+    expect(main, isNot(contains('adaptiveQuality: true')));
+    expect(main, isNot(contains('quality: GlassQuality.standard')));
   });
 }

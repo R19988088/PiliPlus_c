@@ -213,11 +213,11 @@ void main() async {
 
 Widget _buildAppRoot() {
   return LiquidGlassWidgets.wrap(
-    adaptiveQuality: true,
+    respectSystemAccessibility: false,
     theme: GlassThemeData.simple(
       blur: 18,
       thickness: 28,
-      quality: GlassQuality.standard,
+      quality: GlassQuality.premium,
     ),
     child: const MyApp(),
   );

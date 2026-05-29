@@ -87,80 +87,66 @@ class FloatingNavigationBar extends StatelessWidget {
         .toList(growable: false);
     final canUseGlassBottomBar = glassBottomBarTabs.length == destinations.length;
 
-    return UnconstrainedBox(
-      child: Padding(
-        padding: .fromLTRB(
-          padding.left,
-          0,
-          padding.right,
-          bottomPadding + padding.bottom,
+    if (!canUseGlassBottomBar) return const SizedBox.shrink();
+
+    return GlassBottomBar(
+      tabs: glassBottomBarTabs,
+      selectedIndex: selectedIndex,
+      onTabSelected: onDestinationSelected ?? (_) {},
+      horizontalPadding: padding.left + padding.right + 20,
+      verticalPadding: bottomPadding + padding.bottom,
+      spacing: 0,
+      barHeight: _kNavigationHeight,
+      barBorderRadius: _kNavigationHeight / 2,
+      tabPadding: _kIndicatorPadding,
+      iconLabelSpacing: 0,
+      glassSettings: LiquidGlassSettings(
+        glassColor: effectiveBackgroundColor.withValues(
+          alpha: theme.brightness == Brightness.dark ? 0.22 : 0.18,
         ),
-        child: canUseGlassBottomBar
-            ? GlassBottomBar(
-                tabs: glassBottomBarTabs,
-                selectedIndex: selectedIndex,
-                onTabSelected: onDestinationSelected ?? (_) {},
-                horizontalPadding: 0,
-                verticalPadding: 0,
-                spacing: 0,
-                barHeight: _kNavigationHeight,
-                barBorderRadius: _kNavigationHeight / 2,
-                tabPadding: _kIndicatorPadding,
-                iconLabelSpacing: 0,
-                glassSettings: LiquidGlassSettings(
-                  glassColor: effectiveBackgroundColor.withValues(
-                    alpha: theme.brightness == Brightness.dark ? 0.22 : 0.18,
-                  ),
-                  blur: 3,
-                  thickness: 30,
-                  chromaticAberration: 0.30,
-                  refractiveIndex: 1.59,
-                  saturation: 0.70,
-                  lightIntensity: 0.60,
-                  ambientStrength: 1,
-                ),
-                indicatorSettings: LiquidGlassSettings(
-                  glassColor:
-                      (indicatorColor ??
-                              navigationBarTheme.indicatorColor ??
-                              defaults.indicatorColor!)
-                          .withValues(
-                            alpha: theme.brightness == Brightness.dark
-                                ? 0.18
-                                : 0.24,
-                          ),
-                  blur: 0,
-                  thickness: 20,
-                  chromaticAberration: 0.50,
-                  refractiveIndex: 1.15,
-                  saturation: 1.50,
-                  lightIntensity: 2,
-                ),
-                indicatorColor:
-                    (indicatorColor ??
-                            navigationBarTheme.indicatorColor ??
-                            defaults.indicatorColor!)
-                        .withValues(
-                          alpha: theme.brightness == Brightness.dark
-                              ? 0.28
-                              : 0.36,
-                        ),
-                selectedIconColor: colorScheme.primary,
-                unselectedIconColor: colorScheme.onSurfaceVariant,
-                iconSize: 24,
-                quality: GlassQuality.premium,
-                magnification: 1.12,
-                innerBlur: 1.5,
-                maskingQuality: MaskingQuality.high,
-                tabWidth: _kIndicatorWidth,
-                indicatorExpansion: 14,
-                interactionGlowColor: colorScheme.primary,
-                interactionGlowRadius: 1.7,
-                interactionBehavior: GlassInteractionBehavior.full,
-                pressScale: 1.04,
-              )
-            : const SizedBox.shrink(),
+        blur: 3,
+        thickness: 30,
+        chromaticAberration: 0.30,
+        refractiveIndex: 1.59,
+        saturation: 0.70,
+        lightIntensity: 0.60,
+        ambientStrength: 1,
       ),
+      indicatorSettings: LiquidGlassSettings(
+        glassColor:
+            (indicatorColor ??
+                    navigationBarTheme.indicatorColor ??
+                    defaults.indicatorColor!)
+                .withValues(
+                  alpha: theme.brightness == Brightness.dark ? 0.18 : 0.24,
+                ),
+        blur: 0,
+        thickness: 20,
+        chromaticAberration: 0.50,
+        refractiveIndex: 1.15,
+        saturation: 1.50,
+        lightIntensity: 2,
+      ),
+      indicatorColor:
+          (indicatorColor ??
+                  navigationBarTheme.indicatorColor ??
+                  defaults.indicatorColor!)
+              .withValues(
+                alpha: theme.brightness == Brightness.dark ? 0.28 : 0.36,
+              ),
+      selectedIconColor: colorScheme.primary,
+      unselectedIconColor: colorScheme.onSurfaceVariant,
+      iconSize: 24,
+      quality: GlassQuality.premium,
+      magnification: 1.12,
+      innerBlur: 1.5,
+      maskingQuality: MaskingQuality.high,
+      tabWidth: _kIndicatorWidth,
+      indicatorExpansion: 14,
+      interactionGlowColor: colorScheme.primary,
+      interactionGlowRadius: 1.7,
+      interactionBehavior: GlassInteractionBehavior.full,
+      pressScale: 1.04,
     );
   }
 }
