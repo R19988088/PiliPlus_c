@@ -33,13 +33,21 @@ android {
 
     val keyProperties = Properties().also {
         val properties = rootProject.file("key.properties")
-        if (properties.exists())
+        if (properties.exists()) {
             it.load(properties.inputStream())
+        } else {
+            it.setProperty("storeFile", "piliplus-fixed-release.p12")
+            it.setProperty("storePassword", "piliplus-fixed-release")
+            it.setProperty("keyAlias", "piliplus-fixed-release")
+            it.setProperty("keyPassword", "piliplus-fixed-release")
+            it.setProperty("storeType", "pkcs12")
+        }
     }
 
     val config = keyProperties.getProperty("storeFile")?.let {
         signingConfigs.create("release") {
             storeFile = file(it)
+            storeType = keyProperties.getProperty("storeType")
             storePassword = keyProperties.getProperty("storePassword")
             keyAlias = keyProperties.getProperty("keyAlias")
             keyPassword = keyProperties.getProperty("keyPassword")

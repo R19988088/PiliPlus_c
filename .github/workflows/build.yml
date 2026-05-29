@@ -89,14 +89,6 @@ jobs:
             - name: Write key
               if: github.event_name != 'pull_request'
               run: |
-                  if [ -z "${{ secrets.SIGN_KEYSTORE_BASE64 }}" ]; then
-                    echo "::error title=Missing Android release signing key::SIGN_KEYSTORE_BASE64 is not set. Refusing to publish a debug-signed release APK because it cannot upgrade an existing release install."
-                    exit 1
-                  fi
-                  if [ -z "${{ secrets.KEYSTORE_PASSWORD }}" ] || [ -z "${{ secrets.KEY_ALIAS }}" ] || [ -z "${{ secrets.KEY_PASSWORD }}" ]; then
-                    echo "::error title=Missing Android release signing credentials::KEYSTORE_PASSWORD, KEY_ALIAS, and KEY_PASSWORD must all be set."
-                    exit 1
-                  fi
                   if [ ! -z "${{ secrets.SIGN_KEYSTORE_BASE64 }}" ]; then
                     echo "${{ secrets.SIGN_KEYSTORE_BASE64 }}" | base64 --decode > android/app/key.jks
                     echo storeFile='key.jks' >> android/key.properties
@@ -107,6 +99,17 @@ jobs:
                       -keystore android/app/key.jks \
                       -storepass '${{ secrets.KEYSTORE_PASSWORD }}' \
                       -alias '${{ secrets.KEY_ALIAS }}' \
+                      | grep -E 'Alias name:|SHA256:|SHA1:'
+                  else
+                    echo storeFile='piliplus-fixed-release.p12' >> android/key.properties
+                    echo storeType='pkcs12' >> android/key.properties
+                    echo storePassword='piliplus-fixed-release' >> android/key.properties
+                    echo keyAlias='piliplus-fixed-release' >> android/key.properties
+                    echo keyPassword='piliplus-fixed-release' >> android/key.properties
+                    keytool -list -v \
+                      -keystore android/app/piliplus-fixed-release.p12 \
+                      -storepass 'piliplus-fixed-release' \
+                      -alias 'piliplus-fixed-release' \
                       | grep -E 'Alias name:|SHA256:|SHA1:'
                   fi
 
