@@ -194,7 +194,7 @@ List<SettingsModel> get playSettings => [
       subtitle: '进入后台时继续播放',
       leading: Icon(Icons.motion_photos_pause_outlined),
       setKey: SettingBoxKey.continuePlayInBackground,
-      defaultVal: false,
+      defaultVal: true,
     ),
   if (Platform.isAndroid) ...[
     SwitchModel(

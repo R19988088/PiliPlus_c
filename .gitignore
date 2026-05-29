@@ -149,6 +149,7 @@ dist
 test*
 !test/
 test/*
+!test/background_play_default_test.dart
 !test/floating_nav_bar_default_test.dart
 !test/floating_navigation_bar_test.dart
 !test/image_save_dialog_test.dart
