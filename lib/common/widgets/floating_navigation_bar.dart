@@ -70,9 +70,14 @@ class FloatingNavigationBar extends StatelessWidget {
     final isLight = colorScheme.brightness.isLight;
     final padding = MediaQuery.viewPaddingOf(context);
     final navTint = isLight
-        ? colorScheme.primary.darken(0.74)
-        : Color.lerp(colorScheme.primary, Colors.white, 0.86)!;
-    final iconColor = isLight ? Colors.white : colorScheme.primary.darken(0.72);
+        ? Color.lerp(colorScheme.primary, Colors.white, 0.78)!
+        : Color.lerp(colorScheme.primary, Colors.black, 0.68)!;
+    final iconColor = isLight
+        ? colorScheme.primary.darken(0.68)
+        : Color.lerp(colorScheme.primary, Colors.white, 0.84)!;
+    final shadowColor = isLight
+        ? colorScheme.primary.darken(0.80).withValues(alpha: 0.20)
+        : Colors.black.withValues(alpha: 0.44);
 
     final glassBottomBarTabs = destinations
         .whereType<FloatingNavigationDestination>()
@@ -94,12 +99,10 @@ class FloatingNavigationBar extends StatelessWidget {
           borderRadius: _kBorderRadius,
           boxShadow: [
             BoxShadow(
-              color: (isLight ? Colors.black : Colors.white).withValues(
-                alpha: isLight ? 0.28 : 0.16,
-              ),
-              blurRadius: 28,
+              color: shadowColor,
+              blurRadius: 30,
               spreadRadius: -4,
-              offset: const Offset(0, 10),
+              offset: const Offset(0, 12),
             ),
           ],
         ),
@@ -110,10 +113,10 @@ class FloatingNavigationBar extends StatelessWidget {
           horizontalPadding: 0,
           verticalPadding: 0,
           selectedIconColor: iconColor,
-          unselectedIconColor: iconColor.withValues(alpha: 0.76),
+          unselectedIconColor: iconColor.withValues(alpha: 0.68),
           interactionGlowColor: colorScheme.primary,
           glassSettings: LiquidGlassSettings(
-            glassColor: navTint.withValues(alpha: 0.60),
+            glassColor: navTint.withValues(alpha: isLight ? 0.58 : 0.62),
           ),
         ),
       ),

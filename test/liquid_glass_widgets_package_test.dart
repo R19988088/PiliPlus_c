@@ -24,7 +24,9 @@ void main() {
     expect(navigationBar, contains('label: null'));
     expect(navigationBar, contains("const _kGlassNavBarVersion = '液态玻璃0.5'"));
     expect(navigationBar, contains('glassSettings: LiquidGlassSettings'));
-    expect(navigationBar, contains('glassColor: navTint.withValues(alpha: 0.60)'));
+    expect(navigationBar, contains('Color.lerp(colorScheme.primary, Colors.white, 0.78)'));
+    expect(navigationBar, contains('Color.lerp(colorScheme.primary, Colors.black, 0.68)'));
+    expect(navigationBar, contains('glassColor: navTint.withValues(alpha: isLight ? 0.58 : 0.62)'));
     expect(navigationBar, contains('boxShadow:'));
     expect(navigationBar, contains('interactionGlowColor: colorScheme.primary'));
     expect(navigationBar, isNot(contains('indicatorSettings:')));
