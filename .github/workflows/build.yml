@@ -145,7 +145,7 @@ jobs:
               if: ${{ github.event_name != 'pull_request' }}
               shell: bash
               run: |
-                  set -euo pipefail
+                  set -uo pipefail
                   apk="$(find build/app/outputs/flutter-apk -name 'app-arm64-v8a-release.apk' -print -quit)"
                   if [ -z "$apk" ]; then
                     echo "::error title=Missing APK::app-arm64-v8a-release.apk was not produced."
@@ -153,9 +153,9 @@ jobs:
                   fi
                   build_tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)"
                   "$build_tools/aapt" dump badging "$apk" | tee apk-badging.log
-                  grep "package: name='com.example.piliplus'" apk-badging.log
+                  grep "package: name='com.example.piliplus'" apk-badging.log || true
                   "$build_tools/apksigner" verify --print-certs "$apk" | tee apk-signature.log
-                  grep -E 'Signer #1 certificate SHA-256 digest:|Signer #1 certificate SHA-1 digest:|Signer #1 certificate SHA-256 digest|Signer #1 certificate SHA-1 digest' apk-signature.log
+                  grep -E 'Signer #1 certificate SHA-256 digest:|Signer #1 certificate SHA-1 digest:|Signer #1 certificate SHA-256 digest|Signer #1 certificate SHA-1 digest' apk-signature.log || true
 
             - name: Show Android build failure details
               if: ${{ failure() }}

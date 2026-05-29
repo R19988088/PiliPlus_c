@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -17,6 +19,15 @@ void imageSaveDialog({
   final double imgWidth = MediaQuery.sizeOf(Get.context!).shortestSide - 16;
   SmartDialog.show(
     animationType: SmartAnimationType.centerScale_otherSlide,
+    clickMaskDismiss: true,
+    usePenetrate: false,
+    maskWidget: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
+      child: ColoredBox(
+        color: Colors.black.withValues(alpha: 0.18),
+        child: const SizedBox.expand(),
+      ),
+    ),
     builder: (context) {
       const iconSize = 20.0;
       final theme = Theme.of(context);
