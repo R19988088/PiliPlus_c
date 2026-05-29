@@ -147,6 +147,7 @@ class DynamicPanel extends StatelessWidget {
     String? title;
     String? cover;
     String? bvid;
+    String? face = item.modules.moduleAuthor?.face;
     int? aid;
     late final major = item.modules.moduleDynamic?.major;
     switch (item.type) {
@@ -204,6 +205,7 @@ class DynamicPanel extends StatelessWidget {
     imageSaveDialog(
       title: title,
       cover: cover,
+      face: face,
       aid: aid,
       bvid: bvid,
     );

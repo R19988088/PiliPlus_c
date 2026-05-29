@@ -7,6 +7,7 @@ import 'package:PiliPlus/common/widgets/video_popup_menu.dart';
 import 'package:PiliPlus/http/search.dart';
 import 'package:PiliPlus/models/common/stat_type.dart';
 import 'package:PiliPlus/models/home/rcmd/result.dart';
+import 'package:PiliPlus/models/model_owner.dart';
 import 'package:PiliPlus/models/model_rec_video_item.dart';
 import 'package:PiliPlus/models_new/video/video_detail/dimension.dart';
 import 'package:PiliPlus/utils/app_scheme.dart';
@@ -85,6 +86,9 @@ class VideoCardV extends StatelessWidget {
     void onLongPress() => imageSaveDialog(
       title: videoItem.title,
       cover: videoItem.cover,
+      face: videoItem.owner is Owner
+          ? (videoItem.owner as Owner).face
+          : null,
       aid: videoItem.goto == 'av' ? videoItem.aid : null,
       bvid: videoItem.bvid,
       cid: videoItem.goto == 'av' ? videoItem.cid : null,

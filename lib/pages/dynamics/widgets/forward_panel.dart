@@ -59,6 +59,7 @@ Widget forwardPanel(
 
   void showMore() {
     String? title, cover, bvid;
+    String? face = orig.modules.moduleAuthor?.face;
     int? aid;
     switch (orig.type) {
       case 'DYNAMIC_TYPE_AV':
@@ -92,6 +93,7 @@ Widget forwardPanel(
       imageSaveDialog(
         title: title,
         cover: cover,
+        face: face,
         aid: aid,
         bvid: bvid,
       );
