@@ -197,7 +197,7 @@ List<SettingsModel> get styleSettings => [
   ),
   NormalModel(
     onTap: _showBarHideTypeDialog,
-    title: '顶/底栏收起类型',
+    title: '顶栏收起类型',
     leading: const Icon(MdiIcons.arrowExpandVertical),
     getSubtitle: () => '当前：${Pref.barHideType.label}',
   ),
@@ -206,14 +206,6 @@ List<SettingsModel> get styleSettings => [
     subtitle: '首页列表滑动时，收起顶栏',
     leading: const Icon(Icons.vertical_align_top_outlined),
     setKey: SettingBoxKey.hideTopBar,
-    defaultVal: PlatformUtils.isMobile,
-    needReboot: true,
-  ),
-  SwitchModel(
-    title: '首页底栏收起',
-    subtitle: '首页列表滑动时，收起底栏',
-    leading: const Icon(Icons.vertical_align_bottom_outlined),
-    setKey: SettingBoxKey.hideBottomBar,
     defaultVal: PlatformUtils.isMobile,
     needReboot: true,
   ),
@@ -917,7 +909,7 @@ Future<void> _showBarHideTypeDialog(
   final res = await showDialog<BarHideType>(
     context: context,
     builder: (context) => SelectDialog<BarHideType>(
-      title: '顶/底栏收起类型',
+      title: '顶栏收起类型',
       value: Pref.barHideType,
       values: BarHideType.values.map((e) => (e, e.label)).toList(),
     ),

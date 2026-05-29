@@ -16,6 +16,14 @@ void main() {
     expect(surface, contains('LiquidRoundedSuperellipse'));
     expect(surface, isNot(contains('FragmentProgram.fromAsset')));
 
+    final navigationBar = File(
+      'lib/common/widgets/floating_navigation_bar.dart',
+    ).readAsStringSync();
+    expect(navigationBar, contains('GlassBottomBar'));
+    expect(navigationBar, contains('GlassBottomBarTab'));
+    expect(navigationBar, contains('quality: GlassQuality.premium'));
+    expect(navigationBar, contains('label: null'));
+
     final main = File('lib/main.dart').readAsStringSync();
     expect(main, contains('LiquidGlassWidgets.initialize()'));
     expect(main, contains('LiquidGlassWidgets.wrap'));

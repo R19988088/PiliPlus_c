@@ -263,8 +263,6 @@ class _MainAppState extends PopScopeState<MainApp>
       if (_mainController.selectedIndex.value != 0) {
         _mainController
           ..setIndex(0)
-          ..barOffset?.value = 0.0
-          ..showBottomBar?.value = true
           ..setSearchBar();
       } else {
         _onBack();
@@ -330,29 +328,6 @@ class _MainAppState extends PopScopeState<MainApp>
         );
       }
 
-      if (_mainController.hideBottomBar) {
-        if (_mainController.barOffset case final barOffset?) {
-          return Obx(
-            () => FractionalTranslation(
-              translation: Offset(
-                0.0,
-                barOffset.value / Style.topBarHeight,
-              ),
-              child: bottomNav,
-            ),
-          );
-        }
-        if (_mainController.showBottomBar case final showBottomBar?) {
-          return Obx(
-            () => AnimatedSlide(
-              curve: Curves.easeInOutCubicEmphasized,
-              duration: const Duration(milliseconds: 500),
-              offset: Offset(0, showBottomBar.value ? 0 : 1),
-              child: bottomNav,
-            ),
-          );
-        }
-      }
     }
 
     return bottomNav;

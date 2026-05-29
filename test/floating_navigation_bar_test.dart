@@ -35,6 +35,8 @@ void main() {
       ),
     );
 
-    expect(find.byType(GlassContainer), findsOneWidget);
+    expect(find.byType(GlassBottomBar), findsOneWidget);
+    expect(find.text('首页'), findsNothing);
+    expect(find.text('动态'), findsNothing);
   });
 }

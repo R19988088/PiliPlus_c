@@ -28,4 +28,12 @@ void main() {
 
     expect(setting.defaultVal, isTrue);
   });
+
+  test('外观设置不再允许隐藏首页底栏', () {
+    final bottomBarHideSettings = styleSettings.whereType<SwitchModel>().where(
+      (item) => item.setKey == SettingBoxKey.hideBottomBar,
+    );
+
+    expect(bottomBarHideSettings, isEmpty);
+  });
 }

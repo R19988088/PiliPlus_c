@@ -30,9 +30,6 @@ class MainController extends GetxController
 
   List<NavigationBarType> navigationBars = <NavigationBarType>[];
 
-  RxDouble? barOffset;
-  RxBool? showBottomBar;
-  late final bool hideBottomBar;
   late final barHideType = Pref.barHideType;
   bool useBottomNav = false;
   late dynamic controller;
@@ -85,17 +82,6 @@ class MainController extends GetxController
             length: navigationBars.length,
           )
         : PageController(initialPage: selectedIndex.value);
-
-    hideBottomBar =
-        !useSideBar && navigationBars.length > 1 && Pref.hideBottomBar;
-    if (hideBottomBar) {
-      switch (barHideType) {
-        case .instant:
-          showBottomBar = RxBool(true);
-        case .sync:
-          barOffset ??= RxDouble(0.0);
-      }
-    }
 
     dynamicBadgeMode = Pref.dynamicBadgeMode;
 
@@ -334,7 +320,6 @@ class MainController extends GetxController
 
   @override
   void onClose() {
-    barOffset?.close();
     controller.dispose();
     super.onClose();
   }
