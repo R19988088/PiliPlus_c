@@ -33,6 +33,10 @@ void main() {
     expect(imageSaveDialog, contains('ImageStreamListener'));
     expect(imageSaveDialog, contains('_calcCoverHeight'));
     expect(imageSaveDialog, contains('_fallbackAspectRatio'));
+    expect(imageSaveDialog, contains('Dimension? dimension'));
+    expect(imageSaveDialog, contains('_videoDimension'));
+    expect(imageSaveDialog, contains('_resolveVideoDimension'));
+    expect(imageSaveDialog, contains('dimension: dimension'));
     expect(imageSaveDialog, contains('aid: aid'));
     expect(imageSaveDialog, contains('bvid: bvid'));
     expect(imageSaveDialog, contains('cid: cid'));
@@ -55,6 +59,7 @@ void main() {
 
     expect(videoCardV, contains('face:'));
     expect(videoCardH, contains('face:'));
+    expect(videoCardH, contains('dimension: videoItem.dimension'));
     expect(dynamicPanel, contains('moduleAuthor?.face'));
     expect(forwardPanel, contains('moduleAuthor?.face'));
   });

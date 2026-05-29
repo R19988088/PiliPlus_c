@@ -44,6 +44,7 @@ class VideoCardH extends StatelessWidget {
       face: videoItem.owner is Owner
           ? (videoItem.owner as Owner).face
           : null,
+      dimension: videoItem.dimension,
     );
     final theme = Theme.of(context);
     return Material(

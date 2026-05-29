@@ -25,6 +25,7 @@ void imageSaveDialog({
   dynamic aid,
   String? bvid,
   int? cid,
+  Dimension? dimension,
 }) {
   final double imgWidth = MediaQuery.sizeOf(Get.context!).shortestSide - 16;
   SmartDialog.show(
@@ -70,6 +71,7 @@ void imageSaveDialog({
                     aid: aid,
                     bvid: bvid,
                     cid: cid,
+                    dimension: dimension,
                   ),
                 ),
                 Positioned(
@@ -138,6 +140,7 @@ void imageSaveDialog({
                                 cid: cid,
                                 cover: cover,
                                 title: title,
+                                dimension: dimension,
                               )
                             : null,
                       ),
@@ -152,6 +155,7 @@ void imageSaveDialog({
                                 cid: cid,
                                 cover: cover,
                                 title: title,
+                                dimension: dimension,
                               )
                             : null,
                       ),
@@ -166,6 +170,7 @@ void imageSaveDialog({
                                 cid: cid,
                                 cover: cover,
                                 title: title,
+                                dimension: dimension,
                               )
                             : null,
                       ),
@@ -180,6 +185,7 @@ void imageSaveDialog({
                                 cid: cid,
                                 cover: cover,
                                 title: title,
+                                dimension: dimension,
                               )
                             : null,
                       ),
@@ -249,6 +255,7 @@ class _CoverPreviewSurface extends StatefulWidget {
     required this.aid,
     required this.bvid,
     required this.cid,
+    required this.dimension,
   });
 
   final String? cover;
@@ -256,6 +263,7 @@ class _CoverPreviewSurface extends StatefulWidget {
   final dynamic aid;
   final String? bvid;
   final int? cid;
+  final Dimension? dimension;
 
   @override
   State<_CoverPreviewSurface> createState() => _CoverPreviewSurfaceState();
@@ -264,18 +272,27 @@ class _CoverPreviewSurface extends StatefulWidget {
 class _CoverPreviewSurfaceState extends State<_CoverPreviewSurface> {
   static const double _fallbackAspectRatio = Style.aspectRatio16x9;
   Size? _imageSize;
+  Dimension? _videoDimension;
   ImageStream? _imageStream;
   ImageStreamListener? _imageListener;
 
   @override
   void initState() {
     super.initState();
+    _videoDimension = widget.dimension;
+    _resolveVideoDimension();
     _resolveCoverSize();
   }
 
   @override
   void didUpdateWidget(_CoverPreviewSurface oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.dimension != widget.dimension ||
+        oldWidget.aid != widget.aid ||
+        oldWidget.bvid != widget.bvid) {
+      _videoDimension = widget.dimension;
+      _resolveVideoDimension();
+    }
     if (oldWidget.cover != widget.cover) {
       _imageSize = null;
       _resolveCoverSize();
@@ -327,6 +344,23 @@ class _CoverPreviewSurfaceState extends State<_CoverPreviewSurface> {
     stream.addListener(listener);
   }
 
+  Future<void> _resolveVideoDimension() async {
+    if (_videoDimension?.width != null && _videoDimension?.height != null) {
+      return;
+    }
+    if (widget.aid == null && widget.bvid?.isNotEmpty != true) {
+      return;
+    }
+    final result = await SearchHttp.ab2cWithDimension(
+      aid: widget.aid,
+      bvid: widget.bvid,
+    );
+    if (!mounted || result?.dimension == null) {
+      return;
+    }
+    setState(() => _videoDimension = result!.dimension);
+  }
+
   void _removeImageListener() {
     final stream = _imageStream;
     final listener = _imageListener;
@@ -338,6 +372,13 @@ class _CoverPreviewSurfaceState extends State<_CoverPreviewSurface> {
   }
 
   double _calcCoverHeight() {
+    final dimension = _videoDimension;
+    if (dimension?.width != null &&
+        dimension?.height != null &&
+        dimension!.width! > 0 &&
+        dimension.height! > 0) {
+      return widget.width * dimension.height! / dimension.width!;
+    }
     final size = _imageSize;
     final aspectRatio = size == null || size.width <= 0 || size.height <= 0
         ? _fallbackAspectRatio
@@ -391,18 +432,19 @@ Future<void> _openVideoDetail({
   required int? cid,
   required String? cover,
   required String? title,
+  required Dimension? dimension,
 }) async {
   if (aid == null && bvid?.isNotEmpty != true) {
     return;
   }
   SmartDialog.dismiss();
   int? targetCid = cid;
-  Dimension? dimension;
+  Dimension? targetDimension = dimension;
   if (targetCid == null) {
     if (await SearchHttp.ab2cWithDimension(aid: aid, bvid: bvid)
         case final res?) {
       targetCid = res.cid;
-      dimension = res.dimension;
+      targetDimension ??= res.dimension;
     }
   }
   if (targetCid != null) {
@@ -412,7 +454,7 @@ Future<void> _openVideoDetail({
       cid: targetCid,
       cover: cover,
       title: title,
-      dimension: dimension,
+      dimension: targetDimension,
     );
   }
 }
