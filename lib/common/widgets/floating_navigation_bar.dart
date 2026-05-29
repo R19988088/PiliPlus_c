@@ -70,13 +70,13 @@ class FloatingNavigationBar extends StatelessWidget {
     final isLight = colorScheme.brightness.isLight;
     final padding = MediaQuery.viewPaddingOf(context);
     final navTint = isLight
-        ? Color.lerp(colorScheme.primary, Colors.white, 0.78)!
-        : Color.lerp(colorScheme.primary, Colors.black, 0.68)!;
+        ? colorScheme.primary.darken(0.76)
+        : Color.lerp(colorScheme.primary, Colors.white, 0.82)!;
     final iconColor = isLight
-        ? colorScheme.primary.darken(0.68)
-        : Color.lerp(colorScheme.primary, Colors.white, 0.84)!;
+        ? Colors.white
+        : colorScheme.primary.darken(0.78);
     final shadowColor = isLight
-        ? colorScheme.primary.darken(0.80).withValues(alpha: 0.20)
+        ? colorScheme.primary.darken(0.84).withValues(alpha: 0.26)
         : Colors.black.withValues(alpha: 0.44);
 
     final glassBottomBarTabs = destinations
@@ -116,7 +116,7 @@ class FloatingNavigationBar extends StatelessWidget {
           unselectedIconColor: iconColor.withValues(alpha: 0.68),
           interactionGlowColor: colorScheme.primary,
           glassSettings: LiquidGlassSettings(
-            glassColor: navTint.withValues(alpha: isLight ? 0.58 : 0.62),
+            glassColor: navTint.withValues(alpha: isLight ? 0.60 : 0.62),
           ),
         ),
       ),
