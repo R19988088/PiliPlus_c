@@ -6,6 +6,7 @@ import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
+const _kGlassNavBarVersion = '液态玻璃0.5';
 const double _kMaxLabelTextScaleFactor = 1.3;
 
 const _kNavigationHeight = 64.0;
@@ -65,6 +66,14 @@ class FloatingNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isLight = colorScheme.brightness.isLight;
+    final padding = MediaQuery.viewPaddingOf(context);
+    final navTint = isLight
+        ? colorScheme.primary.darken(0.74)
+        : Color.lerp(colorScheme.primary, Colors.white, 0.86)!;
+    final iconColor = isLight ? Colors.white : colorScheme.primary.darken(0.72);
+
     final glassBottomBarTabs = destinations
         .whereType<FloatingNavigationDestination>()
         .map((destination) => destination._glassBottomBarTab())
@@ -73,10 +82,41 @@ class FloatingNavigationBar extends StatelessWidget {
 
     if (!canUseGlassBottomBar) return const SizedBox.shrink();
 
-    return GlassBottomBar(
-      tabs: glassBottomBarTabs,
-      selectedIndex: selectedIndex,
-      onTabSelected: onDestinationSelected ?? (_) {},
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        padding.left + 20,
+        20,
+        padding.right + 20,
+        bottomPadding + padding.bottom,
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: _kBorderRadius,
+          boxShadow: [
+            BoxShadow(
+              color: (isLight ? Colors.black : Colors.white).withValues(
+                alpha: isLight ? 0.28 : 0.16,
+              ),
+              blurRadius: 28,
+              spreadRadius: -4,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: GlassBottomBar(
+          tabs: glassBottomBarTabs,
+          selectedIndex: selectedIndex,
+          onTabSelected: onDestinationSelected ?? (_) {},
+          horizontalPadding: 0,
+          verticalPadding: 0,
+          selectedIconColor: iconColor,
+          unselectedIconColor: iconColor.withValues(alpha: 0.76),
+          interactionGlowColor: colorScheme.primary,
+          glassSettings: LiquidGlassSettings(
+            glassColor: navTint.withValues(alpha: 0.60),
+          ),
+        ),
+      ),
     );
   }
 }
