@@ -21,8 +21,13 @@ void main() {
     ).readAsStringSync();
     expect(navigationBar, contains('GlassBottomBar'));
     expect(navigationBar, contains('GlassBottomBarTab'));
-    expect(navigationBar, contains('quality: GlassQuality.premium'));
     expect(navigationBar, contains('label: null'));
+    expect(navigationBar, isNot(contains('glassSettings:')));
+    expect(navigationBar, isNot(contains('indicatorSettings:')));
+    expect(navigationBar, isNot(contains('magnification:')));
+    expect(navigationBar, isNot(contains('innerBlur:')));
+    expect(navigationBar, isNot(contains('indicatorExpansion:')));
+    expect(navigationBar, isNot(contains('pressScale:')));
 
     final main = File('lib/main.dart').readAsStringSync();
     expect(main, contains('LiquidGlassWidgets.initialize()'));
@@ -33,5 +38,17 @@ void main() {
     expect(main, contains('quality: GlassQuality.premium'));
     expect(main, isNot(contains('adaptiveQuality: true')));
     expect(main, isNot(contains('quality: GlassQuality.standard')));
+
+    final manifest = File(
+      'android/app/src/main/AndroidManifest.xml',
+    ).readAsStringSync();
+    expect(
+      manifest,
+      matches(
+        RegExp(
+          r'android:name="io\.flutter\.embedding\.android\.EnableImpeller"[\s\S]*?android:value="true"',
+        ),
+      ),
+    );
   });
 }

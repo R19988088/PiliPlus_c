@@ -65,25 +65,9 @@ class FloatingNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final defaults = _NavigationBarDefaultsM3(context);
-
-    final navigationBarTheme = NavigationBarTheme.of(context);
-
-    final padding = MediaQuery.viewPaddingOf(context);
-    final effectiveBackgroundColor = ElevationOverlay.applySurfaceTint(
-      backgroundColor ??
-          navigationBarTheme.backgroundColor ??
-          defaults.backgroundColor!,
-      surfaceTintColor ??
-          navigationBarTheme.surfaceTintColor ??
-          defaults.surfaceTintColor,
-      elevation ?? navigationBarTheme.elevation ?? defaults.elevation!,
-    );
     final glassBottomBarTabs = destinations
         .whereType<FloatingNavigationDestination>()
-        .map((destination) => destination._glassBottomBarTab(colorScheme))
+        .map((destination) => destination._glassBottomBarTab())
         .toList(growable: false);
     final canUseGlassBottomBar = glassBottomBarTabs.length == destinations.length;
 
@@ -93,60 +77,6 @@ class FloatingNavigationBar extends StatelessWidget {
       tabs: glassBottomBarTabs,
       selectedIndex: selectedIndex,
       onTabSelected: onDestinationSelected ?? (_) {},
-      horizontalPadding: padding.left + padding.right + 20,
-      verticalPadding: bottomPadding + padding.bottom,
-      spacing: 0,
-      barHeight: _kNavigationHeight,
-      barBorderRadius: _kNavigationHeight / 2,
-      tabPadding: _kIndicatorPadding,
-      iconLabelSpacing: 0,
-      glassSettings: LiquidGlassSettings(
-        glassColor: effectiveBackgroundColor.withValues(
-          alpha: theme.brightness == Brightness.dark ? 0.22 : 0.18,
-        ),
-        blur: 3,
-        thickness: 30,
-        chromaticAberration: 0.30,
-        refractiveIndex: 1.59,
-        saturation: 0.70,
-        lightIntensity: 0.60,
-        ambientStrength: 1,
-      ),
-      indicatorSettings: LiquidGlassSettings(
-        glassColor:
-            (indicatorColor ??
-                    navigationBarTheme.indicatorColor ??
-                    defaults.indicatorColor!)
-                .withValues(
-                  alpha: theme.brightness == Brightness.dark ? 0.18 : 0.24,
-                ),
-        blur: 0,
-        thickness: 20,
-        chromaticAberration: 0.50,
-        refractiveIndex: 1.15,
-        saturation: 1.50,
-        lightIntensity: 2,
-      ),
-      indicatorColor:
-          (indicatorColor ??
-                  navigationBarTheme.indicatorColor ??
-                  defaults.indicatorColor!)
-              .withValues(
-                alpha: theme.brightness == Brightness.dark ? 0.28 : 0.36,
-              ),
-      selectedIconColor: colorScheme.primary,
-      unselectedIconColor: colorScheme.onSurfaceVariant,
-      iconSize: 24,
-      quality: GlassQuality.premium,
-      magnification: 1.12,
-      innerBlur: 1.5,
-      maskingQuality: MaskingQuality.high,
-      tabWidth: _kIndicatorWidth,
-      indicatorExpansion: 14,
-      interactionGlowColor: colorScheme.primary,
-      interactionGlowRadius: 1.7,
-      interactionBehavior: GlassInteractionBehavior.full,
-      pressScale: 1.04,
     );
   }
 }
@@ -171,13 +101,11 @@ class FloatingNavigationDestination extends StatelessWidget {
 
   final bool enabled;
 
-  GlassBottomBarTab _glassBottomBarTab(ColorScheme colorScheme) {
+  GlassBottomBarTab _glassBottomBarTab() {
     return GlassBottomBarTab(
       label: null,
       icon: icon,
       activeIcon: selectedIcon ?? icon,
-      glowColor: colorScheme.primary,
-      thickness: 1.2,
     );
   }
 
