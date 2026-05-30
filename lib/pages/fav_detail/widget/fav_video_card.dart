@@ -51,6 +51,7 @@ class FavVideoCardH extends StatelessWidget {
         : () => imageSaveDialog(
             title: item.title,
             cover: item.cover,
+            face: item.upper?.face,
             bvid: item.bvid,
           );
 

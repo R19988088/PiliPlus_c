@@ -32,6 +32,7 @@ class FavVideoItem extends StatelessWidget {
                 : () => imageSaveDialog(
                     title: item.title,
                     cover: item.cover,
+                    face: item.upper?.face,
                   )),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),

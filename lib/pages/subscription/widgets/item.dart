@@ -30,6 +30,7 @@ class SubItem extends StatelessWidget {
     void onLongPress() => imageSaveDialog(
       title: item.title,
       cover: item.cover,
+      face: item.upper?.face,
     );
     return Material(
       type: MaterialType.transparency,

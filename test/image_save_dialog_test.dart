@@ -56,11 +56,31 @@ void main() {
     final forwardPanel = File(
       'lib/pages/dynamics/widgets/forward_panel.dart',
     ).readAsStringSync();
+    final favVideoCard = File(
+      'lib/pages/fav_detail/widget/fav_video_card.dart',
+    ).readAsStringSync();
+    final memberFavoriteItem = File(
+      'lib/pages/member_favorite/widget/item.dart',
+    ).readAsStringSync();
+    final memberHomeFavItem = File(
+      'lib/pages/member_home/widgets/fav_item.dart',
+    ).readAsStringSync();
+    final subscriptionItem = File(
+      'lib/pages/subscription/widgets/item.dart',
+    ).readAsStringSync();
+    final favVideoItem = File(
+      'lib/pages/fav/video/widgets/item.dart',
+    ).readAsStringSync();
 
     expect(videoCardV, contains('face:'));
     expect(videoCardH, contains('face:'));
     expect(videoCardH, contains('dimension: videoItem.dimension'));
     expect(dynamicPanel, contains('moduleAuthor?.face'));
     expect(forwardPanel, contains('moduleAuthor?.face'));
+    expect(favVideoCard, contains('face: item.upper?.face'));
+    expect(memberFavoriteItem, contains('face: item.upper?.face'));
+    expect(memberHomeFavItem, contains('face: item.upper?.face'));
+    expect(subscriptionItem, contains('face: item.upper?.face'));
+    expect(favVideoItem, contains('face: item.upper?.face'));
   });
 }
