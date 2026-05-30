@@ -28,6 +28,7 @@ void main() {
     expect(navigationBar, contains('Pref.glassNavThickness.clamp(0, 100) * 0.6'));
     expect(navigationBar, contains('Pref.glassNavChromaticAberration.clamp(0, 200) / 100'));
     expect(navigationBar, contains('Pref.glassNavRefraction.clamp(0, 200) * 0.0118'));
+    expect(navigationBar, contains('Pref.glassNavBlend.clamp(0, 100) / 100'));
     expect(navigationBar, isNot(contains('quality: GlassQuality.standard')));
     expect(navigationBar, contains('glassSettings: _kBottomBarGlassDefaults.copyWith'));
     expect(navigationBar, contains('HSLColor.fromColor(colorScheme.primary)'));
@@ -47,6 +48,7 @@ void main() {
     expect(navigationBar, contains('blur: glassBlur'));
     expect(navigationBar, contains('chromaticAberration: chromaticAberration'));
     expect(navigationBar, contains('refractiveIndex: refractiveIndex'));
+    expect(navigationBar, contains('blend: glassBlend'));
     expect(navigationBar, contains('boxShadow:'));
     expect(navigationBar, contains('interactionGlowColor: colorScheme.primary'));
     expect(navigationBar, isNot(contains('indicatorSettings:')));
@@ -73,6 +75,7 @@ void main() {
     );
     expect(pref, contains('SettingBoxKey.glassNavBlur, defaultValue: 50'));
     expect(pref, contains('SettingBoxKey.glassNavThickness, defaultValue: 50'));
+    expect(pref, contains('SettingBoxKey.glassNavBlend, defaultValue: 50'));
 
     final manifest = File(
       'android/app/src/main/AndroidManifest.xml',

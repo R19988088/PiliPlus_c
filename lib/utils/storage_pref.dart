@@ -1003,6 +1003,9 @@ abstract final class Pref {
   static int get glassNavThickness =>
       _setting.get(SettingBoxKey.glassNavThickness, defaultValue: 50);
 
+  static int get glassNavBlend =>
+      _setting.get(SettingBoxKey.glassNavBlend, defaultValue: 50);
+
   static bool get floatingNavBar => true;
 
   static bool get removeSafeArea =>
