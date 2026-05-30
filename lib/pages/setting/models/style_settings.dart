@@ -119,6 +119,59 @@ List<SettingsModel> get styleSettings => [
     setKey: SettingBoxKey.inverseNavigationBar,
     defaultVal: true,
   ),
+  const NormalModel(
+    title: '导航条效果',
+    subtitle: '液态玻璃底栏效果参数',
+    leading: Icon(Icons.tune_outlined),
+  ),
+  NormalModel(
+    title: '透明度',
+    leading: const Icon(Icons.opacity_outlined),
+    getSubtitle: () => '当前：${Pref.glassNavOpacity}%',
+    onTap: (context, setState) => _showGlassNavEffectDialog(
+      context: context,
+      setState: setState,
+      title: '透明度',
+      setKey: SettingBoxKey.glassNavOpacity,
+      initValue: Pref.glassNavOpacity,
+    ),
+  ),
+  NormalModel(
+    title: '折射强度',
+    leading: const Icon(Icons.lens_blur_outlined),
+    getSubtitle: () => '当前：${Pref.glassNavRefraction}%',
+    onTap: (context, setState) => _showGlassNavEffectDialog(
+      context: context,
+      setState: setState,
+      title: '折射强度',
+      setKey: SettingBoxKey.glassNavRefraction,
+      initValue: Pref.glassNavRefraction,
+    ),
+  ),
+  NormalModel(
+    title: '色散',
+    leading: const Icon(Icons.blur_on_outlined),
+    getSubtitle: () => '当前：${Pref.glassNavChromaticAberration}%',
+    onTap: (context, setState) => _showGlassNavEffectDialog(
+      context: context,
+      setState: setState,
+      title: '色散',
+      setKey: SettingBoxKey.glassNavChromaticAberration,
+      initValue: Pref.glassNavChromaticAberration,
+    ),
+  ),
+  NormalModel(
+    title: '模糊强度',
+    leading: const Icon(Icons.blur_linear_outlined),
+    getSubtitle: () => '当前：${Pref.glassNavBlur}%',
+    onTap: (context, setState) => _showGlassNavEffectDialog(
+      context: context,
+      setState: setState,
+      title: '模糊强度',
+      setKey: SettingBoxKey.glassNavBlur,
+      initValue: Pref.glassNavBlur,
+    ),
+  ),
   NormalModel(
     leading: const Icon(Icons.calendar_view_week_outlined),
     title: '列表宽度（dp）限制',
@@ -354,6 +407,32 @@ void _showQualityDialog({
       onChanged(result.toInt());
     }
   });
+}
+
+Future<void> _showGlassNavEffectDialog({
+  required BuildContext context,
+  required VoidCallback setState,
+  required String title,
+  required String setKey,
+  required int initValue,
+}) async {
+  final res = await showDialog<double>(
+    context: context,
+    builder: (context) => SliderDialog(
+      value: initValue.toDouble(),
+      title: title,
+      min: 0,
+      max: 100,
+      divisions: 100,
+      suffix: '%',
+      precise: 0,
+    ),
+  );
+  if (res != null) {
+    await GStorage.setting.put(setKey, res.toInt());
+    setState();
+    SmartDialog.showToast('设置成功');
+  }
 }
 
 void _showUiScaleDialog(

@@ -986,6 +986,20 @@ abstract final class Pref {
   static bool get inverseNavigationBar =>
       _setting.get(SettingBoxKey.inverseNavigationBar, defaultValue: true);
 
+  static int get glassNavOpacity =>
+      _setting.get(SettingBoxKey.glassNavOpacity, defaultValue: 35);
+
+  static int get glassNavRefraction =>
+      _setting.get(SettingBoxKey.glassNavRefraction, defaultValue: 50);
+
+  static int get glassNavChromaticAberration => _setting.get(
+    SettingBoxKey.glassNavChromaticAberration,
+    defaultValue: 45,
+  );
+
+  static int get glassNavBlur =>
+      _setting.get(SettingBoxKey.glassNavBlur, defaultValue: 30);
+
   static bool get floatingNavBar => true;
 
   static bool get removeSafeArea =>

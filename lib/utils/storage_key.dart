@@ -155,6 +155,10 @@ abstract final class SettingBoxKey {
       showDynDispute = 'showDynDispute',
       touchSlopH = 'touchSlopH',
       inverseNavigationBar = 'inverseNavigationBar',
+      glassNavOpacity = 'glassNavOpacity',
+      glassNavRefraction = 'glassNavRefraction',
+      glassNavChromaticAberration = 'glassNavChromaticAberration',
+      glassNavBlur = 'glassNavBlur',
       floatingNavBar = 'floatingNavBar',
       removeSafeArea = 'removeSafeArea',
       angleDegrees = 'angleDegrees';

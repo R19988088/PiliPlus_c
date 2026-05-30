@@ -25,8 +25,9 @@ void main() {
     expect(navigationBar, contains("const _kGlassNavBarVersion = '液态玻璃0.6'"));
     expect(navigationBar, contains('const _kBottomBarGlassDefaults = LiquidGlassSettings'));
     expect(navigationBar, contains('thickness: 30'));
-    expect(navigationBar, contains('chromaticAberration: 0.45'));
-    expect(navigationBar, contains('refractiveIndex: 1.59'));
+    expect(navigationBar, contains('Pref.glassNavBlur.clamp(0, 100) / 10'));
+    expect(navigationBar, contains('Pref.glassNavChromaticAberration.clamp(0, 100) / 100'));
+    expect(navigationBar, contains('Pref.glassNavRefraction.clamp(0, 100) * 0.0118'));
     expect(navigationBar, isNot(contains('quality: GlassQuality.standard')));
     expect(navigationBar, contains('glassSettings: _kBottomBarGlassDefaults.copyWith'));
     expect(navigationBar, contains('HSLColor.fromColor(colorScheme.primary)'));
@@ -37,11 +38,14 @@ void main() {
     expect(navigationBar, contains('final navUsesLightDefinition = Pref.inverseNavigationBar'));
     expect(navigationBar, contains('withSaturation(navUsesLightDefinition ? 0.12 : 0.18)'));
     expect(navigationBar, contains('withLightness(navUsesLightDefinition ? 1.0 : 0.20)'));
-    expect(navigationBar, contains('withValues(alpha: 0.35)'));
+    expect(navigationBar, contains('withValues(alpha: Pref.glassNavOpacity.clamp(0, 100) / 100)'));
     expect(navigationBar, contains('final iconColor = navUsesLightDefinition ? Colors.black : Colors.white'));
     expect(navigationBar, contains('size: 26.4'));
     expect(navigationBar, contains('weight: 700'));
     expect(navigationBar, contains('glassColor: navTint'));
+    expect(navigationBar, contains('blur: glassBlur'));
+    expect(navigationBar, contains('chromaticAberration: chromaticAberration'));
+    expect(navigationBar, contains('refractiveIndex: refractiveIndex'));
     expect(navigationBar, contains('boxShadow:'));
     expect(navigationBar, contains('interactionGlowColor: colorScheme.primary'));
     expect(navigationBar, isNot(contains('indicatorSettings:')));
