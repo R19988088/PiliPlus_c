@@ -141,7 +141,7 @@ class FloatingNavigationBar extends StatelessWidget {
           interactionGlowColor: colorScheme.primary,
           quality: GlassQuality.standard,
           glassSettings: _kBottomBarGlassDefaults.copyWith(
-            glassColor: navTint.withValues(alpha: 0.90),
+            glassColor: navTint.withValues(alpha: 0.30),
           ),
         ),
       ),

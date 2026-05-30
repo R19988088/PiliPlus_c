@@ -32,7 +32,7 @@ void main() {
     expect(navigationBar, contains('Pref.glassNavLightnessLight'));
     expect(navigationBar, contains('Pref.glassNavLightnessDark'));
     expect(navigationBar, contains('final iconColor = isLight ? Colors.white : Colors.black'));
-    expect(navigationBar, contains('glassColor: navTint.withValues(alpha: 0.90)'));
+    expect(navigationBar, contains('glassColor: navTint.withValues(alpha: 0.30)'));
     expect(navigationBar, contains('boxShadow:'));
     expect(navigationBar, contains('interactionGlowColor: colorScheme.primary'));
     expect(navigationBar, isNot(contains('indicatorSettings:')));
