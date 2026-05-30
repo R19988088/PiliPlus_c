@@ -90,15 +90,20 @@ class FloatingNavigationBar extends StatelessWidget {
     final navSaturation = themeHue.saturation
         .clamp(navSaturationMin, navSaturationMax)
         .toDouble();
+    final navUsesLightDefinition = Pref.inverseNavigationBar
+        ? !isLight
+        : isLight;
     final navLightness =
-        (isLight ? Pref.glassNavLightnessLight : Pref.glassNavLightnessDark)
+        (navUsesLightDefinition
+                ? Pref.glassNavLightnessLight
+                : Pref.glassNavLightnessDark)
             .clamp(0.0, 1.0)
             .toDouble();
     final navTint = themeHue
         .withSaturation(navSaturation)
         .withLightness(navLightness)
         .toColor();
-    final iconColor = isLight ? Colors.white : Colors.black;
+    final iconColor = navUsesLightDefinition ? Colors.white : Colors.black;
     final shadowColor = isLight
         ? colorScheme.primary.darken(0.84).withValues(alpha: 0.26)
         : Colors.black.withValues(alpha: 0.44);
@@ -761,7 +766,7 @@ class _NavigationBarDefaultsM3 extends NavigationBarThemeData {
   WidgetStateProperty<IconThemeData?>? get iconTheme {
     return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
       return IconThemeData(
-        size: 24.0,
+        size: 26.4,
         color: states.contains(WidgetState.disabled)
             ? _colors.onSurfaceVariant.withValues(alpha: 0.38)
             : states.contains(WidgetState.selected)

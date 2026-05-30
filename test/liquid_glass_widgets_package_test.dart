@@ -34,7 +34,9 @@ void main() {
     expect(navigationBar, contains('Pref.glassNavSaturationMax'));
     expect(navigationBar, contains('Pref.glassNavLightnessLight'));
     expect(navigationBar, contains('Pref.glassNavLightnessDark'));
-    expect(navigationBar, contains('final iconColor = isLight ? Colors.white : Colors.black'));
+    expect(navigationBar, contains('final navUsesLightDefinition = Pref.inverseNavigationBar'));
+    expect(navigationBar, contains('final iconColor = navUsesLightDefinition ? Colors.white : Colors.black'));
+    expect(navigationBar, contains('size: 26.4'));
     expect(navigationBar, contains('glassColor: navTint.withValues(alpha: 0.30)'));
     expect(navigationBar, contains('boxShadow:'));
     expect(navigationBar, contains('interactionGlowColor: colorScheme.primary'));
