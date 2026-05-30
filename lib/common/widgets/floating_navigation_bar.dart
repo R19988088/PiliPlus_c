@@ -14,7 +14,7 @@ const _kNavigationHeight = 64.0;
 const _kBottomBarGlassDefaults = LiquidGlassSettings(
   thickness: 30,
   blur: 3,
-  chromaticAberration: 0.3,
+  chromaticAberration: 0.45,
   lightIntensity: 0.6,
   refractiveIndex: 1.59,
   saturation: 0.7,
@@ -88,7 +88,7 @@ class FloatingNavigationBar extends StatelessWidget {
         .withSaturation(navUsesLightDefinition ? 0.12 : 0.18)
         .withLightness(navUsesLightDefinition ? 1.0 : 0.20)
         .toColor()
-        .withValues(alpha: 0.50);
+        .withValues(alpha: 0.35);
     final iconColor = navUsesLightDefinition ? Colors.black : Colors.white;
     final shadowColor = isLight
         ? colorScheme.primary.darken(0.84).withValues(alpha: 0.26)
@@ -753,6 +753,7 @@ class _NavigationBarDefaultsM3 extends NavigationBarThemeData {
     return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
       return IconThemeData(
         size: 26.4,
+        weight: 700,
         color: states.contains(WidgetState.disabled)
             ? _colors.onSurfaceVariant.withValues(alpha: 0.38)
             : states.contains(WidgetState.selected)
