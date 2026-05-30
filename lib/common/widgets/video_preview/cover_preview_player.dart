@@ -8,6 +8,9 @@ import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/http/search.dart';
 import 'package:PiliPlus/http/video.dart';
 import 'package:PiliPlus/models/common/video/video_type.dart';
+import 'package:PiliPlus/utils/accounts.dart';
+import 'package:PiliPlus/utils/id_utils.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/video_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -42,9 +45,13 @@ class _CoverPreviewPlayerState extends State<CoverPreviewPlayer> {
   Player? _player;
   VideoController? _controller;
   StreamSubscription<bool>? _playingSub;
+  StreamSubscription<Duration>? _positionSub;
+  StreamSubscription<bool>? _completedSub;
   bool _playing = false;
   bool _loading = false;
   String? _error;
+  int? _cid;
+  int _lastHeartBeatProgress = 0;
 
   @override
   void initState() {
@@ -57,6 +64,9 @@ class _CoverPreviewPlayerState extends State<CoverPreviewPlayer> {
   @override
   void dispose() {
     _playingSub?.cancel();
+    _positionSub?.cancel();
+    _completedSub?.cancel();
+    _sendHeartBeat(isManual: true);
     _player?.dispose();
     super.dispose();
   }
@@ -74,6 +84,7 @@ class _CoverPreviewPlayerState extends State<CoverPreviewPlayer> {
         _setError('无法获取视频');
         return;
       }
+      _cid = cid;
 
       final result = await VideoHttp.videoUrl(
         avid: widget.aid,
@@ -116,6 +127,17 @@ class _CoverPreviewPlayerState extends State<CoverPreviewPlayer> {
       );
       _playingSub = player.stream.playing.listen((playing) {
         if (mounted) setState(() => _playing = playing);
+        if (!playing) {
+          _sendHeartBeat(isManual: true);
+        }
+      });
+      _positionSub = player.stream.position.listen((position) {
+        _sendHeartBeat(progress: position.inSeconds);
+      });
+      _completedSub = player.stream.completed.listen((completed) {
+        if (completed) {
+          _sendHeartBeat(progress: -1, isManual: true);
+        }
       });
       _player = player;
       _controller = controller;
@@ -137,6 +159,34 @@ class _CoverPreviewPlayerState extends State<CoverPreviewPlayer> {
       if (mounted) _setError('播放失败: $e');
       return;
     }
+  }
+
+  Future<void>? _sendHeartBeat({int? progress, bool isManual = false}) {
+    if (!widget.canPlay || !Accounts.heartbeat.isLogin || Pref.historyPause) {
+      return null;
+    }
+    final player = _player;
+    final cid = _cid ?? widget.cid;
+    final currentProgress = progress ?? player?.state.position.inSeconds ?? 0;
+    if (cid == null || currentProgress == 0) {
+      return null;
+    }
+    if (currentProgress > 0) {
+      final step = isManual ? 2 : 5;
+      if (currentProgress - _lastHeartBeatProgress < step) {
+        return null;
+      }
+      _lastHeartBeatProgress = currentProgress;
+    }
+    final bvid = widget.bvid ??
+        (widget.aid is int ? IdUtils.av2bv(widget.aid as int) : null);
+    return VideoHttp.heartBeat(
+      aid: widget.aid,
+      bvid: bvid,
+      cid: cid,
+      progress: currentProgress,
+      videoType: VideoType.ugc,
+    );
   }
 
   void _setError(String error) {
