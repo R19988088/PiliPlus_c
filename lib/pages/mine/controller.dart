@@ -36,7 +36,7 @@ class MineController extends CommonDataController<FavFolderData, FavFolderData>
   final Rx<ThemeType> themeType = Pref.themeType.obs;
 
   ThemeType get nextThemeType =>
-      ThemeType.values[(themeType.value.index + 1) % ThemeType.values.length];
+      themeType.value == ThemeType.light ? ThemeType.dark : ThemeType.light;
 
   static RxBool anonymity =
       (Accounts.account.isNotEmpty && !Accounts.heartbeat.isLogin).obs;

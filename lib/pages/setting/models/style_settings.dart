@@ -270,12 +270,6 @@ List<SettingsModel> get styleSettings => [
     ),
     onTap: _showToastDialog,
   ),
-  NormalModel(
-    onTap: _showThemeTypeDialog,
-    leading: const Icon(Icons.flashlight_on_outlined),
-    title: '主题模式',
-    getSubtitle: () => '当前模式：${Pref.themeType.desc}',
-  ),
   SwitchModel(
     leading: const Icon(Icons.invert_colors),
     title: '纯黑主题',
