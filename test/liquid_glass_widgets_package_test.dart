@@ -22,7 +22,7 @@ void main() {
     expect(navigationBar, contains('GlassBottomBar'));
     expect(navigationBar, contains('GlassBottomBarTab'));
     expect(navigationBar, contains('label: null'));
-    expect(navigationBar, contains("const _kGlassNavBarVersion = '液态玻璃0.5'"));
+    expect(navigationBar, contains("const _kGlassNavBarVersion = '液态玻璃0.6'"));
     expect(navigationBar, contains('const _kBottomBarGlassDefaults = LiquidGlassSettings'));
     expect(navigationBar, contains('thickness: 30'));
     expect(navigationBar, contains('chromaticAberration: 0.3'));
