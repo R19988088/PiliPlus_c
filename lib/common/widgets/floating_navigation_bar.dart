@@ -12,11 +12,11 @@ const double _kMaxLabelTextScaleFactor = 1.3;
 
 const _kNavigationHeight = 64.0;
 const _kBottomBarGlassDefaults = LiquidGlassSettings(
-  thickness: 30,
+  thickness: 80,
   blur: 3,
-  chromaticAberration: 0.3,
+  chromaticAberration: 1,
   lightIntensity: 0.6,
-  refractiveIndex: 1.59,
+  refractiveIndex: 5,
   saturation: 0.7,
   ambientStrength: 1,
   lightAngle: 2.356194490192345,
