@@ -81,29 +81,15 @@ class FloatingNavigationBar extends StatelessWidget {
     final isLight = colorScheme.brightness.isLight;
     final padding = MediaQuery.viewPaddingOf(context);
     final themeHue = HSLColor.fromColor(colorScheme.primary);
-    final navSaturationMin = Pref.glassNavSaturationMin
-        .clamp(0.0, 1.0)
-        .toDouble();
-    final navSaturationMax = Pref.glassNavSaturationMax
-        .clamp(navSaturationMin, 1.0)
-        .toDouble();
-    final navSaturation = themeHue.saturation
-        .clamp(navSaturationMin, navSaturationMax)
-        .toDouble();
     final navUsesLightDefinition = Pref.inverseNavigationBar
         ? !isLight
         : isLight;
-    final navLightness =
-        (navUsesLightDefinition
-                ? Pref.glassNavLightnessLight
-                : Pref.glassNavLightnessDark)
-            .clamp(0.0, 1.0)
-            .toDouble();
     final navTint = themeHue
-        .withSaturation(navSaturation)
-        .withLightness(navLightness)
-        .toColor();
-    final iconColor = navUsesLightDefinition ? Colors.white : Colors.black;
+        .withSaturation(navUsesLightDefinition ? 0.12 : 0.18)
+        .withLightness(navUsesLightDefinition ? 1.0 : 0.20)
+        .toColor()
+        .withValues(alpha: 0.50);
+    final iconColor = navUsesLightDefinition ? Colors.black : Colors.white;
     final shadowColor = isLight
         ? colorScheme.primary.darken(0.84).withValues(alpha: 0.26)
         : Colors.black.withValues(alpha: 0.44);
@@ -145,7 +131,7 @@ class FloatingNavigationBar extends StatelessWidget {
           unselectedIconColor: iconColor.withValues(alpha: 0.68),
           interactionGlowColor: colorScheme.primary,
           glassSettings: _kBottomBarGlassDefaults.copyWith(
-            glassColor: navTint.withValues(alpha: 0.30),
+            glassColor: navTint,
           ),
         ),
       ),
