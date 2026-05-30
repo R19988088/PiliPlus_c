@@ -23,7 +23,9 @@ void main() {
     expect(navigationBar, contains('GlassBottomBarTab'));
     expect(navigationBar, contains('label: null'));
     expect(navigationBar, contains("const _kGlassNavBarVersion = '液态玻璃0.5'"));
-    expect(navigationBar, contains('glassSettings: LiquidGlassSettings'));
+    expect(navigationBar, contains('const _kBottomBarGlassDefaults = LiquidGlassSettings'));
+    expect(navigationBar, contains('quality: GlassQuality.standard'));
+    expect(navigationBar, contains('glassSettings: _kBottomBarGlassDefaults.copyWith'));
     expect(navigationBar, contains('HSLColor.fromColor(colorScheme.primary)'));
     expect(navigationBar, contains('withLightness(isLight ? 0.10 : 0.90)'));
     expect(navigationBar, contains('final iconColor = isLight ? Colors.white : Colors.black'));
