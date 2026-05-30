@@ -159,6 +159,7 @@ abstract final class SettingBoxKey {
       glassNavRefraction = 'glassNavRefraction',
       glassNavChromaticAberration = 'glassNavChromaticAberration',
       glassNavBlur = 'glassNavBlur',
+      glassNavThickness = 'glassNavThickness',
       floatingNavBar = 'floatingNavBar',
       removeSafeArea = 'removeSafeArea',
       angleDegrees = 'angleDegrees';

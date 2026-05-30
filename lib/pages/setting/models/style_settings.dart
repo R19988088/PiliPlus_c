@@ -146,6 +146,7 @@ List<SettingsModel> get styleSettings => [
       title: '折射强度',
       setKey: SettingBoxKey.glassNavRefraction,
       initValue: Pref.glassNavRefraction,
+      max: 200,
     ),
   ),
   NormalModel(
@@ -158,6 +159,7 @@ List<SettingsModel> get styleSettings => [
       title: '色散',
       setKey: SettingBoxKey.glassNavChromaticAberration,
       initValue: Pref.glassNavChromaticAberration,
+      max: 200,
     ),
   ),
   NormalModel(
@@ -170,6 +172,18 @@ List<SettingsModel> get styleSettings => [
       title: '模糊强度',
       setKey: SettingBoxKey.glassNavBlur,
       initValue: Pref.glassNavBlur,
+    ),
+  ),
+  NormalModel(
+    title: '厚度',
+    leading: const Icon(Icons.density_medium_outlined),
+    getSubtitle: () => '当前：${Pref.glassNavThickness}%',
+    onTap: (context, setState) => _showGlassNavEffectDialog(
+      context: context,
+      setState: setState,
+      title: '厚度',
+      setKey: SettingBoxKey.glassNavThickness,
+      initValue: Pref.glassNavThickness,
     ),
   ),
   NormalModel(
@@ -415,6 +429,7 @@ Future<void> _showGlassNavEffectDialog({
   required String title,
   required String setKey,
   required int initValue,
+  int max = 100,
 }) async {
   final res = await showDialog<double>(
     context: context,
@@ -422,8 +437,8 @@ Future<void> _showGlassNavEffectDialog({
       value: initValue.toDouble(),
       title: title,
       min: 0,
-      max: 100,
-      divisions: 100,
+      max: max.toDouble(),
+      divisions: max,
       suffix: '%',
       precise: 0,
     ),

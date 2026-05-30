@@ -41,7 +41,7 @@ void main() {
     }
     expect(titles, isNot(contains('顶栏收起类型')));
     expect(titles, contains('反色导航栏'));
-    expect(titles, containsAll(['导航条效果', '透明度', '折射强度', '色散', '模糊强度']));
+    expect(titles, containsAll(['导航条效果', '透明度', '折射强度', '色散', '模糊强度', '厚度']));
   });
 
   test('主页面不再包装底栏滑动隐藏动画', () {

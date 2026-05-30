@@ -12,7 +12,6 @@ const double _kMaxLabelTextScaleFactor = 1.3;
 
 const _kNavigationHeight = 64.0;
 const _kBottomBarGlassDefaults = LiquidGlassSettings(
-  thickness: 30,
   lightIntensity: 0.6,
   saturation: 0.7,
   ambientStrength: 1,
@@ -87,9 +86,10 @@ class FloatingNavigationBar extends StatelessWidget {
         .toColor()
         .withValues(alpha: Pref.glassNavOpacity.clamp(0, 100) / 100);
     final glassBlur = Pref.glassNavBlur.clamp(0, 100) / 10;
+    final glassThickness = Pref.glassNavThickness.clamp(0, 100) * 0.6;
     final chromaticAberration =
-        Pref.glassNavChromaticAberration.clamp(0, 100) / 100;
-    final refractiveIndex = 1 + Pref.glassNavRefraction.clamp(0, 100) * 0.0118;
+        Pref.glassNavChromaticAberration.clamp(0, 200) / 100;
+    final refractiveIndex = 1 + Pref.glassNavRefraction.clamp(0, 200) * 0.0118;
     final iconColor = navUsesLightDefinition ? Colors.black : Colors.white;
     final shadowColor = isLight
         ? colorScheme.primary.darken(0.84).withValues(alpha: 0.26)
@@ -133,6 +133,7 @@ class FloatingNavigationBar extends StatelessWidget {
           interactionGlowColor: colorScheme.primary,
           glassSettings: _kBottomBarGlassDefaults.copyWith(
             glassColor: navTint,
+            thickness: glassThickness,
             blur: glassBlur,
             chromaticAberration: chromaticAberration,
             refractiveIndex: refractiveIndex,
