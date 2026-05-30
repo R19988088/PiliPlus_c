@@ -12,11 +12,11 @@ const double _kMaxLabelTextScaleFactor = 1.3;
 
 const _kNavigationHeight = 64.0;
 const _kBottomBarGlassDefaults = LiquidGlassSettings(
-  thickness: 80,
+  thickness: 30,
   blur: 3,
-  chromaticAberration: 1,
+  chromaticAberration: 0.3,
   lightIntensity: 0.6,
-  refractiveIndex: 5,
+  refractiveIndex: 1.59,
   saturation: 0.7,
   ambientStrength: 1,
   lightAngle: 2.356194490192345,
@@ -139,7 +139,6 @@ class FloatingNavigationBar extends StatelessWidget {
           selectedIconColor: iconColor,
           unselectedIconColor: iconColor.withValues(alpha: 0.68),
           interactionGlowColor: colorScheme.primary,
-          quality: GlassQuality.standard,
           glassSettings: _kBottomBarGlassDefaults.copyWith(
             glassColor: navTint.withValues(alpha: 0.30),
           ),

@@ -24,10 +24,10 @@ void main() {
     expect(navigationBar, contains('label: null'));
     expect(navigationBar, contains("const _kGlassNavBarVersion = '液态玻璃0.5'"));
     expect(navigationBar, contains('const _kBottomBarGlassDefaults = LiquidGlassSettings'));
-    expect(navigationBar, contains('thickness: 80'));
-    expect(navigationBar, contains('chromaticAberration: 1'));
-    expect(navigationBar, contains('refractiveIndex: 5'));
-    expect(navigationBar, contains('quality: GlassQuality.standard'));
+    expect(navigationBar, contains('thickness: 30'));
+    expect(navigationBar, contains('chromaticAberration: 0.3'));
+    expect(navigationBar, contains('refractiveIndex: 1.59'));
+    expect(navigationBar, isNot(contains('quality: GlassQuality.standard')));
     expect(navigationBar, contains('glassSettings: _kBottomBarGlassDefaults.copyWith'));
     expect(navigationBar, contains('HSLColor.fromColor(colorScheme.primary)'));
     expect(navigationBar, contains('Pref.glassNavSaturationMin'));
