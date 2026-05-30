@@ -89,4 +89,33 @@ void main() {
       ),
     );
   });
+
+  test('首页和动态顶部使用 progressive_blur 渐进模糊', () {
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    expect(pubspec, contains('progressive_blur:'));
+
+    final progressiveTopBlur = File(
+      'lib/common/widgets/progressive_top_blur.dart',
+    ).readAsStringSync();
+    expect(
+      progressiveTopBlur,
+      contains("package:progressive_blur/progressive_blur.dart"),
+    );
+    expect(progressiveTopBlur, contains('ProgressiveBlurWidget'));
+    expect(progressiveTopBlur, contains('LinearGradientBlur'));
+
+    final home = File('lib/pages/home/view.dart').readAsStringSync();
+    expect(home, contains('ProgressiveTopBlur'));
+    expect(
+      home,
+      isNot(
+        contains('color: theme.colorScheme.surface,\n          child: tabBar'),
+      ),
+    );
+
+    final dynamics = File('lib/pages/dynamics/view.dart').readAsStringSync();
+    expect(dynamics, contains('ProgressiveTopBlur'));
+    expect(dynamics, contains('extendBodyBehindAppBar: true'));
+    expect(dynamics, contains('backgroundColor: Colors.transparent'));
+  });
 }

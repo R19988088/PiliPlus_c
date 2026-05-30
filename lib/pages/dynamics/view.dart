@@ -1,4 +1,5 @@
 import 'package:PiliPlus/common/widgets/scroll_physics.dart';
+import 'package:PiliPlus/common/widgets/progressive_top_blur.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/common/dynamic/dynamics_type.dart';
 import 'package:PiliPlus/models/common/dynamic/up_panel_position.dart';
@@ -164,6 +165,7 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
     }
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -172,6 +174,8 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
         leadingWidth: 50,
         toolbarHeight: 50,
         backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        flexibleSpace: const ProgressiveTopBlur(child: SizedBox.expand()),
         title: SizedBox(
           height: 50,
           child: TabBar(
@@ -186,9 +190,7 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
             labelStyle:
                 TabBarTheme.of(context).labelStyle?.copyWith(fontSize: 13) ??
                 const TextStyle(fontSize: 13),
-            tabs: DynamicsTabType.values
-                .map((e) => Tab(text: e.label))
-                .toList(),
+            tabs: DynamicsTabType.values.map((e) => Tab(text: e.label)).toList(),
             onTap: (index) {
               if (!_dynamicsController.tabController.indexIsChanging) {
                 _dynamicsController.animateToTop();

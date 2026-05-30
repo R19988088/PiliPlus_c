@@ -1,6 +1,7 @@
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/custom_height_widget.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
+import 'package:PiliPlus/common/widgets/progressive_top_blur.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart';
 import 'package:PiliPlus/pages/common/common_page.dart';
 import 'package:PiliPlus/pages/home/controller.dart';
@@ -59,22 +60,23 @@ class _HomePageState extends CommonPageState<HomePage>
           ),
         ),
       );
-      if (_homeController.hideTopBar &&
-          _mainController.barHideType == .instant) {
-        tabBar = Material(
-          color: theme.colorScheme.surface,
-          child: tabBar,
-        );
-      }
     } else {
       tabBar = const SizedBox(height: 6);
     }
+    final hasSearchBar =
+        !_mainController.useSideBar && MediaQuery.sizeOf(context).isPortrait;
+    final topBar = ProgressiveTopBlur(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (hasSearchBar) customAppBar(theme),
+          tabBar,
+        ],
+      ),
+    );
     return Column(
       children: [
-        if (!_mainController.useSideBar &&
-            MediaQuery.sizeOf(context).isPortrait)
-          customAppBar(theme),
-        tabBar,
+        topBar,
         Expanded(
           child: onBuild(
             tabBarView(
