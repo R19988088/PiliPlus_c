@@ -512,8 +512,7 @@ abstract final class Pref {
   static bool get coinWithLike =>
       _setting.get(SettingBoxKey.coinWithLike, defaultValue: false);
 
-  static bool get isPureBlackTheme =>
-      _setting.get(SettingBoxKey.isPureBlackTheme, defaultValue: false);
+  static bool get isPureBlackTheme => false;
 
   static double get glassNavSaturationMin => _setting.get(
     SettingBoxKey.glassNavSaturationMin,
@@ -686,21 +685,14 @@ abstract final class Pref {
     defaultValue: horizontalScreen,
   );
 
-  static bool get hideTopBar => _setting.get(
-    SettingBoxKey.hideTopBar,
-    defaultValue: PlatformUtils.isMobile,
-  );
+  static bool get hideTopBar => false;
 
   static bool get hideBottomBar => _setting.get(
     SettingBoxKey.hideBottomBar,
     defaultValue: PlatformUtils.isMobile,
   );
 
-  static BarHideType get barHideType =>
-      BarHideType.values[_setting.get(
-        SettingBoxKey.barHideType,
-        defaultValue: BarHideType.sync.index,
-      )];
+  static BarHideType get barHideType => BarHideType.sync;
 
   static bool get enableSearchWord =>
       _setting.get(SettingBoxKey.enableSearchWord, defaultValue: false);
@@ -751,8 +743,7 @@ abstract final class Pref {
         defaultValue: DynamicBadgeMode.number.index,
       )];
 
-  static bool get enableMYBar =>
-      _setting.get(SettingBoxKey.enableMYBar, defaultValue: true);
+  static bool get enableMYBar => true;
 
   static Transition get pageTransition =>
       Transition.values[_setting.get(
@@ -992,8 +983,10 @@ abstract final class Pref {
   static bool get saveReply =>
       _setting.get(SettingBoxKey.saveReply, defaultValue: true);
 
-  static bool get floatingNavBar =>
-      _setting.get(SettingBoxKey.floatingNavBar, defaultValue: true);
+  static bool get inverseNavigationBar =>
+      _setting.get(SettingBoxKey.inverseNavigationBar, defaultValue: true);
+
+  static bool get floatingNavBar => true;
 
   static bool get removeSafeArea =>
       _setting.get(SettingBoxKey.removeSafeArea, defaultValue: false);

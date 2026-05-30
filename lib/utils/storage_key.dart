@@ -154,6 +154,7 @@ abstract final class SettingBoxKey {
       enableImgMenu = 'enableImgMenu',
       showDynDispute = 'showDynDispute',
       touchSlopH = 'touchSlopH',
+      inverseNavigationBar = 'inverseNavigationBar',
       floatingNavBar = 'floatingNavBar',
       removeSafeArea = 'removeSafeArea',
       angleDegrees = 'angleDegrees';

@@ -454,7 +454,9 @@ class _MainAppState extends PopScopeState<MainApp>
       child = AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle(
           systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: theme.brightness.reverse,
+          systemNavigationBarIconBrightness: Pref.inverseNavigationBar
+              ? theme.brightness.reverse
+              : theme.brightness,
         ),
         child: child,
       );

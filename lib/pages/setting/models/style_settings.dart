@@ -7,7 +7,6 @@ import 'package:PiliPlus/common/widgets/dialog/dialog.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/scale_app.dart';
 import 'package:PiliPlus/common/widgets/stateful_builder.dart';
-import 'package:PiliPlus/models/common/bar_hide_type.dart';
 import 'package:PiliPlus/models/common/dynamic/dynamic_badge_mode.dart';
 import 'package:PiliPlus/models/common/dynamic/up_panel_position.dart';
 import 'package:PiliPlus/models/common/home_tab_type.dart';
@@ -115,19 +114,10 @@ List<SettingsModel> get styleSettings => [
     needReboot: true,
   ),
   const SwitchModel(
-    title: 'MD3样式底栏',
-    subtitle: 'Material You设计规范底栏，关闭可变窄',
-    leading: Icon(Icons.design_services_outlined),
-    setKey: SettingBoxKey.enableMYBar,
+    title: '反色导航栏',
+    leading: Icon(Icons.invert_colors),
+    setKey: SettingBoxKey.inverseNavigationBar,
     defaultVal: true,
-    needReboot: true,
-  ),
-  const SwitchModel(
-    title: '悬浮底栏',
-    leading: Icon(MdiIcons.soundbar),
-    setKey: SettingBoxKey.floatingNavBar,
-    defaultVal: true,
-    needReboot: true,
   ),
   NormalModel(
     leading: const Icon(Icons.calendar_view_week_outlined),
@@ -196,20 +186,6 @@ List<SettingsModel> get styleSettings => [
         '当前消息类型：${Pref.msgUnReadTypeV2.map((item) => item.title).join('、')}',
   ),
   NormalModel(
-    onTap: _showBarHideTypeDialog,
-    title: '顶栏收起类型',
-    leading: const Icon(MdiIcons.arrowExpandVertical),
-    getSubtitle: () => '当前：${Pref.barHideType.label}',
-  ),
-  SwitchModel(
-    title: '首页顶栏收起',
-    subtitle: '首页列表滑动时，收起顶栏',
-    leading: const Icon(Icons.vertical_align_top_outlined),
-    setKey: SettingBoxKey.hideTopBar,
-    defaultVal: PlatformUtils.isMobile,
-    needReboot: true,
-  ),
-  NormalModel(
     onTap: (context, setState) => _showQualityDialog(
       context: context,
       title: '图片质量',
@@ -269,17 +245,6 @@ List<SettingsModel> get styleSettings => [
       style: theme.textTheme.titleSmall,
     ),
     onTap: _showToastDialog,
-  ),
-  SwitchModel(
-    leading: const Icon(Icons.invert_colors),
-    title: '纯黑主题',
-    setKey: SettingBoxKey.isPureBlackTheme,
-    defaultVal: false,
-    onChanged: (value) {
-      if (ThemeUtils.isDarkMode || Pref.darkVideoPage) {
-        Get.updateMyAppTheme();
-      }
-    },
   ),
   NormalModel(
     onTap: (context, setState) => Get.toNamed('/colorSetting'),
@@ -892,25 +857,6 @@ Future<void> _showDefHomeDialog(
   if (res != null) {
     await GStorage.setting.put(SettingBoxKey.defaultHomePage, res.index);
     SmartDialog.showToast('设置成功，重启生效');
-    setState();
-  }
-}
-
-Future<void> _showBarHideTypeDialog(
-  BuildContext context,
-  VoidCallback setState,
-) async {
-  final res = await showDialog<BarHideType>(
-    context: context,
-    builder: (context) => SelectDialog<BarHideType>(
-      title: '顶栏收起类型',
-      value: Pref.barHideType,
-      values: BarHideType.values.map((e) => (e, e.label)).toList(),
-    ),
-  );
-  if (res != null) {
-    await GStorage.setting.put(SettingBoxKey.barHideType, res.index);
-    SmartDialog.showToast('重启生效');
     setState();
   }
 }

@@ -21,20 +21,26 @@ void main() {
     await tempDir.delete(recursive: true);
   });
 
-  test('悬浮底栏外观设置默认启用', () {
-    final setting = styleSettings.whereType<SwitchModel>().singleWhere(
-      (item) => item.setKey == SettingBoxKey.floatingNavBar,
+  test('外观设置不再展示固定策略选项', () {
+    final hiddenKeys = {
+      SettingBoxKey.enableMYBar,
+      SettingBoxKey.floatingNavBar,
+      SettingBoxKey.hideTopBar,
+      SettingBoxKey.barHideType,
+      SettingBoxKey.isPureBlackTheme,
+      SettingBoxKey.hideBottomBar,
+    };
+
+    final switchKeys = styleSettings.whereType<SwitchModel>().map(
+      (item) => item.setKey,
     );
+    final titles = styleSettings.map((item) => item.effectiveTitle);
 
-    expect(setting.defaultVal, isTrue);
-  });
-
-  test('外观设置不再允许隐藏首页底栏', () {
-    final bottomBarHideSettings = styleSettings.whereType<SwitchModel>().where(
-      (item) => item.setKey == SettingBoxKey.hideBottomBar,
-    );
-
-    expect(bottomBarHideSettings, isEmpty);
+    for (final key in hiddenKeys) {
+      expect(switchKeys, isNot(contains(key)));
+    }
+    expect(titles, isNot(contains('顶栏收起类型')));
+    expect(titles, contains('反色导航栏'));
   });
 
   test('主页面不再包装底栏滑动隐藏动画', () {
