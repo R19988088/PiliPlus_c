@@ -31,12 +31,42 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
     Get.updateMyAppTheme();
   }
 
+  Future<void> _updateGlassNavValue(String key, double value) async {
+    switch (key) {
+      case SettingBoxKey.glassNavSaturationMin:
+        ctr.glassNavSaturationMin.value = value;
+      case SettingBoxKey.glassNavSaturationMax:
+        ctr.glassNavSaturationMax.value = value;
+      case SettingBoxKey.glassNavLightnessLight:
+        ctr.glassNavLightnessLight.value = value;
+      case SettingBoxKey.glassNavLightnessDark:
+        ctr.glassNavLightnessDark.value = value;
+    }
+    await GStorage.setting.put(key, value);
+    Get.updateMyAppTheme();
+  }
+
+  Future<void> _resetGlassNavValues() async {
+    ctr.glassNavSaturationMin.value = 0.16;
+    ctr.glassNavSaturationMax.value = 0.32;
+    ctr.glassNavLightnessLight.value = 0.10;
+    ctr.glassNavLightnessDark.value = 0.90;
+    await Future.wait([
+      GStorage.setting.delete(SettingBoxKey.glassNavSaturationMin),
+      GStorage.setting.delete(SettingBoxKey.glassNavSaturationMax),
+      GStorage.setting.delete(SettingBoxKey.glassNavLightnessLight),
+      GStorage.setting.delete(SettingBoxKey.glassNavLightnessDark),
+    ]);
+    Get.updateMyAppTheme();
+  }
+
   Widget _hsbSlider({
     required BuildContext context,
     required String title,
     required double value,
     required double max,
     required int divisions,
+    double titleWidth = 22,
     required String Function(double value) labelFor,
     required ValueChanged<double> onChanged,
   }) {
@@ -46,7 +76,7 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          SizedBox(width: 22, child: Text(title)),
+          SizedBox(width: titleWidth, child: Text(title)),
           const SizedBox(width: 12),
           Expanded(
             child: Slider(
@@ -201,6 +231,82 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
                         currentHsbColor.withValue(value / 100).toColor(),
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text('底部导航颜色', style: titleStyle),
+                        ),
+                        TextButton(
+                          onPressed: _resetGlassNavValues,
+                          child: const Text('重置'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '基于当前主题色单独调整液态玻璃导航的饱和度和亮度。',
+                      style: subTitleStyle,
+                    ),
+                    const SizedBox(height: 12),
+                    _hsbSlider(
+                      context: context,
+                      title: '饱和度下限',
+                      value: ctr.glassNavSaturationMin.value * 100,
+                      max: 100,
+                      divisions: 100,
+                      titleWidth: 84,
+                      labelFor: (value) => '${value.round()}%',
+                      onChanged: (value) => _updateGlassNavValue(
+                        SettingBoxKey.glassNavSaturationMin,
+                        (value / 100).clamp(
+                          0.0,
+                          ctr.glassNavSaturationMax.value,
+                        ),
+                      ),
+                    ),
+                    _hsbSlider(
+                      context: context,
+                      title: '饱和度上限',
+                      value: ctr.glassNavSaturationMax.value * 100,
+                      max: 100,
+                      divisions: 100,
+                      titleWidth: 84,
+                      labelFor: (value) => '${value.round()}%',
+                      onChanged: (value) => _updateGlassNavValue(
+                        SettingBoxKey.glassNavSaturationMax,
+                        (value / 100).clamp(
+                          ctr.glassNavSaturationMin.value,
+                          1.0,
+                        ),
+                      ),
+                    ),
+                    _hsbSlider(
+                      context: context,
+                      title: '浅色亮度',
+                      value: ctr.glassNavLightnessLight.value * 100,
+                      max: 100,
+                      divisions: 100,
+                      titleWidth: 84,
+                      labelFor: (value) => '${value.round()}%',
+                      onChanged: (value) => _updateGlassNavValue(
+                        SettingBoxKey.glassNavLightnessLight,
+                        value / 100,
+                      ),
+                    ),
+                    _hsbSlider(
+                      context: context,
+                      title: '深色亮度',
+                      value: ctr.glassNavLightnessDark.value * 100,
+                      max: 100,
+                      divisions: 100,
+                      titleWidth: 84,
+                      labelFor: (value) => '${value.round()}%',
+                      onChanged: (value) => _updateGlassNavValue(
+                        SettingBoxKey.glassNavLightnessDark,
+                        value / 100,
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -250,4 +356,8 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
 class _ColorSelectController extends GetxController {
   final RxInt currentColor = Pref.customColor.obs;
   final Rx<ThemeType> themeType = Pref.themeType.obs;
+  final RxDouble glassNavSaturationMin = Pref.glassNavSaturationMin.obs;
+  final RxDouble glassNavSaturationMax = Pref.glassNavSaturationMax.obs;
+  final RxDouble glassNavLightnessLight = Pref.glassNavLightnessLight.obs;
+  final RxDouble glassNavLightnessDark = Pref.glassNavLightnessDark.obs;
 }

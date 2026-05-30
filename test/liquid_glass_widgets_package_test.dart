@@ -27,7 +27,10 @@ void main() {
     expect(navigationBar, contains('quality: GlassQuality.standard'));
     expect(navigationBar, contains('glassSettings: _kBottomBarGlassDefaults.copyWith'));
     expect(navigationBar, contains('HSLColor.fromColor(colorScheme.primary)'));
-    expect(navigationBar, contains('withLightness(isLight ? 0.10 : 0.90)'));
+    expect(navigationBar, contains('Pref.glassNavSaturationMin'));
+    expect(navigationBar, contains('Pref.glassNavSaturationMax'));
+    expect(navigationBar, contains('Pref.glassNavLightnessLight'));
+    expect(navigationBar, contains('Pref.glassNavLightnessDark'));
     expect(navigationBar, contains('final iconColor = isLight ? Colors.white : Colors.black'));
     expect(navigationBar, contains('glassColor: navTint.withValues(alpha: 0.90)'));
     expect(navigationBar, contains('boxShadow:'));

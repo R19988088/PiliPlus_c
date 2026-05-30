@@ -515,6 +515,26 @@ abstract final class Pref {
   static bool get isPureBlackTheme =>
       _setting.get(SettingBoxKey.isPureBlackTheme, defaultValue: false);
 
+  static double get glassNavSaturationMin => _setting.get(
+    SettingBoxKey.glassNavSaturationMin,
+    defaultValue: 0.16,
+  );
+
+  static double get glassNavSaturationMax => _setting.get(
+    SettingBoxKey.glassNavSaturationMax,
+    defaultValue: 0.32,
+  );
+
+  static double get glassNavLightnessLight => _setting.get(
+    SettingBoxKey.glassNavLightnessLight,
+    defaultValue: 0.10,
+  );
+
+  static double get glassNavLightnessDark => _setting.get(
+    SettingBoxKey.glassNavLightnessDark,
+    defaultValue: 0.90,
+  );
+
   static bool get antiGoodsDyn =>
       _setting.get(SettingBoxKey.antiGoodsDyn, defaultValue: false);
 

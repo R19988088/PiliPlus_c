@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
@@ -80,10 +81,22 @@ class FloatingNavigationBar extends StatelessWidget {
     final isLight = colorScheme.brightness.isLight;
     final padding = MediaQuery.viewPaddingOf(context);
     final themeHue = HSLColor.fromColor(colorScheme.primary);
-    final navSaturation = themeHue.saturation.clamp(0.16, 0.32).toDouble();
+    final navSaturationMin = Pref.glassNavSaturationMin
+        .clamp(0.0, 1.0)
+        .toDouble();
+    final navSaturationMax = Pref.glassNavSaturationMax
+        .clamp(navSaturationMin, 1.0)
+        .toDouble();
+    final navSaturation = themeHue.saturation
+        .clamp(navSaturationMin, navSaturationMax)
+        .toDouble();
+    final navLightness =
+        (isLight ? Pref.glassNavLightnessLight : Pref.glassNavLightnessDark)
+            .clamp(0.0, 1.0)
+            .toDouble();
     final navTint = themeHue
         .withSaturation(navSaturation)
-        .withLightness(isLight ? 0.10 : 0.90)
+        .withLightness(navLightness)
         .toColor();
     final iconColor = isLight ? Colors.white : Colors.black;
     final shadowColor = isLight
