@@ -987,18 +987,18 @@ abstract final class Pref {
       _setting.get(SettingBoxKey.inverseNavigationBar, defaultValue: true);
 
   static int get glassNavOpacity =>
-      _setting.get(SettingBoxKey.glassNavOpacity, defaultValue: 35);
+      _setting.get(SettingBoxKey.glassNavOpacity, defaultValue: 10);
 
   static int get glassNavRefraction =>
       _setting.get(SettingBoxKey.glassNavRefraction, defaultValue: 50);
 
   static int get glassNavChromaticAberration => _setting.get(
     SettingBoxKey.glassNavChromaticAberration,
-    defaultValue: 45,
+    defaultValue: 190,
   );
 
   static int get glassNavBlur =>
-      _setting.get(SettingBoxKey.glassNavBlur, defaultValue: 30);
+      _setting.get(SettingBoxKey.glassNavBlur, defaultValue: 50);
 
   static int get glassNavThickness =>
       _setting.get(SettingBoxKey.glassNavThickness, defaultValue: 50);

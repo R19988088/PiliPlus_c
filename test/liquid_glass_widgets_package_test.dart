@@ -22,7 +22,7 @@ void main() {
     expect(navigationBar, contains('GlassBottomBar'));
     expect(navigationBar, contains('GlassBottomBarTab'));
     expect(navigationBar, contains('label: null'));
-    expect(navigationBar, contains("const _kGlassNavBarVersion = '液态玻璃0.6'"));
+    expect(navigationBar, contains("const _kGlassNavBarVersion = '导航条9.9'"));
     expect(navigationBar, contains('const _kBottomBarGlassDefaults = LiquidGlassSettings'));
     expect(navigationBar, contains('Pref.glassNavBlur.clamp(0, 100) / 10'));
     expect(navigationBar, contains('Pref.glassNavThickness.clamp(0, 100) * 0.6'));
@@ -64,6 +64,15 @@ void main() {
     expect(main, contains('quality: GlassQuality.premium'));
     expect(main, isNot(contains('adaptiveQuality: true')));
     expect(main, isNot(contains('quality: GlassQuality.standard')));
+
+    final pref = File('lib/utils/storage_pref.dart').readAsStringSync();
+    expect(pref, contains('SettingBoxKey.glassNavOpacity, defaultValue: 10'));
+    expect(
+      pref,
+      contains('SettingBoxKey.glassNavChromaticAberration,\n    defaultValue: 190'),
+    );
+    expect(pref, contains('SettingBoxKey.glassNavBlur, defaultValue: 50'));
+    expect(pref, contains('SettingBoxKey.glassNavThickness, defaultValue: 50'));
 
     final manifest = File(
       'android/app/src/main/AndroidManifest.xml',

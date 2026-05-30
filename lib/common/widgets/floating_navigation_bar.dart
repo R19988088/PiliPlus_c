@@ -7,7 +7,7 @@ import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
-const _kGlassNavBarVersion = '液态玻璃0.6';
+const _kGlassNavBarVersion = '导航条9.9';
 const double _kMaxLabelTextScaleFactor = 1.3;
 
 const _kNavigationHeight = 64.0;
