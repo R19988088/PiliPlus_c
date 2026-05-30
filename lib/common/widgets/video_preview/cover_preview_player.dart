@@ -47,8 +47,11 @@ class _CoverPreviewPlayerState extends State<CoverPreviewPlayer> {
   StreamSubscription<bool>? _playingSub;
   StreamSubscription<Duration>? _positionSub;
   StreamSubscription<bool>? _completedSub;
+  Timer? _hidePlayControlTimer;
   bool _playing = false;
   bool _loading = false;
+  bool _longPressSpeed = false;
+  bool _showPlayControl = false;
   String? _error;
   int? _cid;
   int _lastHeartBeatProgress = 0;
@@ -66,6 +69,7 @@ class _CoverPreviewPlayerState extends State<CoverPreviewPlayer> {
     _playingSub?.cancel();
     _positionSub?.cancel();
     _completedSub?.cancel();
+    _hidePlayControlTimer?.cancel();
     _sendHeartBeat(isManual: true);
     _player?.dispose();
     super.dispose();
@@ -206,9 +210,38 @@ class _CoverPreviewPlayerState extends State<CoverPreviewPlayer> {
     final player = _player;
     if (player == null) return;
     if (_playing) {
+      _setLongPressSpeed(false);
+      _hidePlayControlTimer?.cancel();
+      if (mounted) setState(() => _showPlayControl = true);
       player.pause();
     } else {
+      if (mounted) setState(() => _showPlayControl = true);
+      _scheduleHidePlayControl();
       player.play();
+    }
+  }
+
+  void _scheduleHidePlayControl() {
+    _hidePlayControlTimer?.cancel();
+    _hidePlayControlTimer = Timer(const Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() => _showPlayControl = false);
+      }
+    });
+  }
+
+  Future<void> _setLongPressSpeed(bool enabled) async {
+    final player = _player;
+    if (player == null || _longPressSpeed == enabled) {
+      return;
+    }
+    if (enabled) {
+      if (!_playing) return;
+      _longPressSpeed = true;
+      await player.setRate(2.0);
+    } else {
+      _longPressSpeed = false;
+      await player.setRate(1.0);
     }
   }
 
@@ -217,6 +250,9 @@ class _CoverPreviewPlayerState extends State<CoverPreviewPlayer> {
     final controller = _controller;
     return GestureDetector(
       onTap: _togglePlay,
+      onLongPressStart: (_) => _setLongPressSpeed(true),
+      onLongPressEnd: (_) => _setLongPressSpeed(false),
+      onLongPressCancel: () => _setLongPressSpeed(false),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -246,7 +282,7 @@ class _CoverPreviewPlayerState extends State<CoverPreviewPlayer> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          if (widget.canPlay)
+          if (widget.canPlay && _showPlayControl)
             Container(
               width: 52,
               height: 52,
