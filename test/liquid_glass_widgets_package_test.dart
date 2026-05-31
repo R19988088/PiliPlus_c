@@ -25,9 +25,9 @@ void main() {
     expect(navigationBar, contains("const _kGlassNavBarVersion = '导航条9.9'"));
     expect(navigationBar, contains('const _kBottomBarGlassDefaults = LiquidGlassSettings'));
     expect(navigationBar, contains('Pref.glassNavBlur.clamp(0, 100) / 10'));
-    expect(navigationBar, contains('Pref.glassNavThickness.clamp(0, 200).toDouble()'));
+    expect(navigationBar, contains('Pref.glassNavThickness.clamp(0, 100).toDouble()'));
     expect(navigationBar, contains('Pref.glassNavChromaticAberration.clamp(0, 200) / 100'));
-    expect(navigationBar, contains('Pref.glassNavRefraction.clamp(0, 200) * 0.0118'));
+    expect(navigationBar, contains('Pref.glassNavRefraction.clamp(0, 100) * 0.0118'));
     expect(navigationBar, contains('Pref.glassNavBlend.clamp(0, 100) / 100'));
     expect(navigationBar, isNot(contains('quality: GlassQuality.standard')));
     expect(navigationBar, contains('glassSettings: _kBottomBarGlassDefaults.copyWith'));
@@ -74,7 +74,8 @@ void main() {
       contains('SettingBoxKey.glassNavChromaticAberration,\n    defaultValue: 190'),
     );
     expect(pref, contains('SettingBoxKey.glassNavBlur, defaultValue: 50'));
-    expect(pref, contains('SettingBoxKey.glassNavThickness, defaultValue: 120'));
+    expect(pref, contains('SettingBoxKey.glassNavRefraction, defaultValue: 25'));
+    expect(pref, contains('SettingBoxKey.glassNavThickness, defaultValue: 50'));
     expect(pref, contains('SettingBoxKey.glassNavBlend, defaultValue: 50'));
 
     final manifest = File(

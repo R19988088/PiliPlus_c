@@ -146,7 +146,6 @@ List<SettingsModel> get styleSettings => [
       title: '折射强度',
       setKey: SettingBoxKey.glassNavRefraction,
       initValue: Pref.glassNavRefraction,
-      max: 200,
     ),
   ),
   NormalModel(
@@ -184,7 +183,6 @@ List<SettingsModel> get styleSettings => [
       title: '折射半径',
       setKey: SettingBoxKey.glassNavThickness,
       initValue: Pref.glassNavThickness,
-      max: 200,
     ),
   ),
   NormalModel(

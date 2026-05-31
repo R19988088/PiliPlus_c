@@ -43,7 +43,7 @@ void main() {
     expect(titles, contains('反色导航栏'));
     expect(
       titles,
-      containsAll(['导航条效果', '透明度', '折射强度', '色散', '模糊强度', '厚度', '颜色混合']),
+      containsAll(['导航条效果', '透明度', '折射强度', '色散', '模糊强度', '折射半径', '颜色混合']),
     );
   });
 

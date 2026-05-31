@@ -86,10 +86,10 @@ class FloatingNavigationBar extends StatelessWidget {
         .toColor()
         .withValues(alpha: Pref.glassNavOpacity.clamp(0, 100) / 100);
     final glassBlur = Pref.glassNavBlur.clamp(0, 100) / 10;
-    final glassLensRadius = Pref.glassNavThickness.clamp(0, 200).toDouble();
+    final glassLensRadius = Pref.glassNavThickness.clamp(0, 100).toDouble();
     final chromaticAberration =
         Pref.glassNavChromaticAberration.clamp(0, 200) / 100;
-    final refractiveIndex = 1 + Pref.glassNavRefraction.clamp(0, 200) * 0.0118;
+    final refractiveIndex = 1 + Pref.glassNavRefraction.clamp(0, 100) * 0.0118;
     final glassBlend = Pref.glassNavBlend.clamp(0, 100) / 100;
     final iconColor = navUsesLightDefinition ? Colors.black : Colors.white;
     final shadowColor = isLight
