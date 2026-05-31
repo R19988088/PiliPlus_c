@@ -1,6 +1,8 @@
 import 'package:PiliPlus/models/common/enum_with_label.dart';
 import 'package:PiliPlus/pages/dynamics/view.dart';
+import 'package:PiliPlus/pages/fav/view.dart';
 import 'package:PiliPlus/pages/home/view.dart';
+import 'package:PiliPlus/pages/later/view.dart';
 import 'package:PiliPlus/pages/mine/view.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +24,18 @@ enum NavigationBarType implements EnumWithLabel {
     Icon(Icons.person_outline, size: 24),
     Icon(Icons.person, size: 24),
     MinePage(),
+  ),
+  fav(
+    '收藏',
+    Icon(Icons.star_outline, size: 24),
+    Icon(Icons.star, size: 24),
+    FavPage(),
+  ),
+  later(
+    '稍后再看',
+    Icon(Icons.watch_later_outlined, size: 24),
+    Icon(Icons.watch_later, size: 24),
+    LaterPage(),
   ),
   ;
 
