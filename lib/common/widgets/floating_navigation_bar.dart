@@ -86,7 +86,7 @@ class FloatingNavigationBar extends StatelessWidget {
         .toColor()
         .withValues(alpha: Pref.glassNavOpacity.clamp(0, 100) / 100);
     final glassBlur = Pref.glassNavBlur.clamp(0, 100) / 10;
-    final glassThickness = Pref.glassNavThickness.clamp(0, 100) * 0.6;
+    final glassLensRadius = Pref.glassNavThickness.clamp(0, 200).toDouble();
     final chromaticAberration =
         Pref.glassNavChromaticAberration.clamp(0, 200) / 100;
     final refractiveIndex = 1 + Pref.glassNavRefraction.clamp(0, 200) * 0.0118;
@@ -134,7 +134,7 @@ class FloatingNavigationBar extends StatelessWidget {
           interactionGlowColor: colorScheme.primary,
           glassSettings: _kBottomBarGlassDefaults.copyWith(
             glassColor: navTint,
-            thickness: glassThickness,
+            thickness: glassLensRadius,
             blur: glassBlur,
             chromaticAberration: chromaticAberration,
             refractiveIndex: refractiveIndex,

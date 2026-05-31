@@ -175,15 +175,16 @@ List<SettingsModel> get styleSettings => [
     ),
   ),
   NormalModel(
-    title: '厚度',
+    title: '折射半径',
     leading: const Icon(Icons.density_medium_outlined),
-    getSubtitle: () => '当前：${Pref.glassNavThickness}%',
+    getSubtitle: () => '当前：${Pref.glassNavThickness}dp',
     onTap: (context, setState) => _showGlassNavEffectDialog(
       context: context,
       setState: setState,
-      title: '厚度',
+      title: '折射半径',
       setKey: SettingBoxKey.glassNavThickness,
       initValue: Pref.glassNavThickness,
+      max: 200,
     ),
   ),
   NormalModel(

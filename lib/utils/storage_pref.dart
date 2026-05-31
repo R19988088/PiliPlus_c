@@ -1001,7 +1001,7 @@ abstract final class Pref {
       _setting.get(SettingBoxKey.glassNavBlur, defaultValue: 50);
 
   static int get glassNavThickness =>
-      _setting.get(SettingBoxKey.glassNavThickness, defaultValue: 50);
+      _setting.get(SettingBoxKey.glassNavThickness, defaultValue: 120);
 
   static int get glassNavBlend =>
       _setting.get(SettingBoxKey.glassNavBlend, defaultValue: 50);
