@@ -72,6 +72,10 @@ class MainController extends GetxController
     NavigationBarType.dynamics,
   };
 
+  bool _useExplicitNavRefreshGesture(NavigationBarType nav) {
+    return useBottomNav && floatingNavBar && _refreshableTabs.contains(nav);
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -294,6 +298,11 @@ class MainController extends GetxController
         setDynCount();
       }
     } else {
+      if (_useExplicitNavRefreshGesture(currentNav)) {
+        _lastSelectTime = DateTime.now().millisecondsSinceEpoch;
+        return;
+      }
+
       int now = DateTime.now().millisecondsSinceEpoch;
       if (now - _lastSelectTime < 500) {
         EasyThrottle.throttle(
