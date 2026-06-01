@@ -1,7 +1,6 @@
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/custom_height_widget.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
-import 'package:PiliPlus/common/widgets/nav_refresh_transition.dart';
 import 'package:PiliPlus/common/widgets/progressive_top_blur.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart';
 import 'package:PiliPlus/pages/common/common_page.dart';
@@ -79,15 +78,10 @@ class _HomePageState extends CommonPageState<HomePage>
       children: [
         topBar,
         Expanded(
-          child: Obx(
-            () => NavRefreshTransition(
-              state: _homeController.navRefreshTransition.value,
-              child: onBuild(
-                tabBarView(
-                  controller: _homeController.tabController,
-                  children: _homeController.tabs.map((e) => e.page).toList(),
-                ),
-              ),
+          child: onBuild(
+            tabBarView(
+              controller: _homeController.tabController,
+              children: _homeController.tabs.map((e) => e.page).toList(),
             ),
           ),
         ),

@@ -1,5 +1,4 @@
 import 'package:PiliPlus/common/widgets/scroll_physics.dart';
-import 'package:PiliPlus/common/widgets/nav_refresh_transition.dart';
 import 'package:PiliPlus/common/widgets/progressive_top_blur.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/common/dynamic/dynamics_type.dart';
@@ -203,12 +202,7 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
       ),
       drawer: drawer,
       endDrawer: endDrawer,
-      body: Obx(
-        () => NavRefreshTransition(
-          state: _dynamicsController.navRefreshTransition.value,
-          child: onBuild(child),
-        ),
-      ),
+      body: onBuild(child),
     );
   }
 }

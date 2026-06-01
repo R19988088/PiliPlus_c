@@ -210,12 +210,6 @@ class DynamicsController extends GetxController
   }
 
   @override
-  void jumpToTop() {
-    controller?.jumpToTop();
-    scrollController.jumpToTop();
-  }
-
-  @override
   void toTopOrRefresh() {
     final ctr = controller;
     if (ctr?.scrollController.hasClients == true) {
