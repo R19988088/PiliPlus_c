@@ -278,6 +278,10 @@ class _MainAppState extends PopScopeState<MainApp>
         bottomNav = Obx(
           () => FloatingNavigationBar(
             onDestinationSelected: _mainController.setIndex,
+            onDestinationDoubleTap:
+                _mainController.refreshActiveTabByNavGesture,
+            onDestinationLongPress:
+                _mainController.refreshActiveTabByNavGesture,
             selectedIndex: _mainController.selectedIndex.value,
             destinations: _mainController.navigationBars
                 .map(

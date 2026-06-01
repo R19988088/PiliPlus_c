@@ -4,6 +4,7 @@
 
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
@@ -46,6 +47,8 @@ class FloatingNavigationBar extends StatelessWidget {
     this.labelTextStyle,
     this.labelPadding,
     this.bottomPadding = 8.0,
+    this.onDestinationDoubleTap,
+    this.onDestinationLongPress,
   }) : assert(destinations.length >= 2),
        assert(0 <= selectedIndex && selectedIndex < destinations.length);
 
@@ -64,12 +67,8 @@ class FloatingNavigationBar extends StatelessWidget {
   final WidgetStateProperty<TextStyle?>? labelTextStyle;
   final EdgeInsetsGeometry? labelPadding;
   final double bottomPadding;
-
-  VoidCallback _handleTap(int index) {
-    return onDestinationSelected != null
-        ? () => onDestinationSelected!(index)
-        : () {};
-  }
+  final ValueChanged<int>? onDestinationDoubleTap;
+  final ValueChanged<int>? onDestinationLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -111,36 +110,82 @@ class FloatingNavigationBar extends StatelessWidget {
         padding.right + 20,
         bottomPadding + padding.bottom,
       ),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: _kBorderRadius,
-          boxShadow: [
-            BoxShadow(
-              color: shadowColor,
-              blurRadius: 30,
-              spreadRadius: -4,
-              offset: const Offset(0, 12),
+      child: Stack(
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: _kBorderRadius,
+              boxShadow: [
+                BoxShadow(
+                  color: shadowColor,
+                  blurRadius: 30,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 12),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: GlassBottomBar(
-          tabs: glassBottomBarTabs,
-          selectedIndex: selectedIndex,
-          onTabSelected: onDestinationSelected ?? (_) {},
-          horizontalPadding: 0,
-          verticalPadding: 0,
-          selectedIconColor: iconColor,
-          unselectedIconColor: iconColor.withValues(alpha: 0.68),
-          interactionGlowColor: colorScheme.primary,
-          glassSettings: _kBottomBarGlassDefaults.copyWith(
-            glassColor: navTint,
-            thickness: glassLensRadius,
-            blur: glassBlur,
-            chromaticAberration: chromaticAberration,
-            refractiveIndex: refractiveIndex,
-            blend: glassBlend,
+            child: GlassBottomBar(
+              tabs: glassBottomBarTabs,
+              selectedIndex: selectedIndex,
+              onTabSelected: onDestinationSelected ?? (_) {},
+              horizontalPadding: 0,
+              verticalPadding: 0,
+              selectedIconColor: iconColor,
+              unselectedIconColor: iconColor.withValues(alpha: 0.68),
+              interactionGlowColor: colorScheme.primary,
+              glassSettings: _kBottomBarGlassDefaults.copyWith(
+                glassColor: navTint,
+                thickness: glassLensRadius,
+                blur: glassBlur,
+                chromaticAberration: chromaticAberration,
+                refractiveIndex: refractiveIndex,
+                blend: glassBlend,
+              ),
+            ),
           ),
-        ),
+          if (onDestinationDoubleTap != null || onDestinationLongPress != null)
+            Positioned.fill(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth / destinations.length;
+                  return Row(
+                    children: List.generate(destinations.length, (index) {
+                      return SizedBox(
+                        width: width,
+                        child: RawGestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          gestures: {
+                            if (onDestinationDoubleTap != null)
+                              DoubleTapGestureRecognizer:
+                                  GestureRecognizerFactoryWithHandlers<
+                                    DoubleTapGestureRecognizer
+                                  >(
+                                    DoubleTapGestureRecognizer.new,
+                                    (instance) {
+                                      instance.onDoubleTap =
+                                          () => onDestinationDoubleTap!(index);
+                                    },
+                                  ),
+                            if (onDestinationLongPress != null)
+                              LongPressGestureRecognizer:
+                                  GestureRecognizerFactoryWithHandlers<
+                                    LongPressGestureRecognizer
+                                  >(
+                                    LongPressGestureRecognizer.new,
+                                    (instance) {
+                                      instance.onLongPress =
+                                          () => onDestinationLongPress!(index);
+                                    },
+                                  ),
+                          },
+                        ),
+                      );
+                    }),
+                  );
+                },
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -67,6 +67,10 @@ class MainController extends GetxController
 
   static const _period = 5 * 60 * 1000;
   late int _lastSelectTime = 0;
+  static const _refreshableTabs = {
+    NavigationBarType.home,
+    NavigationBarType.dynamics,
+  };
 
   @override
   void onInit() {
@@ -311,6 +315,20 @@ class MainController extends GetxController
         }
       }
       _lastSelectTime = now;
+    }
+  }
+
+  Future<void> refreshActiveTabByNavGesture(int index) async {
+    if (index != selectedIndex.value) return;
+    final currentNav = navigationBars[index];
+    if (!_refreshableTabs.contains(currentNav)) return;
+    switch (currentNav) {
+      case NavigationBarType.home:
+        await homeController.triggerNavRefresh();
+      case NavigationBarType.dynamics:
+        await dynamicController.triggerNavRefresh();
+      default:
+        break;
     }
   }
 
