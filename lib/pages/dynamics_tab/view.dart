@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/nav_refresh_placeholder.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/common/dynamic/dynamics_type.dart';
@@ -74,9 +75,14 @@ class _DynamicsTabPageState extends State<DynamicsTabPage>
       child: Obx(() {
         final phase = dynamicsController.navRefreshContentPhase.value;
         final sliver = switch (phase) {
-          NavRefreshContentPhase.placeholder => const SliverFillRemaining(
-            hasScrollBody: false,
-            child: SizedBox.shrink(),
+          NavRefreshContentPhase.placeholder => const SliverToBoxAdapter(
+            child: NavRefreshPlaceholder(
+              columns: 1,
+              itemCount: 7,
+              aspectRatio: 1.2,
+              mainAxisExtent: 132,
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            ),
           ),
           _ => buildPage(
             _buildBody(controller.loadingState.value),

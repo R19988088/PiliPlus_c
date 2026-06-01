@@ -1,6 +1,7 @@
 import 'package:PiliPlus/common/skeleton/video_card_v.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/nav_refresh_placeholder.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/video_card/video_card_v.dart';
 import 'package:PiliPlus/http/loading_state.dart';
@@ -38,27 +39,33 @@ class _RcmdPageState extends State<RcmdPage>
         child: Obx(() {
           final phase = controller.navRefreshContentPhase.value;
           final sliver = switch (phase) {
-            NavRefreshContentPhase.placeholder => const SliverFillRemaining(
-              hasScrollBody: false,
-              child: SizedBox.shrink(),
+            NavRefreshContentPhase.placeholder => SliverToBoxAdapter(
+              child: NavRefreshPlaceholder(
+                columns: 2,
+                itemCount: 8,
+                maxCrossAxisExtent: Pref.recommendCardWidth,
+                mainAxisExtent: MediaQuery.textScalerOf(context).scale(90),
+              ),
             ),
             _ => _buildBody(colorScheme, controller.loadingState.value),
           };
 
-          Widget buildScrollView() => CustomScrollView(
-            controller: controller.scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              SliverPadding(
-                padding: const .only(top: Style.cardSpace, bottom: 100),
-                sliver: sliver,
-              ),
-            ],
-          );
-
-          return _NavRefreshMotionBlur(
-            active: phase == NavRefreshContentPhase.exiting,
-            builder: (_) => _NavRefreshExitSlide(child: buildScrollView()),
+          return AnimatedSlide(
+            offset: phase == NavRefreshContentPhase.exiting
+                ? const Offset(0, 0.18)
+                : Offset.zero,
+            duration: ScrollOrRefreshMixin.navRefreshExitDuration,
+            curve: Curves.easeInCubic,
+            child: CustomScrollView(
+              controller: controller.scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverPadding(
+                  padding: const .only(top: Style.cardSpace, bottom: 100),
+                  sliver: sliver,
+                ),
+              ],
+            ),
           );
         }),
       ),
@@ -152,55 +159,4 @@ class _RcmdPageState extends State<RcmdPage>
     itemBuilder: (context, index) => const VideoCardVSkeleton(),
     itemCount: 10,
   );
-}
-
-class _NavRefreshMotionBlur extends StatelessWidget {
-  const _NavRefreshMotionBlur({
-    required this.active,
-    required this.builder,
-  });
-
-  final bool active;
-  final WidgetBuilder builder;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!active) return builder(context);
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Transform.translate(
-          offset: const Offset(0, -10),
-          child: Opacity(
-            opacity: 0.14,
-            child: builder(context),
-          ),
-        ),
-        Transform.translate(
-          offset: const Offset(0, -5),
-          child: Opacity(
-            opacity: 0.24,
-            child: builder(context),
-          ),
-        ),
-        builder(context),
-      ],
-    );
-  }
-}
-
-class _NavRefreshExitSlide extends StatelessWidget {
-  const _NavRefreshExitSlide({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSlide(
-      offset: const Offset(0, 0.22),
-      duration: ScrollOrRefreshMixin.navRefreshExitDuration,
-      curve: Curves.easeInCubic,
-      child: child,
-    );
-  }
 }
