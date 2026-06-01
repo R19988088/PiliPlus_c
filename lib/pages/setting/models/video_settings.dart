@@ -149,7 +149,7 @@ List<SettingsModel> get videoSettings => [
     const SwitchModel(
       title: '蓝牙耳机延迟优化',
       leading: Icon(Icons.bluetooth_audio_outlined),
-      subtitle: '检测到蓝牙音频输出时自动提前音频，默认提前180ms',
+      subtitle: '检测到蓝牙音频输出时自动提前音频，默认提前320ms',
       setKey: SettingBoxKey.bluetoothAudioDelay,
       defaultVal: true,
     ),
@@ -526,7 +526,7 @@ void _showBluetoothAudioDelayDialog(
         keyboardType: TextInputType.number,
         decoration: const InputDecoration(
           suffixText: 'ms',
-          helperText: '建议从默认180ms开始，声音仍慢就调大，声音太快就调小',
+          helperText: '建议从默认320ms开始，声音仍慢就调大，声音太快就调小',
         ),
         onChanged: (value) => compensationMs = value,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],

@@ -4,7 +4,7 @@ import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/services.dart' show PlatformException;
 
 abstract final class BluetoothAudioDelay {
-  static const int defaultCompensationMs = 180;
+  static const int defaultCompensationMs = 320;
   static const int maxCompensationMs = 400;
 
   static int clampCompensationMs(int value) =>

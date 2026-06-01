@@ -38,14 +38,14 @@ void main() {
 
   test('蓝牙音频延迟优化默认启用并提前音频', () {
     expect(Pref.bluetoothAudioDelay, isTrue);
-    expect(Pref.bluetoothAudioDelayMs, 180);
+    expect(Pref.bluetoothAudioDelayMs, 320);
     expect(
       BluetoothAudioDelay.optionValue(
         isBluetoothAudioOutput: true,
         enabled: true,
         compensationMs: Pref.bluetoothAudioDelayMs,
       ),
-      '-0.180',
+      '-0.320',
     );
     expect(
       BluetoothAudioDelay.optionValue(
@@ -85,6 +85,6 @@ void main() {
     );
 
     expect(switchSetting.defaultVal, isTrue);
-    expect(delaySetting.effectiveSubtitle, contains('180ms'));
+    expect(delaySetting.effectiveSubtitle, contains('320ms'));
   }, skip: !Platform.isAndroid);
 }
