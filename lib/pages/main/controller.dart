@@ -333,9 +333,9 @@ class MainController extends GetxController
     if (!_refreshableTabs.contains(currentNav)) return;
     switch (currentNav) {
       case NavigationBarType.home:
-        await homeController.onRefresh();
+        await homeController.controller.triggerNavRefresh();
       case NavigationBarType.dynamics:
-        await dynamicController.onRefresh();
+        await dynamicController.triggerNavRefresh();
       default:
         break;
     }

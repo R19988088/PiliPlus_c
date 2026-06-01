@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/nav_refresh_placeholder.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/common/dynamic/dynamics_type.dart';
 import 'package:PiliPlus/models/dynamics/result.dart';
+import 'package:PiliPlus/pages/common/common_controller.dart';
 import 'package:PiliPlus/pages/dynamics/controller.dart';
 import 'package:PiliPlus/pages/dynamics/widgets/dynamic_panel.dart';
 import 'package:PiliPlus/pages/dynamics_tab/controller.dart';
@@ -70,18 +72,41 @@ class _DynamicsTabPageState extends State<DynamicsTabPage>
         dynamicsController.queryFollowUp();
         return controller.onRefresh();
       },
-      child: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        controller: controller.scrollController,
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.only(bottom: 100),
-            sliver: buildPage(
-              Obx(() => _buildBody(controller.loadingState.value)),
+      child: Obx(() {
+        final phase = dynamicsController.navRefreshContentPhase.value;
+        final sliver = switch (phase) {
+          NavRefreshContentPhase.placeholder => const SliverToBoxAdapter(
+            child: NavRefreshPlaceholder(
+              columns: 1,
+              itemCount: 7,
+              aspectRatio: 1.2,
+              mainAxisExtent: 132,
+              borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
           ),
-        ],
-      ),
+          _ => buildPage(
+            _buildBody(controller.loadingState.value),
+          ),
+        };
+
+        return AnimatedSlide(
+          offset: phase == NavRefreshContentPhase.exiting
+              ? const Offset(0, 0.18)
+              : Offset.zero,
+          duration: ScrollOrRefreshMixin.navRefreshExitDuration,
+          curve: Curves.easeInCubic,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            controller: controller.scrollController,
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.only(bottom: 100),
+                sliver: sliver,
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 

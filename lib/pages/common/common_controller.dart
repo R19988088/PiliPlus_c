@@ -4,12 +4,39 @@ import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/widgets.dart' show ScrollController;
 import 'package:get/get.dart';
 
+enum NavRefreshContentPhase { idle, exiting, placeholder }
+
 mixin ScrollOrRefreshMixin {
+  static const navRefreshExitDuration = Duration(milliseconds: 220);
+
   ScrollController get scrollController;
+  final Rx<NavRefreshContentPhase> navRefreshContentPhase =
+      NavRefreshContentPhase.idle.obs;
+  bool _isNavRefreshRunning = false;
 
   void animateToTop() => scrollController.animToTop();
 
+  void jumpToTop() => scrollController.jumpToTop();
+
   Future<void> onRefresh();
+
+  Future<void> triggerNavRefresh() async {
+    if (_isNavRefreshRunning) return;
+    _isNavRefreshRunning = true;
+    navRefreshContentPhase.value = NavRefreshContentPhase.exiting;
+
+    await Future<void>.delayed(const Duration(milliseconds: 16));
+    jumpToTop();
+    await Future<void>.delayed(navRefreshExitDuration);
+
+    navRefreshContentPhase.value = NavRefreshContentPhase.placeholder;
+    try {
+      await onRefresh();
+    } finally {
+      navRefreshContentPhase.value = NavRefreshContentPhase.idle;
+      _isNavRefreshRunning = false;
+    }
+  }
 
   void toTopOrRefresh() {
     if (scrollController.hasClients) {

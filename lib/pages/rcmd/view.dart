@@ -1,9 +1,11 @@
 import 'package:PiliPlus/common/skeleton/video_card_v.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/nav_refresh_placeholder.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/video_card/video_card_v.dart';
 import 'package:PiliPlus/http/loading_state.dart';
+import 'package:PiliPlus/pages/common/common_controller.dart';
 import 'package:PiliPlus/pages/rcmd/controller.dart';
 import 'package:PiliPlus/utils/grid.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
@@ -28,26 +30,48 @@ class _RcmdPageState extends State<RcmdPage>
   Widget build(BuildContext context) {
     super.build(context);
     final colorScheme = ColorScheme.of(context);
-    return Container(
+    final content = Container(
       clipBehavior: .hardEdge,
       margin: const .symmetric(horizontal: Style.safeSpace),
       decoration: const BoxDecoration(borderRadius: Style.mdRadius),
       child: refreshIndicator(
         onRefresh: controller.onRefresh,
-        child: CustomScrollView(
-          controller: controller.scrollController,
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            SliverPadding(
-              padding: const .only(top: Style.cardSpace, bottom: 100),
-              sliver: Obx(
-                () => _buildBody(colorScheme, controller.loadingState.value),
+        child: Obx(() {
+          final phase = controller.navRefreshContentPhase.value;
+          final sliver = switch (phase) {
+            NavRefreshContentPhase.placeholder => SliverToBoxAdapter(
+              child: NavRefreshPlaceholder(
+                columns: 2,
+                itemCount: 8,
+                maxCrossAxisExtent: Pref.recommendCardWidth,
+                mainAxisExtent: MediaQuery.textScalerOf(context).scale(90),
               ),
             ),
-          ],
-        ),
+            _ => _buildBody(colorScheme, controller.loadingState.value),
+          };
+
+          return AnimatedSlide(
+            offset: phase == NavRefreshContentPhase.exiting
+                ? const Offset(0, 0.18)
+                : Offset.zero,
+            duration: ScrollOrRefreshMixin.navRefreshExitDuration,
+            curve: Curves.easeInCubic,
+            child: CustomScrollView(
+              controller: controller.scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverPadding(
+                  padding: const .only(top: Style.cardSpace, bottom: 100),
+                  sliver: sliver,
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
+
+    return content;
   }
 
   late final gridDelegate = SliverGridDelegateWithExtentAndRatio(
