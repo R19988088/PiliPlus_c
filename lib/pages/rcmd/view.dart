@@ -58,7 +58,7 @@ class _RcmdPageState extends State<RcmdPage>
 
           return _NavRefreshMotionBlur(
             active: phase == NavRefreshContentPhase.exiting,
-            builder: () => _NavRefreshExitSlide(child: buildScrollView()),
+            builder: (_) => _NavRefreshExitSlide(child: buildScrollView()),
           );
         }),
       ),
