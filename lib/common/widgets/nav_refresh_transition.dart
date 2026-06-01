@@ -1,6 +1,14 @@
 import 'package:PiliPlus/pages/common/common_controller.dart';
 import 'package:flutter/material.dart';
 
+String navRefreshTransitionKeyForState(NavRefreshTransitionState state) {
+  return switch (state.stage) {
+    NavRefreshTransitionStage.exit => 'exit-${state.tick}',
+    NavRefreshTransitionStage.enter ||
+    NavRefreshTransitionStage.idle => 'content-${state.tick}',
+  };
+}
+
 class NavRefreshTransition extends StatelessWidget {
   const NavRefreshTransition({
     super.key,
@@ -13,7 +21,7 @@ class NavRefreshTransition extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final key = ValueKey('${state.tick}-${state.stage.name}');
+    final key = ValueKey(navRefreshTransitionKeyForState(state));
     return ClipRect(
       child: AnimatedSwitcher(
         duration: state.stage == NavRefreshTransitionStage.exit
