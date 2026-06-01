@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.app.PictureInPictureParams
 import android.app.SearchManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ShortcutInfo
@@ -12,6 +13,8 @@ import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.graphics.drawable.Icon
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -184,6 +187,10 @@ class MainActivity : AudioServiceActivity() {
                     result.success(isFoldable)
                 }
 
+                "isBluetoothAudioOutput" -> {
+                    result.success(isBluetoothAudioOutput())
+                }
+
                 "SystemChrome.setEnabledSystemUIMode" -> {
                     SystemChrome.onMethodCall(
                         this,
@@ -236,6 +243,27 @@ class MainActivity : AudioServiceActivity() {
             }
         } catch (_: Exception) {
             return null
+        }
+    }
+
+    private fun isBluetoothAudioOutput(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        return audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).any { device ->
+            when (device.type) {
+                AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
+                AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> true
+                else -> isBluetoothLeAudioDevice(device)
+            }
+        }
+    }
+
+    private fun isBluetoothLeAudioDevice(device: AudioDeviceInfo): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
+        return when (device.type) {
+            AudioDeviceInfo.TYPE_BLE_HEADSET,
+            AudioDeviceInfo.TYPE_BLE_SPEAKER -> true
+            else -> false
         }
     }
 

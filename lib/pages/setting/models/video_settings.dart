@@ -10,6 +10,7 @@ import 'package:PiliPlus/pages/setting/widgets/ordered_multi_select_dialog.dart'
 import 'package:PiliPlus/pages/setting/widgets/select_dialog.dart';
 import 'package:PiliPlus/plugin/pl_player/models/audio_output_type.dart';
 import 'package:PiliPlus/plugin/pl_player/models/hwdec_type.dart';
+import 'package:PiliPlus/plugin/pl_player/utils/bluetooth_audio_delay.dart';
 import 'package:PiliPlus/utils/storage.dart';
 import 'package:PiliPlus/utils/storage_key.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
@@ -143,6 +144,21 @@ List<SettingsModel> get videoSettings => [
       leading: const Icon(Icons.speaker_outlined),
       getSubtitle: () => '当前：${Pref.audioOutput}',
       onTap: _showAudioOutputDialog,
+    ),
+  if (Platform.isAndroid)
+    const SwitchModel(
+      title: '蓝牙耳机延迟优化',
+      leading: Icon(Icons.bluetooth_audio_outlined),
+      subtitle: '检测到蓝牙音频输出时自动提前音频，默认提前180ms',
+      setKey: SettingBoxKey.bluetoothAudioDelay,
+      defaultVal: true,
+    ),
+  if (Platform.isAndroid)
+    NormalModel(
+      title: '蓝牙音频提前量',
+      leading: const Icon(Icons.av_timer_outlined),
+      getSubtitle: () => '当前：${Pref.bluetoothAudioDelayMs}ms，范围0-400ms',
+      onTap: _showBluetoothAudioDelayDialog,
     ),
   const SwitchModel(
     title: '扩大缓冲区',
@@ -483,6 +499,57 @@ void _showAutoSyncDialog(BuildContext context, VoidCallback setState) {
               int.parse(autosync);
               Get.back();
               await GStorage.setting.put(SettingBoxKey.autosync, autosync);
+              setState();
+            } catch (e) {
+              SmartDialog.showToast(e.toString());
+            }
+          },
+          child: const Text('确定'),
+        ),
+      ],
+    ),
+  );
+}
+
+void _showBluetoothAudioDelayDialog(
+  BuildContext context,
+  VoidCallback setState,
+) {
+  String compensationMs = Pref.bluetoothAudioDelayMs.toString();
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('蓝牙音频提前量'),
+      content: TextFormField(
+        autofocus: true,
+        initialValue: compensationMs,
+        keyboardType: TextInputType.number,
+        decoration: const InputDecoration(
+          suffixText: 'ms',
+          helperText: '建议从默认180ms开始，声音仍慢就调大，声音太快就调小',
+        ),
+        onChanged: (value) => compensationMs = value,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      ),
+      actions: [
+        TextButton(
+          onPressed: Get.back,
+          child: Text(
+            '取消',
+            style: TextStyle(color: ColorScheme.of(context).outline),
+          ),
+        ),
+        TextButton(
+          onPressed: () async {
+            try {
+              final value = BluetoothAudioDelay.clampCompensationMs(
+                int.parse(compensationMs),
+              );
+              Get.back();
+              await GStorage.setting.put(
+                SettingBoxKey.bluetoothAudioDelayMs,
+                value,
+              );
               setState();
             } catch (e) {
               SmartDialog.showToast(e.toString());

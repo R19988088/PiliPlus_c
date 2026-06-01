@@ -34,6 +34,7 @@ import 'package:PiliPlus/plugin/pl_player/models/bottom_progress_behavior.dart';
 import 'package:PiliPlus/plugin/pl_player/models/fullscreen_mode.dart';
 import 'package:PiliPlus/plugin/pl_player/models/hwdec_type.dart';
 import 'package:PiliPlus/plugin/pl_player/models/play_repeat.dart';
+import 'package:PiliPlus/plugin/pl_player/utils/bluetooth_audio_delay.dart';
 import 'package:PiliPlus/utils/device_utils.dart';
 import 'package:PiliPlus/utils/extension/iterable_ext.dart';
 import 'package:PiliPlus/utils/global_data.dart';
@@ -805,6 +806,17 @@ abstract final class Pref {
 
   static bool get expandBuffer =>
       _setting.get(SettingBoxKey.expandBuffer, defaultValue: false);
+
+  static bool get bluetoothAudioDelay =>
+      _setting.get(SettingBoxKey.bluetoothAudioDelay, defaultValue: true);
+
+  static int get bluetoothAudioDelayMs =>
+      BluetoothAudioDelay.clampCompensationMs(
+        _setting.get(
+          SettingBoxKey.bluetoothAudioDelayMs,
+          defaultValue: BluetoothAudioDelay.defaultCompensationMs,
+        ),
+      );
 
   static String get audioOutput => _setting.get(
     SettingBoxKey.audioOutput,

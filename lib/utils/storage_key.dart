@@ -14,6 +14,8 @@ abstract final class SettingBoxKey {
       defaultPicQa = 'defaultPicQa',
       enableHA = 'enableHA',
       audioOutput = 'audioOutput',
+      bluetoothAudioDelay = 'bluetoothAudioDelay',
+      bluetoothAudioDelayMs = 'bluetoothAudioDelayMs',
       expandBuffer = 'expandBuffer',
       hardwareDecoding = 'hardwareDecoding',
       videoSync = 'videoSync',

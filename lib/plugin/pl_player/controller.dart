@@ -27,6 +27,7 @@ import 'package:PiliPlus/plugin/pl_player/models/heart_beat_type.dart';
 import 'package:PiliPlus/plugin/pl_player/models/play_repeat.dart';
 import 'package:PiliPlus/plugin/pl_player/models/play_status.dart';
 import 'package:PiliPlus/plugin/pl_player/models/video_fit_type.dart';
+import 'package:PiliPlus/plugin/pl_player/utils/bluetooth_audio_delay.dart';
 import 'package:PiliPlus/plugin/pl_player/utils/fullscreen.dart';
 import 'package:PiliPlus/services/service_locator.dart';
 import 'package:PiliPlus/utils/accounts.dart';
@@ -771,6 +772,13 @@ class PlPlayerController with BlockConfigMixin {
     if (Platform.isAndroid) {
       opt['volume-max'] = '100';
       opt['ao'] = Pref.audioOutput;
+      final bluetoothAudioDelay = await BluetoothAudioDelay.queryOptionValue(
+        enabled: Pref.bluetoothAudioDelay,
+        compensationMs: Pref.bluetoothAudioDelayMs,
+      );
+      if (bluetoothAudioDelay != null) {
+        opt['audio-delay'] = bluetoothAudioDelay;
+      }
     } else if (PlatformUtils.isDesktop) {
       opt['volume'] = (volume.value * 100).toString();
     }
