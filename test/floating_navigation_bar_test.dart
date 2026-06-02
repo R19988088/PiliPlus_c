@@ -20,6 +20,7 @@ void main() {
     for (final view in [rcmdView, dynamicsTabView]) {
       expect(view, contains('NavTapFeedbackTransition'));
       expect(view, contains('navTapFeedbackProgress.value'));
+      expect(view, contains('isNavTapFeedbackRefreshTriggered'));
     }
     expect(mainController, contains('startNavTapFeedback'));
     expect(mainController, contains('endNavTapFeedback'));

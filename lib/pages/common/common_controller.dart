@@ -24,6 +24,8 @@ mixin ScrollOrRefreshMixin {
   Timer? _navTapFeedbackTimer;
   int _navTapFeedbackStartedAt = 0;
   bool _isNavTapFeedbackRefreshTriggered = false;
+  bool get isNavTapFeedbackRefreshTriggered =>
+      _isNavTapFeedbackRefreshTriggered;
 
   void animateToTop() => scrollController.animToTop();
 

@@ -53,7 +53,9 @@ class _RcmdPageState extends State<RcmdPage>
 
           return NavTapFeedbackTransition(
             progress: controller.navTapFeedbackProgress.value,
-            enabled: phase == NavRefreshContentPhase.idle,
+            enabled:
+                phase == NavRefreshContentPhase.idle ||
+                controller.isNavTapFeedbackRefreshTriggered,
             child: AnimatedSlide(
               offset: phase == NavRefreshContentPhase.exiting
                   ? const Offset(0, 0.18)
