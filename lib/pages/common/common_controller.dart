@@ -8,17 +8,28 @@ enum NavRefreshContentPhase { idle, exiting, placeholder }
 
 mixin ScrollOrRefreshMixin {
   static const navRefreshExitDuration = Duration(milliseconds: 220);
+  static const navTapFeedbackDuration = Duration(milliseconds: 360);
 
   ScrollController get scrollController;
   final Rx<NavRefreshContentPhase> navRefreshContentPhase =
       NavRefreshContentPhase.idle.obs;
+  final RxInt navTapFeedbackTick = 0.obs;
   bool _isNavRefreshRunning = false;
+  int _lastNavTapFeedbackAt = 0;
 
   void animateToTop() => scrollController.animToTop();
 
   void jumpToTop() => scrollController.jumpToTop();
 
   Future<void> onRefresh();
+
+  void triggerNavTapFeedback() {
+    if (_isNavRefreshRunning) return;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _lastNavTapFeedbackAt < 280) return;
+    _lastNavTapFeedbackAt = now;
+    navTapFeedbackTick.value++;
+  }
 
   Future<void> triggerNavRefresh() async {
     if (_isNavRefreshRunning) return;

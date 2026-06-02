@@ -1,8 +1,9 @@
 import 'package:PiliPlus/common/skeleton/video_card_v.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
-import 'package:PiliPlus/common/widgets/nav_refresh_placeholder.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
+import 'package:PiliPlus/common/widgets/nav_refresh_placeholder.dart';
+import 'package:PiliPlus/common/widgets/nav_tap_feedback_transition.dart';
 import 'package:PiliPlus/common/widgets/video_card/video_card_v.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/pages/common/common_controller.dart';
@@ -50,21 +51,25 @@ class _RcmdPageState extends State<RcmdPage>
             _ => _buildBody(colorScheme, controller.loadingState.value),
           };
 
-          return AnimatedSlide(
-            offset: phase == NavRefreshContentPhase.exiting
-                ? const Offset(0, 0.18)
-                : Offset.zero,
-            duration: ScrollOrRefreshMixin.navRefreshExitDuration,
-            curve: Curves.easeInCubic,
-            child: CustomScrollView(
-              controller: controller.scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                SliverPadding(
-                  padding: const .only(top: Style.cardSpace, bottom: 100),
-                  sliver: sliver,
-                ),
-              ],
+          return NavTapFeedbackTransition(
+            tick: controller.navTapFeedbackTick.value,
+            enabled: phase == NavRefreshContentPhase.idle,
+            child: AnimatedSlide(
+              offset: phase == NavRefreshContentPhase.exiting
+                  ? const Offset(0, 0.18)
+                  : Offset.zero,
+              duration: ScrollOrRefreshMixin.navRefreshExitDuration,
+              curve: Curves.easeInCubic,
+              child: CustomScrollView(
+                controller: controller.scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverPadding(
+                    padding: const .only(top: Style.cardSpace, bottom: 100),
+                    sliver: sliver,
+                  ),
+                ],
+              ),
             ),
           );
         }),

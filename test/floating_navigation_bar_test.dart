@@ -1,9 +1,46 @@
+import 'dart:io';
+
 import 'package:PiliPlus/common/widgets/floating_navigation_bar.dart';
+import 'package:PiliPlus/common/widgets/nav_tap_feedback_transition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 void main() {
+  test('可刷新主导航页面接入单击反馈过渡', () {
+    final rcmdView = File('lib/pages/rcmd/view.dart').readAsStringSync();
+    final dynamicsTabView = File(
+      'lib/pages/dynamics_tab/view.dart',
+    ).readAsStringSync();
+
+    for (final view in [rcmdView, dynamicsTabView]) {
+      expect(view, contains('NavTapFeedbackTransition'));
+      expect(view, contains('navTapFeedbackTick.value'));
+    }
+  });
+
+  testWidgets('导航单击反馈 tick 变化时内容下压后回弹', (tester) async {
+    await tester.pumpWidget(
+      const NavTapFeedbackTransition(
+        tick: 0,
+        child: SizedBox(width: 10, height: 10),
+      ),
+    );
+    expect(_translateY(tester), 0);
+
+    await tester.pumpWidget(
+      const NavTapFeedbackTransition(
+        tick: 1,
+        child: SizedBox(width: 10, height: 10),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(_translateY(tester), greaterThan(0));
+
+    await tester.pumpAndSettle();
+    expect(_translateY(tester), closeTo(0, 0.01));
+  });
+
   testWidgets('悬浮底栏渲染液态玻璃背景滤镜层', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -83,4 +120,9 @@ void main() {
     await tester.pump();
     expect(longPressedIndex, 1);
   });
+}
+
+double _translateY(WidgetTester tester) {
+  final transform = tester.widget<Transform>(find.byType(Transform));
+  return transform.transform.getTranslation().y;
 }

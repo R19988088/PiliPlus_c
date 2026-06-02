@@ -299,6 +299,14 @@ class MainController extends GetxController
       }
     } else {
       if (_useExplicitNavRefreshGesture(currentNav)) {
+        switch (currentNav) {
+          case NavigationBarType.home:
+            homeController.controller.triggerNavTapFeedback();
+          case NavigationBarType.dynamics:
+            dynamicController.triggerNavTapFeedback();
+          default:
+            break;
+        }
         _lastSelectTime = DateTime.now().millisecondsSinceEpoch;
         return;
       }

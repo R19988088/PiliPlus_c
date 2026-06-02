@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
-import 'package:PiliPlus/common/widgets/nav_refresh_placeholder.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
+import 'package:PiliPlus/common/widgets/nav_refresh_placeholder.dart';
+import 'package:PiliPlus/common/widgets/nav_tap_feedback_transition.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/common/dynamic/dynamics_type.dart';
 import 'package:PiliPlus/models/dynamics/result.dart';
@@ -89,21 +90,25 @@ class _DynamicsTabPageState extends State<DynamicsTabPage>
           ),
         };
 
-        return AnimatedSlide(
-          offset: phase == NavRefreshContentPhase.exiting
-              ? const Offset(0, 0.18)
-              : Offset.zero,
-          duration: ScrollOrRefreshMixin.navRefreshExitDuration,
-          curve: Curves.easeInCubic,
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            controller: controller.scrollController,
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.only(bottom: 100),
-                sliver: sliver,
-              ),
-            ],
+        return NavTapFeedbackTransition(
+          tick: dynamicsController.navTapFeedbackTick.value,
+          enabled: phase == NavRefreshContentPhase.idle,
+          child: AnimatedSlide(
+            offset: phase == NavRefreshContentPhase.exiting
+                ? const Offset(0, 0.18)
+                : Offset.zero,
+            duration: ScrollOrRefreshMixin.navRefreshExitDuration,
+            curve: Curves.easeInCubic,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              controller: controller.scrollController,
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.only(bottom: 100),
+                  sliver: sliver,
+                ),
+              ],
+            ),
           ),
         );
       }),
