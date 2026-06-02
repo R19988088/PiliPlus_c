@@ -99,9 +99,7 @@ class _RcmdPageState extends State<RcmdPage>
                   if (controller.lastRefreshAt != null) {
                     if (controller.lastRefreshAt == index) {
                       return GestureDetector(
-                        onTap: () => controller
-                          ..animateToTop()
-                          ..onRefresh(),
+                        onTap: controller.triggerNavRefresh,
                         child: Card(
                           child: Container(
                             alignment: Alignment.center,
