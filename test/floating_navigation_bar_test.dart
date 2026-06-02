@@ -45,7 +45,9 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(_translateY(tester), closeTo(25, 0.01));
+    final pressedTransform = _transform(tester);
+    expect(pressedTransform.getTranslation().y, closeTo(25, 0.01));
+    expect(pressedTransform.storage[5], greaterThan(1));
 
     await tester.pumpWidget(
       const NavTapFeedbackTransition(
@@ -156,6 +158,10 @@ void main() {
 }
 
 double _translateY(WidgetTester tester) {
+  return _transform(tester).getTranslation().y;
+}
+
+Matrix4 _transform(WidgetTester tester) {
   final transform = tester.widget<Transform>(find.byType(Transform));
-  return transform.transform.getTranslation().y;
+  return transform.transform;
 }

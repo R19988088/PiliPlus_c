@@ -14,6 +14,7 @@ mixin ScrollOrRefreshMixin {
   static const navTapFeedbackTriggerDuration = Duration(milliseconds: 504);
   static const navTapFeedbackMaxOffset = 50.0;
   static const navTapFeedbackInitialProgress = 0.08;
+  static const navTapFeedbackMaxStretch = 0.18;
 
   ScrollController get scrollController;
   final Rx<NavRefreshContentPhase> navRefreshContentPhase =

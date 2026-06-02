@@ -23,6 +23,7 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
   late final AnimationController _controller;
   late Animation<double> _offset;
   double _offsetValue = 0.0;
+  double _stretchValue = 1.0;
 
   @override
   void initState() {
@@ -36,6 +37,7 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
       end: 0,
     ).chain(CurveTween(curve: Curves.elasticOut)).animate(_controller);
     _offsetValue = _progressOffset;
+    _stretchValue = _progressStretch;
   }
 
   double get _progressOffset =>
@@ -43,6 +45,13 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
           ? widget.progress.clamp(0.0, 1.0) *
                 ScrollOrRefreshMixin.navTapFeedbackMaxOffset
           : 0.0;
+
+  double get _progressStretch =>
+      widget.enabled
+          ? 1 +
+                Curves.easeInCubic.transform(widget.progress.clamp(0.0, 1.0)) *
+                    ScrollOrRefreshMixin.navTapFeedbackMaxStretch
+          : 1.0;
 
   @override
   void didUpdateWidget(covariant NavTapFeedbackTransition oldWidget) {
@@ -56,7 +65,10 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
     if (offset > 0) {
       _offset.removeListener(_syncOffset);
       _controller.stop();
-      setState(() => _offsetValue = offset);
+      setState(() {
+        _offsetValue = offset;
+        _stretchValue = _progressStretch;
+      });
     } else if (_offsetValue > 0) {
       _animateBack();
     }
@@ -74,7 +86,15 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
   }
 
   void _syncOffset() {
-    setState(() => _offsetValue = _offset.value);
+    setState(() {
+      final progress =
+          _offset.value / ScrollOrRefreshMixin.navTapFeedbackMaxOffset;
+      _offsetValue = _offset.value;
+      _stretchValue =
+          1 +
+          Curves.easeInCubic.transform(progress.clamp(0.0, 1.0)) *
+              ScrollOrRefreshMixin.navTapFeedbackMaxStretch;
+    });
   }
 
   @override
@@ -86,8 +106,11 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
 
   @override
   Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: Offset(0, _offsetValue),
+    return Transform(
+      alignment: Alignment.topCenter,
+      transform: Matrix4.identity()
+        ..translate(0.0, _offsetValue)
+        ..scale(1.0, _stretchValue),
       child: widget.child,
     );
   }
