@@ -299,14 +299,6 @@ class MainController extends GetxController
       }
     } else {
       if (_useExplicitNavRefreshGesture(currentNav)) {
-        switch (currentNav) {
-          case NavigationBarType.home:
-            homeController.controller.triggerNavTapFeedback();
-          case NavigationBarType.dynamics:
-            dynamicController.triggerNavTapFeedback();
-          default:
-            break;
-        }
         _lastSelectTime = DateTime.now().millisecondsSinceEpoch;
         return;
       }
@@ -344,6 +336,52 @@ class MainController extends GetxController
         await homeController.controller.triggerNavRefresh();
       case NavigationBarType.dynamics:
         await dynamicController.triggerNavRefresh();
+      default:
+        break;
+    }
+  }
+
+  void startNavFeedbackByGesture(int index) {
+    if (index != selectedIndex.value) return;
+    final currentNav = navigationBars[index];
+    if (!_useExplicitNavRefreshGesture(currentNav)) return;
+    switch (currentNav) {
+      case NavigationBarType.home:
+        homeController.controller.startNavTapFeedback(
+          onTriggerRefresh: () => refreshActiveTabByNavGesture(index),
+        );
+      case NavigationBarType.dynamics:
+        dynamicController.startNavTapFeedback(
+          onTriggerRefresh: () => refreshActiveTabByNavGesture(index),
+        );
+      default:
+        break;
+    }
+  }
+
+  void endNavFeedbackByGesture(int index) {
+    if (index != selectedIndex.value) return;
+    final currentNav = navigationBars[index];
+    if (!_useExplicitNavRefreshGesture(currentNav)) return;
+    switch (currentNav) {
+      case NavigationBarType.home:
+        homeController.controller.endNavTapFeedback();
+      case NavigationBarType.dynamics:
+        dynamicController.endNavTapFeedback();
+      default:
+        break;
+    }
+  }
+
+  void cancelNavFeedbackByGesture(int index) {
+    if (index != selectedIndex.value) return;
+    final currentNav = navigationBars[index];
+    if (!_useExplicitNavRefreshGesture(currentNav)) return;
+    switch (currentNav) {
+      case NavigationBarType.home:
+        homeController.controller.cancelNavTapFeedback();
+      case NavigationBarType.dynamics:
+        dynamicController.cancelNavTapFeedback();
       default:
         break;
     }

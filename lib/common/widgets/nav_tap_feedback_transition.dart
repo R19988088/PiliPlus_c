@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 class NavTapFeedbackTransition extends StatefulWidget {
   const NavTapFeedbackTransition({
     super.key,
-    required this.tick,
+    required this.progress,
     required this.child,
     this.enabled = true,
   });
 
-  final int tick;
+  final double progress;
   final Widget child;
   final bool enabled;
 
@@ -21,7 +21,8 @@ class NavTapFeedbackTransition extends StatefulWidget {
 class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  late final Animation<double> _offset;
+  late Animation<double> _offset;
+  double _offsetValue = 0.0;
 
   @override
   void initState() {
@@ -30,49 +31,64 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
       vsync: this,
       duration: ScrollOrRefreshMixin.navTapFeedbackDuration,
     );
-    _offset = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 0,
-          end: 50,
-        ).chain(CurveTween(curve: Curves.easeOutCubic)),
-        weight: 42,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 50,
-          end: 0,
-        ).chain(CurveTween(curve: Curves.elasticOut)),
-        weight: 58,
-      ),
-    ]).animate(_controller);
+    _offset = Tween<double>(
+      begin: 0,
+      end: 0,
+    ).chain(CurveTween(curve: Curves.elasticOut)).animate(_controller);
+    _offsetValue = _progressOffset;
   }
+
+  double get _progressOffset =>
+      widget.enabled
+          ? widget.progress.clamp(0.0, 1.0) *
+                ScrollOrRefreshMixin.navTapFeedbackMaxOffset
+          : 0.0;
 
   @override
   void didUpdateWidget(covariant NavTapFeedbackTransition oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.enabled && widget.tick != oldWidget.tick) {
-      _controller.forward(from: 0);
+    if (!widget.enabled) {
+      _animateBack();
+      return;
     }
+
+    final offset = _progressOffset;
+    if (offset > 0) {
+      _offset.removeListener(_syncOffset);
+      _controller.stop();
+      setState(() => _offsetValue = offset);
+    } else if (_offsetValue > 0) {
+      _animateBack();
+    }
+  }
+
+  void _animateBack() {
+    if (_offsetValue <= 0) return;
+    _offset.removeListener(_syncOffset);
+    _offset = Tween<double>(
+      begin: _offsetValue,
+      end: 0,
+    ).chain(CurveTween(curve: Curves.elasticOut)).animate(_controller)
+      ..addListener(_syncOffset);
+    _controller.forward(from: 0);
+  }
+
+  void _syncOffset() {
+    setState(() => _offsetValue = _offset.value);
   }
 
   @override
   void dispose() {
+    _offset.removeListener(_syncOffset);
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _offset,
+    return Transform.translate(
+      offset: Offset(0, _offsetValue),
       child: widget.child,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(0, _offset.value),
-          child: child,
-        );
-      },
     );
   }
 }

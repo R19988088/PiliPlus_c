@@ -282,6 +282,11 @@ class _MainAppState extends PopScopeState<MainApp>
                 _mainController.refreshActiveTabByNavGesture,
             onDestinationLongPress:
                 _mainController.refreshActiveTabByNavGesture,
+            onDestinationPressStart:
+                _mainController.startNavFeedbackByGesture,
+            onDestinationPressEnd: _mainController.endNavFeedbackByGesture,
+            onDestinationPressCancel:
+                _mainController.cancelNavFeedbackByGesture,
             selectedIndex: _mainController.selectedIndex.value,
             destinations: _mainController.navigationBars
                 .map(

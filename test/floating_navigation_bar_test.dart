@@ -12,17 +12,27 @@ void main() {
     final dynamicsTabView = File(
       'lib/pages/dynamics_tab/view.dart',
     ).readAsStringSync();
+    final mainController = File(
+      'lib/pages/main/controller.dart',
+    ).readAsStringSync();
+    final mainView = File('lib/pages/main/view.dart').readAsStringSync();
 
     for (final view in [rcmdView, dynamicsTabView]) {
       expect(view, contains('NavTapFeedbackTransition'));
-      expect(view, contains('navTapFeedbackTick.value'));
+      expect(view, contains('navTapFeedbackProgress.value'));
     }
+    expect(mainController, contains('startNavTapFeedback'));
+    expect(mainController, contains('endNavTapFeedback'));
+    expect(mainController, contains('cancelNavTapFeedback'));
+    expect(mainView, contains('onDestinationPressStart'));
+    expect(mainView, contains('onDestinationPressEnd'));
+    expect(mainView, contains('onDestinationPressCancel'));
   });
 
-  testWidgets('导航单击反馈 tick 变化时内容下压后回弹', (tester) async {
+  testWidgets('导航单击反馈按进度下压并在释放后回弹', (tester) async {
     await tester.pumpWidget(
       const NavTapFeedbackTransition(
-        tick: 0,
+        progress: 0,
         child: SizedBox(width: 10, height: 10),
       ),
     );
@@ -30,11 +40,20 @@ void main() {
 
     await tester.pumpWidget(
       const NavTapFeedbackTransition(
-        tick: 1,
+        progress: 0.5,
         child: SizedBox(width: 10, height: 10),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump();
+    expect(_translateY(tester), closeTo(25, 0.01));
+
+    await tester.pumpWidget(
+      const NavTapFeedbackTransition(
+        progress: 0,
+        child: SizedBox(width: 10, height: 10),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 252));
     expect(_translateY(tester), greaterThan(0));
 
     await tester.pumpAndSettle();
@@ -78,8 +97,12 @@ void main() {
   });
 
   testWidgets('悬浮底栏支持双击和长按手势回调', (tester) async {
+    int? tappedIndex;
     int? doubleTappedIndex;
     int? longPressedIndex;
+    int? pressStartedIndex;
+    int? pressEndedIndex;
+    int? pressCanceledIndex;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -89,8 +112,12 @@ void main() {
             alignment: Alignment.bottomCenter,
             child: FloatingNavigationBar(
               selectedIndex: 0,
+              onDestinationSelected: (index) => tappedIndex = index,
               onDestinationDoubleTap: (index) => doubleTappedIndex = index,
               onDestinationLongPress: (index) => longPressedIndex = index,
+              onDestinationPressStart: (index) => pressStartedIndex = index,
+              onDestinationPressEnd: (index) => pressEndedIndex = index,
+              onDestinationPressCancel: (index) => pressCanceledIndex = index,
               destinations: const [
                 FloatingNavigationDestination(
                   icon: Icon(Icons.home_outlined),
@@ -114,11 +141,17 @@ void main() {
 
     await tester.doubleTap(hitZones.first);
     await tester.pump();
+    expect(tappedIndex, 0);
     expect(doubleTappedIndex, 0);
+    expect(pressStartedIndex, 0);
+    expect(pressEndedIndex, 0);
 
     await tester.longPress(hitZones.at(1));
     await tester.pump();
     expect(longPressedIndex, 1);
+    expect(pressStartedIndex, 1);
+    expect(pressEndedIndex, 1);
+    expect(pressCanceledIndex, isNull);
   });
 }
 

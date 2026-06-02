@@ -1,21 +1,28 @@
+import 'dart:async';
+
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/utils/extension/scroll_controller_ext.dart';
 import 'package:easy_debounce/easy_throttle.dart';
-import 'package:flutter/widgets.dart' show ScrollController;
+import 'package:flutter/widgets.dart' show ScrollController, VoidCallback;
 import 'package:get/get.dart';
 
 enum NavRefreshContentPhase { idle, exiting, placeholder }
 
 mixin ScrollOrRefreshMixin {
   static const navRefreshExitDuration = Duration(milliseconds: 220);
-  static const navTapFeedbackDuration = Duration(milliseconds: 360);
+  static const navTapFeedbackDuration = Duration(milliseconds: 504);
+  static const navTapFeedbackTriggerDuration = Duration(milliseconds: 504);
+  static const navTapFeedbackMaxOffset = 50.0;
+  static const navTapFeedbackInitialProgress = 0.08;
 
   ScrollController get scrollController;
   final Rx<NavRefreshContentPhase> navRefreshContentPhase =
       NavRefreshContentPhase.idle.obs;
-  final RxInt navTapFeedbackTick = 0.obs;
+  final RxDouble navTapFeedbackProgress = 0.0.obs;
   bool _isNavRefreshRunning = false;
-  int _lastNavTapFeedbackAt = 0;
+  Timer? _navTapFeedbackTimer;
+  int _navTapFeedbackStartedAt = 0;
+  bool _isNavTapFeedbackRefreshTriggered = false;
 
   void animateToTop() => scrollController.animToTop();
 
@@ -23,12 +30,53 @@ mixin ScrollOrRefreshMixin {
 
   Future<void> onRefresh();
 
-  void triggerNavTapFeedback() {
+  void startNavTapFeedback({required VoidCallback onTriggerRefresh}) {
     if (_isNavRefreshRunning) return;
-    final now = DateTime.now().millisecondsSinceEpoch;
-    if (now - _lastNavTapFeedbackAt < 280) return;
-    _lastNavTapFeedbackAt = now;
-    navTapFeedbackTick.value++;
+    _navTapFeedbackTimer?.cancel();
+    _isNavTapFeedbackRefreshTriggered = false;
+    _navTapFeedbackStartedAt = DateTime.now().millisecondsSinceEpoch;
+    navTapFeedbackProgress.value = navTapFeedbackInitialProgress;
+    _updateNavTapFeedback(onTriggerRefresh);
+    _navTapFeedbackTimer = Timer.periodic(
+      const Duration(milliseconds: 16),
+      (_) => _updateNavTapFeedback(onTriggerRefresh),
+    );
+  }
+
+  void _updateNavTapFeedback(VoidCallback onTriggerRefresh) {
+    if (_isNavRefreshRunning) {
+      cancelNavTapFeedback();
+      return;
+    }
+    final elapsed =
+        DateTime.now().millisecondsSinceEpoch - _navTapFeedbackStartedAt;
+    final progress =
+        navTapFeedbackInitialProgress +
+        elapsed /
+            navTapFeedbackTriggerDuration.inMilliseconds *
+            (1 - navTapFeedbackInitialProgress);
+    navTapFeedbackProgress.value = progress
+        .clamp(navTapFeedbackInitialProgress, 1.0)
+        .toDouble();
+    if (navTapFeedbackProgress.value >= 1.0 &&
+        !_isNavTapFeedbackRefreshTriggered) {
+      _isNavTapFeedbackRefreshTriggered = true;
+      _navTapFeedbackTimer?.cancel();
+      _navTapFeedbackTimer = null;
+      onTriggerRefresh();
+    }
+  }
+
+  void endNavTapFeedback() {
+    if (_isNavTapFeedbackRefreshTriggered) return;
+    cancelNavTapFeedback();
+  }
+
+  void cancelNavTapFeedback() {
+    _navTapFeedbackTimer?.cancel();
+    _navTapFeedbackTimer = null;
+    _isNavTapFeedbackRefreshTriggered = false;
+    navTapFeedbackProgress.value = 0.0;
   }
 
   Future<void> triggerNavRefresh() async {
@@ -44,6 +92,7 @@ mixin ScrollOrRefreshMixin {
     try {
       await onRefresh();
     } finally {
+      cancelNavTapFeedback();
       navRefreshContentPhase.value = NavRefreshContentPhase.idle;
       _isNavRefreshRunning = false;
     }
@@ -99,6 +148,7 @@ abstract class CommonController<R, T> extends GetxController
 
   @override
   void onClose() {
+    cancelNavTapFeedback();
     scrollController.dispose();
     super.onClose();
   }

@@ -91,7 +91,7 @@ class _DynamicsTabPageState extends State<DynamicsTabPage>
         };
 
         return NavTapFeedbackTransition(
-          tick: dynamicsController.navTapFeedbackTick.value,
+          progress: dynamicsController.navTapFeedbackProgress.value,
           enabled: phase == NavRefreshContentPhase.idle,
           child: AnimatedSlide(
             offset: phase == NavRefreshContentPhase.exiting

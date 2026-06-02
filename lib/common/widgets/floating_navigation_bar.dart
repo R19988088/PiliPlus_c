@@ -49,6 +49,9 @@ class FloatingNavigationBar extends StatelessWidget {
     this.bottomPadding = 8.0,
     this.onDestinationDoubleTap,
     this.onDestinationLongPress,
+    this.onDestinationPressStart,
+    this.onDestinationPressEnd,
+    this.onDestinationPressCancel,
   }) : assert(destinations.length >= 2),
        assert(0 <= selectedIndex && selectedIndex < destinations.length);
 
@@ -69,6 +72,9 @@ class FloatingNavigationBar extends StatelessWidget {
   final double bottomPadding;
   final ValueChanged<int>? onDestinationDoubleTap;
   final ValueChanged<int>? onDestinationLongPress;
+  final ValueChanged<int>? onDestinationPressStart;
+  final ValueChanged<int>? onDestinationPressEnd;
+  final ValueChanged<int>? onDestinationPressCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +149,11 @@ class FloatingNavigationBar extends StatelessWidget {
               ),
             ),
           ),
-          if (onDestinationDoubleTap != null || onDestinationLongPress != null)
+          if (onDestinationDoubleTap != null ||
+              onDestinationLongPress != null ||
+              onDestinationPressStart != null ||
+              onDestinationPressEnd != null ||
+              onDestinationPressCancel != null)
             Positioned.fill(
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -152,32 +162,57 @@ class FloatingNavigationBar extends StatelessWidget {
                     children: List.generate(destinations.length, (index) {
                       return SizedBox(
                         width: width,
-                        child: RawGestureDetector(
+                        child: Listener(
                           behavior: HitTestBehavior.translucent,
-                          gestures: {
-                            if (onDestinationDoubleTap != null)
-                              DoubleTapGestureRecognizer:
+                          onPointerDown: onDestinationPressStart == null
+                              ? null
+                              : (_) => onDestinationPressStart!(index),
+                          onPointerUp: onDestinationPressEnd == null
+                              ? null
+                              : (_) => onDestinationPressEnd!(index),
+                          onPointerCancel: onDestinationPressCancel == null
+                              ? null
+                              : (_) => onDestinationPressCancel!(index),
+                          child: RawGestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            gestures: {
+                              TapGestureRecognizer:
                                   GestureRecognizerFactoryWithHandlers<
-                                    DoubleTapGestureRecognizer
+                                    TapGestureRecognizer
                                   >(
-                                    DoubleTapGestureRecognizer.new,
+                                    TapGestureRecognizer.new,
                                     (instance) {
-                                      instance.onDoubleTap =
-                                          () => onDestinationDoubleTap!(index);
+                                      instance.onTap =
+                                          () => onDestinationSelected?.call(
+                                            index,
+                                          );
                                     },
                                   ),
-                            if (onDestinationLongPress != null)
-                              LongPressGestureRecognizer:
-                                  GestureRecognizerFactoryWithHandlers<
-                                    LongPressGestureRecognizer
-                                  >(
-                                    LongPressGestureRecognizer.new,
-                                    (instance) {
-                                      instance.onLongPress =
-                                          () => onDestinationLongPress!(index);
-                                    },
-                                  ),
-                          },
+                              if (onDestinationDoubleTap != null)
+                                DoubleTapGestureRecognizer:
+                                    GestureRecognizerFactoryWithHandlers<
+                                      DoubleTapGestureRecognizer
+                                    >(
+                                      DoubleTapGestureRecognizer.new,
+                                      (instance) {
+                                        instance.onDoubleTap =
+                                            () => onDestinationDoubleTap!(index);
+                                      },
+                                    ),
+                              if (onDestinationLongPress != null)
+                                LongPressGestureRecognizer:
+                                    GestureRecognizerFactoryWithHandlers<
+                                      LongPressGestureRecognizer
+                                    >(
+                                      LongPressGestureRecognizer.new,
+                                      (instance) {
+                                        instance.onLongPress =
+                                            () =>
+                                                onDestinationLongPress!(index);
+                                      },
+                                    ),
+                            },
+                          ),
                         ),
                       );
                     }),
