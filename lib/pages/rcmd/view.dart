@@ -57,7 +57,9 @@ class _RcmdPageState extends State<RcmdPage>
                 phase == NavRefreshContentPhase.idle ||
                 controller.isNavTapFeedbackRefreshTriggered,
             child: AnimatedSlide(
-              offset: phase == NavRefreshContentPhase.exiting
+              offset:
+                  phase == NavRefreshContentPhase.exiting &&
+                      !controller.isNavTapFeedbackRefreshTriggered
                   ? const Offset(0, 0.18)
                   : Offset.zero,
               duration: ScrollOrRefreshMixin.navRefreshExitDuration,

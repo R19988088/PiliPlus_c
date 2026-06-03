@@ -42,14 +42,19 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
 
   double get _progressOffset =>
       widget.enabled
-          ? widget.progress.clamp(0.0, 1.0) *
+          ? widget.progress.clamp(
+                0.0,
+                ScrollOrRefreshMixin.navTapFeedbackExitProgress,
+              ).toDouble() *
                 ScrollOrRefreshMixin.navTapFeedbackMaxOffset
           : 0.0;
 
   double get _progressStretch =>
       widget.enabled
           ? 1 +
-                Curves.easeInCubic.transform(widget.progress.clamp(0.0, 1.0)) *
+                Curves.easeInCubic.transform(
+                      widget.progress.clamp(0.0, 1.0).toDouble(),
+                    ) *
                     ScrollOrRefreshMixin.navTapFeedbackMaxStretch
           : 1.0;
 

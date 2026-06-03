@@ -96,7 +96,9 @@ class _DynamicsTabPageState extends State<DynamicsTabPage>
               phase == NavRefreshContentPhase.idle ||
               dynamicsController.isNavTapFeedbackRefreshTriggered,
           child: AnimatedSlide(
-            offset: phase == NavRefreshContentPhase.exiting
+            offset:
+                phase == NavRefreshContentPhase.exiting &&
+                    !dynamicsController.isNavTapFeedbackRefreshTriggered
                 ? const Offset(0, 0.18)
                 : Offset.zero,
             duration: ScrollOrRefreshMixin.navRefreshExitDuration,

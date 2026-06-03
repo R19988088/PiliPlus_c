@@ -22,6 +22,20 @@ void main() {
       expect(view, contains('navTapFeedbackProgress.value'));
       expect(view, contains('isNavTapFeedbackRefreshTriggered'));
     }
+    expect(
+      rcmdView,
+      contains(
+        'phase == NavRefreshContentPhase.exiting &&\n'
+        '                      !controller.isNavTapFeedbackRefreshTriggered',
+      ),
+    );
+    expect(
+      dynamicsTabView,
+      contains(
+        'phase == NavRefreshContentPhase.exiting &&\n'
+        '                    !dynamicsController.isNavTapFeedbackRefreshTriggered',
+      ),
+    );
     expect(mainController, contains('startNavTapFeedback'));
     expect(mainController, contains('endNavTapFeedback'));
     expect(mainController, contains('cancelNavTapFeedback'));
