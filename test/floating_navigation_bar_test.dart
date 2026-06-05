@@ -12,6 +12,8 @@ void main() {
     final dynamicsTabView = File(
       'lib/pages/dynamics_tab/view.dart',
     ).readAsStringSync();
+    final favView = File('lib/pages/fav/view.dart').readAsStringSync();
+    final laterView = File('lib/pages/later/view.dart').readAsStringSync();
     final mainController = File(
       'lib/pages/main/controller.dart',
     ).readAsStringSync();
@@ -36,6 +38,18 @@ void main() {
         '                    !dynamicsController.isNavTapFeedbackRefreshTriggered',
       ),
     );
+    expect(
+      mainController,
+      contains('NavigationBarType.fav,\n    NavigationBarType.later'),
+    );
+    expect(mainController, contains('favController.triggerNavRefresh()'));
+    expect(mainController, contains('laterController.triggerNavRefresh()'));
+    for (final view in [favView, laterView]) {
+      expect(view, contains('NavTapFeedbackTransition'));
+      expect(view, contains('navTapFeedbackProgress.value'));
+      expect(view, contains('isNavTapFeedbackRefreshTriggered'));
+      expect(view, contains('!controller.isNavTapFeedbackRefreshTriggered'));
+    }
     expect(mainController, contains('startNavTapFeedback'));
     expect(mainController, contains('endNavTapFeedback'));
     expect(mainController, contains('cancelNavTapFeedback'));

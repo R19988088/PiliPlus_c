@@ -8,7 +8,9 @@ import 'package:PiliPlus/models/common/dynamic/dynamic_badge_mode.dart';
 import 'package:PiliPlus/models/common/msg/msg_unread_type.dart';
 import 'package:PiliPlus/models/common/nav_bar_config.dart';
 import 'package:PiliPlus/pages/dynamics/controller.dart';
+import 'package:PiliPlus/pages/fav/video/controller.dart';
 import 'package:PiliPlus/pages/home/controller.dart';
+import 'package:PiliPlus/pages/later/base_controller.dart';
 import 'package:PiliPlus/pages/mine/view.dart';
 import 'package:PiliPlus/services/account_service.dart';
 import 'package:PiliPlus/utils/extension/get_ext.dart';
@@ -47,6 +49,9 @@ class MainController extends GetxController
 
   late bool hasHome = false;
   late final homeController = Get.putOrFind(HomeController.new);
+  FavController get favController => Get.putOrFind(FavController.new);
+  LaterBaseController get laterController =>
+      Get.putOrFind(LaterBaseController.new);
 
   late DynamicBadgeMode msgBadgeMode = Pref.msgBadgeMode;
   late Set<MsgUnReadType> msgUnReadTypes = Pref.msgUnReadTypeV2;
@@ -70,6 +75,8 @@ class MainController extends GetxController
   static const _refreshableTabs = {
     NavigationBarType.home,
     NavigationBarType.dynamics,
+    NavigationBarType.fav,
+    NavigationBarType.later,
   };
 
   bool _useExplicitNavRefreshGesture(NavigationBarType nav) {
@@ -313,6 +320,10 @@ class MainController extends GetxController
               homeController.onRefresh();
             } else if (currentNav == NavigationBarType.dynamics) {
               dynamicController.onRefresh();
+            } else if (currentNav == NavigationBarType.fav) {
+              favController.onRefresh();
+            } else if (currentNav == NavigationBarType.later) {
+              laterController.onRefresh();
             }
           },
         );
@@ -321,6 +332,10 @@ class MainController extends GetxController
           homeController.toTopOrRefresh();
         } else if (currentNav == NavigationBarType.dynamics) {
           dynamicController.toTopOrRefresh();
+        } else if (currentNav == NavigationBarType.fav) {
+          favController.toTopOrRefresh();
+        } else if (currentNav == NavigationBarType.later) {
+          laterController.toTopOrRefresh();
         }
       }
       _lastSelectTime = now;
@@ -336,6 +351,10 @@ class MainController extends GetxController
         await homeController.controller.triggerNavRefresh();
       case NavigationBarType.dynamics:
         await dynamicController.triggerNavRefresh();
+      case NavigationBarType.fav:
+        await favController.triggerNavRefresh();
+      case NavigationBarType.later:
+        await laterController.triggerNavRefresh();
       default:
         break;
     }
@@ -354,6 +373,14 @@ class MainController extends GetxController
         dynamicController.startNavTapFeedback(
           onTriggerRefresh: () => refreshActiveTabByNavGesture(index),
         );
+      case NavigationBarType.fav:
+        favController.startNavTapFeedback(
+          onTriggerRefresh: () => refreshActiveTabByNavGesture(index),
+        );
+      case NavigationBarType.later:
+        laterController.startNavTapFeedback(
+          onTriggerRefresh: () => refreshActiveTabByNavGesture(index),
+        );
       default:
         break;
     }
@@ -368,6 +395,10 @@ class MainController extends GetxController
         homeController.controller.endNavTapFeedback();
       case NavigationBarType.dynamics:
         dynamicController.endNavTapFeedback();
+      case NavigationBarType.fav:
+        favController.endNavTapFeedback();
+      case NavigationBarType.later:
+        laterController.endNavTapFeedback();
       default:
         break;
     }
@@ -382,6 +413,10 @@ class MainController extends GetxController
         homeController.controller.cancelNavTapFeedback();
       case NavigationBarType.dynamics:
         dynamicController.cancelNavTapFeedback();
+      case NavigationBarType.fav:
+        favController.cancelNavTapFeedback();
+      case NavigationBarType.later:
+        laterController.cancelNavTapFeedback();
       default:
         break;
     }

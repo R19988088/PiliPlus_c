@@ -2,10 +2,12 @@ import 'package:PiliPlus/common/widgets/appbar/appbar.dart';
 import 'package:PiliPlus/common/widgets/flutter/page/tabs.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
 import 'package:PiliPlus/common/widgets/gesture/horizontal_drag_gesture_recognizer.dart';
+import 'package:PiliPlus/common/widgets/nav_tap_feedback_transition.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart';
 import 'package:PiliPlus/common/widgets/view_safe_area.dart';
 import 'package:PiliPlus/models/common/later_view_type.dart';
 import 'package:PiliPlus/models_new/later/list.dart';
+import 'package:PiliPlus/pages/common/common_controller.dart';
 import 'package:PiliPlus/pages/common/fab_mixin.dart'
     show NoRightMarginFabLocation;
 import 'package:PiliPlus/pages/later/base_controller.dart';
@@ -27,19 +29,22 @@ class LaterPage extends StatefulWidget {
 
 class _LaterPageState extends State<LaterPage>
     with SingleTickerProviderStateMixin {
-  final LaterBaseController _baseCtr = Get.put(LaterBaseController());
+  final LaterBaseController _baseCtr = Get.putOrFind(LaterBaseController.new);
   late final TabController _tabController;
 
   LaterController currCtr([int? index]) {
     final type = LaterViewType.values[index ?? _tabController.index];
-    return Get.putOrFind(
+    final controller = Get.putOrFind(
       () => LaterController(type),
       tag: type.type.toString(),
     );
+    _baseCtr.activeController = controller;
+    return controller;
   }
 
   final _sortKey = GlobalKey();
   void listener() {
+    currCtr();
     (_sortKey.currentContext as Element?)?.markNeedsBuild();
   }
 
@@ -50,6 +55,7 @@ class _LaterPageState extends State<LaterPage>
       length: LaterViewType.values.length,
       vsync: this,
     )..addListener(listener);
+    currCtr();
   }
 
   @override
@@ -110,40 +116,67 @@ class _LaterPageState extends State<LaterPage>
               ),
             ),
             body: ViewSafeArea(
-              child: Column(
-                children: [
-                  TabBar(
-                    // isScrollable: true,
-                    // tabAlignment: TabAlignment.start,
-                    controller: _tabController,
-                    tabs: LaterViewType.values.map((item) {
-                      final count = _baseCtr.counts[item.index];
-                      return Tab(
-                        text: '${item.title}${count != -1 ? '($count)' : ''}',
-                      );
-                    }).toList(),
-                    onTap: (_) {
-                      if (!_tabController.indexIsChanging) {
-                        currCtr().scrollController.animToTop();
-                      } else if (enableMultiSelect) {
-                        currCtr(_tabController.previousIndex).handleSelect();
-                      }
-                    },
-                  ),
-                  Expanded(
-                    child: TabBarView<CustomHorizontalDragGestureRecognizer>(
-                      physics: enableMultiSelect
-                          ? const NeverScrollableScrollPhysics()
-                          : clampingScrollPhysics,
-                      controller: _tabController,
-                      horizontalDragGestureRecognizer:
-                          CustomHorizontalDragGestureRecognizer.new,
-                      children: LaterViewType.values
-                          .map((item) => item.page)
-                          .toList(),
+              child: Obx(
+                () {
+                  final controller = _baseCtr;
+                  final phase = controller.navRefreshContentPhase.value;
+                  return NavTapFeedbackTransition(
+                    progress: controller.navTapFeedbackProgress.value,
+                    enabled:
+                        phase == NavRefreshContentPhase.idle ||
+                        controller.isNavTapFeedbackRefreshTriggered,
+                    child: AnimatedSlide(
+                      offset:
+                          phase == NavRefreshContentPhase.exiting &&
+                              !controller.isNavTapFeedbackRefreshTriggered
+                          ? const Offset(0, 0.18)
+                          : Offset.zero,
+                      duration: ScrollOrRefreshMixin.navRefreshExitDuration,
+                      curve: Curves.easeInCubic,
+                      child: Column(
+                        children: [
+                          TabBar(
+                            // isScrollable: true,
+                            // tabAlignment: TabAlignment.start,
+                            controller: _tabController,
+                            tabs: LaterViewType.values.map((item) {
+                              final count = _baseCtr.counts[item.index];
+                              return Tab(
+                                text:
+                                    '${item.title}${count != -1 ? '($count)' : ''}',
+                              );
+                            }).toList(),
+                            onTap: (_) {
+                              if (!_tabController.indexIsChanging) {
+                                currCtr().scrollController.animToTop();
+                              } else if (enableMultiSelect) {
+                                currCtr(
+                                  _tabController.previousIndex,
+                                ).handleSelect();
+                              }
+                            },
+                          ),
+                          Expanded(
+                            child:
+                                TabBarView<
+                                  CustomHorizontalDragGestureRecognizer
+                                >(
+                                  physics: enableMultiSelect
+                                      ? const NeverScrollableScrollPhysics()
+                                      : clampingScrollPhysics,
+                                  controller: _tabController,
+                                  horizontalDragGestureRecognizer:
+                                      CustomHorizontalDragGestureRecognizer.new,
+                                  children: LaterViewType.values
+                                      .map((item) => item.page)
+                                      .toList(),
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
           ),
