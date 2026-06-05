@@ -21,7 +21,7 @@ class LaterBaseController extends GetxController with ScrollOrRefreshMixin {
 
   @override
   Future<void> onRefresh() {
-    return activeController?.onRefresh() ?? Future.syncValue();
+    return activeController?.onRefresh() ?? Future.syncValue(null);
   }
 
   late double dx = 0;
