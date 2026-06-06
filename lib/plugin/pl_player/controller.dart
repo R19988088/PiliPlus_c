@@ -932,8 +932,7 @@ class PlPlayerController with BlockConfigMixin {
 
     // 自动播放
     if (_autoPlay) {
-      playIfExists();
-      // await play(duration: duration);
+      await play();
     }
   }
 
@@ -978,6 +977,11 @@ class PlPlayerController with BlockConfigMixin {
       stream.completed.listen((event) {
         if (event) {
           playerStatus.value = PlayerStatus.completed;
+          videoPlayerServiceHandler?.onStatusChange(
+            playerStatus.value,
+            isBuffering.value,
+            isLive,
+          );
 
           /// 触发回调事件
           for (final element in _statusListeners) {

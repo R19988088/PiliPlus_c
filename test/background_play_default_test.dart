@@ -36,6 +36,64 @@ void main() {
     expect(setting.defaultVal, isTrue);
   });
 
+  test('自动连播完成事件同步到后台媒体服务，避免锁屏通知停在旧状态', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    final completedListenerStart = playerController.indexOf(
+      'stream.completed.listen((event) {',
+    );
+    final positionListenerStart = playerController.indexOf(
+      'stream.position.listen((event) {',
+    );
+    expect(completedListenerStart, isNonNegative);
+    expect(positionListenerStart, greaterThan(completedListenerStart));
+
+    final completedListener = playerController.substring(
+      completedListenerStart,
+      positionListenerStart,
+    );
+    expect(
+      completedListener,
+      contains('videoPlayerServiceHandler?.onStatusChange('),
+    );
+    expect(
+      completedListener.indexOf('playerStatus.value = PlayerStatus.completed'),
+      lessThan(
+        completedListener.indexOf('videoPlayerServiceHandler?.onStatusChange('),
+      ),
+    );
+    expect(
+      completedListener.indexOf('videoPlayerServiceHandler?.onStatusChange('),
+      lessThan(
+        completedListener.indexOf('for (final element in _statusListeners)'),
+      ),
+    );
+  });
+
+  test('自动连播新源初始化后直接启动当前播放器，避免锁屏时依赖页面回调链', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    final initStart = playerController.indexOf(
+      'Future<void> _initializePlayer() async {',
+    );
+    final listenersStart = playerController.indexOf(
+      'List<StreamSubscription>? _subscriptions;',
+    );
+    expect(initStart, isNonNegative);
+    expect(listenersStart, greaterThan(initStart));
+
+    final initializePlayer = playerController.substring(
+      initStart,
+      listenersStart,
+    );
+    expect(initializePlayer, contains('await play();'));
+    expect(initializePlayer, isNot(contains('playIfExists();')));
+  });
+
   test('蓝牙音频延迟优化默认启用并提前音频', () {
     expect(Pref.bluetoothAudioDelay, isTrue);
     expect(Pref.bluetoothAudioDelayMs, 320);
