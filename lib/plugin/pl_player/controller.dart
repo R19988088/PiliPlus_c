@@ -170,6 +170,7 @@ class PlPlayerController with BlockConfigMixin {
   StreamSubscription<Duration>? _subForSeek;
   Duration _lastWatchdogPosition = Duration.zero;
   Duration _lastWatchdogBuffered = Duration.zero;
+  int _startupWatchdogStallCount = 0;
   bool _bufferWatchdogRefreshing = false;
 
   Box setting = GStorage.setting;
@@ -471,6 +472,7 @@ class PlPlayerController with BlockConfigMixin {
     }
     _lastWatchdogPosition = position;
     _lastWatchdogBuffered = buffered.value;
+    _startupWatchdogStallCount = 0;
     _bufferWatchdogTimer ??= Timer.periodic(
       const Duration(seconds: 2),
       (_) => _checkBufferWatchdog(),
@@ -481,6 +483,7 @@ class PlPlayerController with BlockConfigMixin {
     _bufferWatchdogTimer?.cancel();
     _bufferWatchdogTimer = null;
     _bufferWatchdogRefreshing = false;
+    _startupWatchdogStallCount = 0;
   }
 
   void _checkBufferWatchdog() {
@@ -492,16 +495,26 @@ class PlPlayerController with BlockConfigMixin {
         _videoPlayerController?.current.isEmpty != false) {
       _lastWatchdogPosition = position;
       _lastWatchdogBuffered = buffered.value;
+      _startupWatchdogStallCount = 0;
       return;
     }
 
     final positionAdvanced = position > _lastWatchdogPosition;
     final bufferStalled = buffered.value <= _lastWatchdogBuffered;
+    final startupStalled =
+        position == Duration.zero && buffered.value == Duration.zero;
+    final startupStalledTooLong =
+        startupStalled && ++_startupWatchdogStallCount >= 3;
     final bufferTooClose =
         buffered.value <= position + const Duration(seconds: 2);
+    if (!startupStalled) {
+      _startupWatchdogStallCount = 0;
+    }
 
-    if (positionAdvanced && bufferStalled && bufferTooClose) {
+    if (startupStalledTooLong ||
+        (positionAdvanced && bufferStalled && bufferTooClose)) {
       _bufferWatchdogRefreshing = true;
+      _startupWatchdogStallCount = 0;
       final refresh = refreshPlayer();
       if (refresh == null) {
         _bufferWatchdogRefreshing = false;
@@ -522,7 +535,7 @@ class PlPlayerController with BlockConfigMixin {
   bool get _isNearPlaybackEnd {
     final total = duration.value;
     if (total == Duration.zero) {
-      return true;
+      return position > Duration.zero;
     }
     return (total - position).inMilliseconds <= 1000;
   }

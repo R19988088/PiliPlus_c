@@ -77,6 +77,21 @@ void main() {
       'lib/plugin/pl_player/controller.dart',
     ).readAsStringSync();
 
+    final nearEndGetterStart = playerController.indexOf(
+      'bool get _isNearPlaybackEnd {',
+    );
+    final instanceGetterStart = playerController.indexOf(
+      'static PlPlayerController? get instance => _instance;',
+    );
+    expect(nearEndGetterStart, isNonNegative);
+    expect(instanceGetterStart, greaterThan(nearEndGetterStart));
+
+    final nearEndGetter = playerController.substring(
+      nearEndGetterStart,
+      instanceGetterStart,
+    );
+    expect(nearEndGetter, contains('return position > Duration.zero;'));
+
     final completedListenerStart = playerController.indexOf(
       'stream.completed.listen((event) {',
     );
@@ -169,6 +184,68 @@ void main() {
     expect(playerController, contains('refresh.whenComplete('));
     expect(playerController, contains('_startBufferWatchdog();'));
     expect(playerController, contains('_stopBufferWatchdog();'));
+  });
+
+  test('锁屏恢复后卡在0秒也会触发当前视频重试', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    expect(playerController, contains('final startupStalled ='));
+    expect(playerController, contains('position == Duration.zero'));
+    expect(playerController, contains('buffered.value == Duration.zero'));
+    expect(playerController, contains('int _startupWatchdogStallCount = 0;'));
+    expect(playerController, contains('++_startupWatchdogStallCount >= 3'));
+    expect(playerController, contains('_startupWatchdogStallCount = 0;'));
+    expect(playerController, contains('startupStalledTooLong ||'));
+  });
+
+  test('蓝牙音频延迟只注入mpv初始化参数，不参与页面和进度状态', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    final initPlayerStart = playerController.indexOf(
+      'Future<Player> _initPlayer() async {',
+    );
+    final createVideoControllerStart = playerController.indexOf(
+      'Future<void> _createVideoController(',
+    );
+    expect(initPlayerStart, isNonNegative);
+    expect(createVideoControllerStart, greaterThan(initPlayerStart));
+
+    final initPlayer = playerController.substring(
+      initPlayerStart,
+      createVideoControllerStart,
+    );
+    expect(initPlayer, contains('BluetoothAudioDelay.queryOptionValue('));
+    expect(initPlayer, contains("opt['audio-delay'] = bluetoothAudioDelay;"));
+
+    final completedListenerStart = playerController.indexOf(
+      'stream.completed.listen((event) {',
+    );
+    final positionListenerStart = playerController.indexOf(
+      'stream.position.listen((event) {',
+    );
+    final durationListenerStart = playerController.indexOf(
+      'stream.duration.listen((Duration event) {',
+    );
+    expect(completedListenerStart, isNonNegative);
+    expect(positionListenerStart, greaterThan(completedListenerStart));
+    expect(durationListenerStart, greaterThan(positionListenerStart));
+
+    final completedListener = playerController.substring(
+      completedListenerStart,
+      positionListenerStart,
+    );
+    final positionListener = playerController.substring(
+      positionListenerStart,
+      durationListenerStart,
+    );
+    expect(completedListener, isNot(contains('BluetoothAudioDelay')));
+    expect(completedListener, isNot(contains('audio-delay')));
+    expect(positionListener, isNot(contains('BluetoothAudioDelay')));
+    expect(positionListener, isNot(contains('audio-delay')));
   });
 
   test('安卓播放设置支持调节倾斜角度切换视频方向', () {
