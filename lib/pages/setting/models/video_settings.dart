@@ -149,13 +149,13 @@ List<SettingsModel> get videoSettings => [
     const SwitchModel(
       title: '蓝牙耳机延迟优化',
       leading: Icon(Icons.bluetooth_audio_outlined),
-      subtitle: '检测到蓝牙音频输出时自动提前音频，默认提前320ms',
+      subtitle: '检测到蓝牙音频输出时自动延后视频，默认补偿320ms',
       setKey: SettingBoxKey.bluetoothAudioDelay,
       defaultVal: true,
     ),
   if (Platform.isAndroid)
     NormalModel(
-      title: '蓝牙音频提前量',
+      title: '蓝牙音频补偿量',
       leading: const Icon(Icons.av_timer_outlined),
       getSubtitle: () => '当前：${Pref.bluetoothAudioDelayMs}ms，范围0-400ms',
       onTap: _showBluetoothAudioDelayDialog,
@@ -519,14 +519,14 @@ void _showBluetoothAudioDelayDialog(
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('蓝牙音频提前量'),
+      title: const Text('蓝牙音频补偿量'),
       content: TextFormField(
         autofocus: true,
         initialValue: compensationMs,
         keyboardType: TextInputType.number,
         decoration: const InputDecoration(
           suffixText: 'ms',
-          helperText: '建议从默认320ms开始，声音仍慢就调大，声音太快就调小',
+          helperText: '建议从默认320ms开始，声音仍慢就调大，对口型不准就调小',
         ),
         onChanged: (value) => compensationMs = value,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],

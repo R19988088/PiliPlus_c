@@ -857,7 +857,7 @@ class PlPlayerController with BlockConfigMixin {
         compensationMs: Pref.bluetoothAudioDelayMs,
       );
       if (bluetoothAudioDelay != null) {
-        opt['audio-delay'] = bluetoothAudioDelay;
+        opt['video-delay'] = bluetoothAudioDelay;
       }
     } else if (PlatformUtils.isDesktop) {
       opt['volume'] = (volume.value * 100).toString();

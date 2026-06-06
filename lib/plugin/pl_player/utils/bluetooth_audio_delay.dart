@@ -19,7 +19,7 @@ abstract final class BluetoothAudioDelay {
     if (!isBluetoothAudioOutput || !enabled || ms == 0) {
       return null;
     }
-    return (-(ms / 1000)).toStringAsFixed(3);
+    return (ms / 1000).toStringAsFixed(3);
   }
 
   static Future<String?> queryOptionValue({

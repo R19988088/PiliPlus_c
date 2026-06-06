@@ -229,7 +229,7 @@ void main() {
     expect(playerController, contains('startupStalledTooLong ||'));
   });
 
-  test('蓝牙音频延迟只注入mpv初始化参数，不参与页面和进度状态', () {
+  test('蓝牙补偿只注入mpv初始化参数，不参与页面和进度状态', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',
     ).readAsStringSync();
@@ -248,7 +248,7 @@ void main() {
       createVideoControllerStart,
     );
     expect(initPlayer, contains('BluetoothAudioDelay.queryOptionValue('));
-    expect(initPlayer, contains("opt['audio-delay'] = bluetoothAudioDelay;"));
+    expect(initPlayer, contains("opt['video-delay'] = bluetoothAudioDelay;"));
 
     final completedListenerStart = playerController.indexOf(
       'stream.completed.listen((event) {',
@@ -273,8 +273,10 @@ void main() {
     );
     expect(completedListener, isNot(contains('BluetoothAudioDelay')));
     expect(completedListener, isNot(contains('audio-delay')));
+    expect(completedListener, isNot(contains('video-delay')));
     expect(positionListener, isNot(contains('BluetoothAudioDelay')));
     expect(positionListener, isNot(contains('audio-delay')));
+    expect(positionListener, isNot(contains('video-delay')));
   });
 
   test('安卓播放设置支持调节倾斜角度切换视频方向', () {
@@ -297,7 +299,7 @@ void main() {
     );
   });
 
-  test('蓝牙音频延迟优化默认启用并提前音频', () {
+  test('蓝牙音频延迟优化默认启用并延后视频', () {
     expect(Pref.bluetoothAudioDelay, isTrue);
     expect(Pref.bluetoothAudioDelayMs, 320);
     expect(
@@ -306,7 +308,7 @@ void main() {
         enabled: true,
         compensationMs: Pref.bluetoothAudioDelayMs,
       ),
-      '-0.320',
+      '0.320',
     );
     expect(
       BluetoothAudioDelay.optionValue(
@@ -318,7 +320,7 @@ void main() {
     );
   });
 
-  test('蓝牙音频提前量限制在0到400ms', () {
+  test('蓝牙音频补偿量限制在0到400ms', () {
     expect(
       BluetoothAudioDelay.optionValue(
         isBluetoothAudioOutput: true,
@@ -333,7 +335,7 @@ void main() {
         enabled: true,
         compensationMs: 999,
       ),
-      '-0.400',
+      '0.400',
     );
   });
 
@@ -342,7 +344,7 @@ void main() {
       (item) => item.setKey == SettingBoxKey.bluetoothAudioDelay,
     );
     final delaySetting = videoSettings.whereType<NormalModel>().singleWhere(
-      (item) => item.title == '蓝牙音频提前量',
+      (item) => item.title == '蓝牙音频补偿量',
     );
 
     expect(switchSetting.defaultVal, isTrue);
