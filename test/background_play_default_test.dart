@@ -72,6 +72,32 @@ void main() {
     );
   });
 
+  test('中途误报完成不会触发自动连播，而是重试当前视频', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    final completedListenerStart = playerController.indexOf(
+      'stream.completed.listen((event) {',
+    );
+    final positionListenerStart = playerController.indexOf(
+      'stream.position.listen((event) {',
+    );
+    expect(completedListenerStart, isNonNegative);
+    expect(positionListenerStart, greaterThan(completedListenerStart));
+
+    final completedListener = playerController.substring(
+      completedListenerStart,
+      positionListenerStart,
+    );
+    expect(completedListener, contains('if (!_isNearPlaybackEnd) {'));
+    expect(completedListener, contains('refreshPlayer();'));
+    expect(
+      completedListener.indexOf('if (!_isNearPlaybackEnd) {'),
+      lessThan(completedListener.indexOf('playerStatus.value = PlayerStatus.completed')),
+    );
+  });
+
   test('自动连播新源初始化后优先走页面回调，避免稍后再看丢失监听', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',

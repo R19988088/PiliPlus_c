@@ -519,6 +519,14 @@ class PlPlayerController with BlockConfigMixin {
     _lastWatchdogBuffered = buffered.value;
   }
 
+  bool get _isNearPlaybackEnd {
+    final total = duration.value;
+    if (total == Duration.zero) {
+      return true;
+    }
+    return (total - position).inMilliseconds <= 1000;
+  }
+
   static PlPlayerController? get instance => _instance;
 
   static bool instanceExists() {
@@ -1037,6 +1045,10 @@ class PlPlayerController with BlockConfigMixin {
       }),
       stream.completed.listen((event) {
         if (event) {
+          if (!_isNearPlaybackEnd) {
+            refreshPlayer();
+            return;
+          }
           playerStatus.value = PlayerStatus.completed;
           videoPlayerServiceHandler?.onStatusChange(
             playerStatus.value,
