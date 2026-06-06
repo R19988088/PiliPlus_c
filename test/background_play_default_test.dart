@@ -125,6 +125,7 @@ void main() {
 
     expect(playerController, contains('Timer? _bufferWatchdogTimer;'));
     expect(playerController, contains('void _startBufferWatchdog()'));
+    expect(playerController, contains('const Duration(seconds: 2)'));
     expect(playerController, contains('void _checkBufferWatchdog()'));
     expect(
       playerController,

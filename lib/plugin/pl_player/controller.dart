@@ -472,7 +472,7 @@ class PlPlayerController with BlockConfigMixin {
     _lastWatchdogPosition = position;
     _lastWatchdogBuffered = buffered.value;
     _bufferWatchdogTimer ??= Timer.periodic(
-      const Duration(seconds: 6),
+      const Duration(seconds: 2),
       (_) => _checkBufferWatchdog(),
     );
   }
