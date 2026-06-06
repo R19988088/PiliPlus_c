@@ -93,6 +93,57 @@ void main() {
     expect(initializePlayer, contains('await (playIfExists() ?? play());'));
   });
 
+  test('网络视频中途缓冲错误仍会自动重试，不只处理初始缓冲', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    final errorListenerStart = playerController.indexOf(
+      'stream.error.listen((String event) {',
+    );
+    final mediaNotificationStart = playerController.indexOf(
+      '// 媒体通知监听',
+    );
+    expect(errorListenerStart, isNonNegative);
+    expect(mediaNotificationStart, greaterThan(errorListenerStart));
+
+    final errorListener = playerController.substring(
+      errorListenerStart,
+      mediaNotificationStart,
+    );
+    expect(errorListener, contains('if (isBuffering.value) {'));
+    expect(
+      errorListener,
+      isNot(contains('isBuffering.value && buffered.value == Duration.zero')),
+    );
+  });
+
+  test('播放计时仍推进时也会检查缓冲是否停滞', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    expect(playerController, contains('Timer? _bufferWatchdogTimer;'));
+    expect(playerController, contains('void _startBufferWatchdog()'));
+    expect(playerController, contains('void _checkBufferWatchdog()'));
+    expect(
+      playerController,
+      contains('final positionAdvanced = position > _lastWatchdogPosition;'),
+    );
+    expect(
+      playerController,
+      contains('final bufferStalled = buffered.value <= _lastWatchdogBuffered;'),
+    );
+    expect(
+      playerController,
+      contains('final bufferTooClose = buffered.value <= position +'),
+    );
+    expect(playerController, contains('final refresh = refreshPlayer();'));
+    expect(playerController, contains('refresh.whenComplete('));
+    expect(playerController, contains('_startBufferWatchdog();'));
+    expect(playerController, contains('_stopBufferWatchdog();'));
+  });
+
   test('安卓播放设置支持调节倾斜角度切换视频方向', () {
     final playSettings = File(
       'lib/pages/setting/models/play_settings.dart',

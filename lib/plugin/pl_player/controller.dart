@@ -166,7 +166,11 @@ class PlPlayerController with BlockConfigMixin {
   late DataSource dataSource;
 
   Timer? _timer;
+  Timer? _bufferWatchdogTimer;
   StreamSubscription<Duration>? _subForSeek;
+  Duration _lastWatchdogPosition = Duration.zero;
+  Duration _lastWatchdogBuffered = Duration.zero;
+  bool _bufferWatchdogRefreshing = false;
 
   Box setting = GStorage.setting;
 
@@ -458,6 +462,61 @@ class PlPlayerController with BlockConfigMixin {
     if (bufferedSeconds.value != newSecond) {
       bufferedSeconds.value = newSecond;
     }
+  }
+
+  void _startBufferWatchdog() {
+    if (dataSource is FileSource || isLive) {
+      _stopBufferWatchdog();
+      return;
+    }
+    _lastWatchdogPosition = position;
+    _lastWatchdogBuffered = buffered.value;
+    _bufferWatchdogTimer ??= Timer.periodic(
+      const Duration(seconds: 6),
+      (_) => _checkBufferWatchdog(),
+    );
+  }
+
+  void _stopBufferWatchdog() {
+    _bufferWatchdogTimer?.cancel();
+    _bufferWatchdogTimer = null;
+    _bufferWatchdogRefreshing = false;
+  }
+
+  void _checkBufferWatchdog() {
+    if (_bufferWatchdogRefreshing ||
+        dataSource is FileSource ||
+        isLive ||
+        !playerStatus.isPlaying ||
+        isSliderMoving.value ||
+        _videoPlayerController?.current.isEmpty != false) {
+      _lastWatchdogPosition = position;
+      _lastWatchdogBuffered = buffered.value;
+      return;
+    }
+
+    final positionAdvanced = position > _lastWatchdogPosition;
+    final bufferStalled = buffered.value <= _lastWatchdogBuffered;
+    final bufferTooClose =
+        buffered.value <= position + const Duration(seconds: 2);
+
+    if (positionAdvanced && bufferStalled && bufferTooClose) {
+      _bufferWatchdogRefreshing = true;
+      final refresh = refreshPlayer();
+      if (refresh == null) {
+        _bufferWatchdogRefreshing = false;
+        return;
+      }
+      refresh.whenComplete(() {
+        _lastWatchdogPosition = position;
+        _lastWatchdogBuffered = buffered.value;
+        _bufferWatchdogRefreshing = false;
+      });
+      return;
+    }
+
+    _lastWatchdogPosition = position;
+    _lastWatchdogBuffered = buffered.value;
   }
 
   static PlPlayerController? get instance => _instance;
@@ -948,6 +1007,7 @@ class PlPlayerController with BlockConfigMixin {
       stream.playing.listen((event) {
         WakelockPlus.toggle(enable: event);
         if (event) {
+          _startBufferWatchdog();
           if (_shouldSetPip) {
             if (_isCurrVideoPage) {
               enterPip(isAuto: true);
@@ -957,6 +1017,7 @@ class PlPlayerController with BlockConfigMixin {
           }
           playerStatus.value = PlayerStatus.playing;
         } else {
+          _stopBufferWatchdog();
           _disableAutoEnterPip();
           playerStatus.value = PlayerStatus.paused;
         }
@@ -1058,7 +1119,7 @@ class PlPlayerController with BlockConfigMixin {
                 // if (kDebugMode) {
                 //   debugPrint("_buffered.value: ${_buffered.value}");
                 // }
-                if (isBuffering.value && buffered.value == Duration.zero) {
+                if (isBuffering.value) {
                   SmartDialog.showToast(
                     '视频链接打开失败，重试中',
                     displayTime: const Duration(milliseconds: 500),
@@ -1202,6 +1263,7 @@ class PlPlayerController with BlockConfigMixin {
     await _videoPlayerController?.play();
 
     audioSessionHandler?.setActive(true);
+    _startBufferWatchdog();
 
     playerStatus.value = PlayerStatus.playing;
     // screenManager.setOverlays(false);
@@ -1210,6 +1272,7 @@ class PlPlayerController with BlockConfigMixin {
   /// 暂停播放
   Future<void> pause({bool notify = true, bool isInterrupt = false}) async {
     await _videoPlayerController?.pause();
+    _stopBufferWatchdog();
     playerStatus.value = PlayerStatus.paused;
 
     // 主动暂停时让出音频焦点
@@ -1645,6 +1708,7 @@ class PlPlayerController with BlockConfigMixin {
     }
     Utils.channel.setMethodCallHandler(null);
     _timer?.cancel();
+    _stopBufferWatchdog();
     // _position.close();
     // _playerEventSubs?.cancel();
     // _sliderPosition.close();
