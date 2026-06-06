@@ -134,6 +134,35 @@ void main() {
     expect(initializePlayer, contains('await (playIfExists() ?? play());'));
   });
 
+  test('稍后再看跨视频连播按bvid或aid定位当前条目，不再误用当前分P cid', () {
+    final ugcIntroController = File(
+      'lib/pages/video/introduction/ugc/controller.dart',
+    ).readAsStringSync();
+
+    expect(
+      ugcIntroController,
+      contains('int _findCurrentPlayAllIndex(List<BaseEpisodeItem> episodes) {'),
+    );
+    expect(
+      ugcIntroController,
+      contains("(e.bvid?.isNotEmpty == true && e.bvid == bvid) ||"),
+    );
+    expect(
+      ugcIntroController,
+      contains('(e.aid != null && e.aid == videoDetailCtr.aid)'),
+    );
+    expect(
+      ugcIntroController,
+      contains('final int currentIndex = videoDetailCtr.isPlayAll && !isPart'),
+    );
+    expect(
+      ugcIntroController,
+      isNot(contains(
+        "episodes.indexWhere(\n        (e) =>\n            e.cid ==\n            (skipPart",
+      )),
+    );
+  });
+
   test('网络视频中途缓冲错误仍会自动重试，不只处理初始缓冲', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',

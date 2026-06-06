@@ -566,6 +566,14 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
     super.onClose();
   }
 
+  int _findCurrentPlayAllIndex(List<BaseEpisodeItem> episodes) {
+    return episodes.indexWhere(
+      (e) =>
+          (e.bvid?.isNotEmpty == true && e.bvid == bvid) ||
+          (e.aid != null && e.aid == videoDetailCtr.aid),
+    );
+  }
+
   /// 播放上一个
   @override
   bool prevPlay([bool skipPart = false]) {
@@ -588,15 +596,17 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
       }
     }
 
-    final int currentIndex = episodes.indexWhere(
-      (e) =>
-          e.cid ==
-          (skipPart
-              ? videoDetail.isPageReversed
-                    ? videoDetail.pages!.last.cid
-                    : videoDetail.pages!.first.cid
-              : this.cid.value),
-    );
+    final int currentIndex = videoDetailCtr.isPlayAll && !isPart
+        ? _findCurrentPlayAllIndex(episodes)
+        : episodes.indexWhere(
+            (e) =>
+                e.cid ==
+                (skipPart
+                    ? videoDetail.isPageReversed
+                          ? videoDetail.pages!.last.cid
+                          : videoDetail.pages!.first.cid
+                    : this.cid.value),
+          );
 
     int prevIndex = currentIndex - 1;
     final PlayRepeat playRepeat = videoDetailCtr.plPlayerController.playRepeat;
@@ -670,15 +680,17 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
         return false;
       }
 
-      final int currentIndex = episodes.indexWhere(
-        (e) =>
-            e.cid ==
-            (skipPart
-                ? videoDetail.isPageReversed
-                      ? videoDetail.pages!.last.cid
-                      : videoDetail.pages!.first.cid
-                : this.cid.value),
-      );
+      final int currentIndex = videoDetailCtr.isPlayAll && !isPart
+          ? _findCurrentPlayAllIndex(episodes)
+          : episodes.indexWhere(
+              (e) =>
+                  e.cid ==
+                  (skipPart
+                      ? videoDetail.isPageReversed
+                            ? videoDetail.pages!.last.cid
+                            : videoDetail.pages!.first.cid
+                      : this.cid.value),
+            );
 
       int nextIndex = currentIndex + 1;
 
