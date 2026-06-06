@@ -72,7 +72,7 @@ void main() {
     );
   });
 
-  test('自动连播新源初始化后直接启动当前播放器，避免锁屏时依赖页面回调链', () {
+  test('自动连播新源初始化后优先走页面回调，避免稍后再看丢失监听', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',
     ).readAsStringSync();
@@ -90,8 +90,27 @@ void main() {
       initStart,
       listenersStart,
     );
-    expect(initializePlayer, contains('await play();'));
-    expect(initializePlayer, isNot(contains('playIfExists();')));
+    expect(initializePlayer, contains('await (playIfExists() ?? play());'));
+  });
+
+  test('安卓播放设置支持调节倾斜角度切换视频方向', () {
+    final playSettings = File(
+      'lib/pages/setting/models/play_settings.dart',
+    ).readAsStringSync();
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    expect(playSettings, contains("title: '倾斜角度阈值'"));
+    expect(playSettings, contains('value: Pref.angleDegrees.toDouble()'));
+    expect(
+      playSettings,
+      contains('GStorage.setting.put(SettingBoxKey.angleDegrees, res.toInt())'),
+    );
+    expect(
+      playerController,
+      contains('angleDegrees: Platform.isAndroid ? Pref.angleDegrees : null'),
+    );
   });
 
   test('蓝牙音频延迟优化默认启用并提前音频', () {

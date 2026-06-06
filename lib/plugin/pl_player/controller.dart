@@ -932,7 +932,7 @@ class PlPlayerController with BlockConfigMixin {
 
     // 自动播放
     if (_autoPlay) {
-      await play();
+      await (playIfExists() ?? play());
     }
   }
 
