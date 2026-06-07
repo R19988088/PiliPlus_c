@@ -3,6 +3,22 @@ import 'dart:io';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/services.dart' show PlatformException;
 
+enum BluetoothAudioDelayOutputType {
+  none,
+  a2dp,
+  ble,
+  sco;
+
+  static BluetoothAudioDelayOutputType fromValue(Object? value) {
+    return switch (value) {
+      'a2dp' => a2dp,
+      'ble' => ble,
+      'sco' => sco,
+      _ => none,
+    };
+  }
+}
+
 abstract final class BluetoothAudioDelay {
   static const int defaultCompensationMs = 320;
   static const int maxCompensationMs = 400;
@@ -10,13 +26,27 @@ abstract final class BluetoothAudioDelay {
   static int clampCompensationMs(int value) =>
       value.clamp(0, maxCompensationMs).toInt();
 
+  static int automaticCompensationMs(BluetoothAudioDelayOutputType type) {
+    return switch (type) {
+      BluetoothAudioDelayOutputType.a2dp => 300,
+      BluetoothAudioDelayOutputType.ble => 180,
+      BluetoothAudioDelayOutputType.sco => 120,
+      BluetoothAudioDelayOutputType.none => 0,
+    };
+  }
+
   static String? optionValue({
-    required bool isBluetoothAudioOutput,
+    required BluetoothAudioDelayOutputType audioOutputType,
     required bool enabled,
-    required int compensationMs,
+    required int? compensationMs,
   }) {
-    final ms = clampCompensationMs(compensationMs);
-    if (!isBluetoothAudioOutput || !enabled || ms == 0) {
+    if (!enabled || audioOutputType == BluetoothAudioDelayOutputType.none) {
+      return null;
+    }
+    final ms = compensationMs == null
+        ? automaticCompensationMs(audioOutputType)
+        : clampCompensationMs(compensationMs);
+    if (ms == 0) {
       return null;
     }
     return (ms / 1000).toStringAsFixed(3);
@@ -24,18 +54,17 @@ abstract final class BluetoothAudioDelay {
 
   static Future<String?> queryOptionValue({
     required bool enabled,
-    required int compensationMs,
+    required int? compensationMs,
   }) async {
     if (!Platform.isAndroid || !enabled) {
       return null;
     }
     try {
-      final isBluetooth = await Utils.channel.invokeMethod<bool>(
-            'isBluetoothAudioOutput',
-          ) ??
-          false;
+      final audioOutputType = BluetoothAudioDelayOutputType.fromValue(
+        await Utils.channel.invokeMethod<String>('bluetoothAudioOutputType'),
+      );
       return optionValue(
-        isBluetoothAudioOutput: isBluetooth,
+        audioOutputType: audioOutputType,
         enabled: enabled,
         compensationMs: compensationMs,
       );

@@ -149,7 +149,7 @@ List<SettingsModel> get videoSettings => [
     const SwitchModel(
       title: '蓝牙耳机延迟优化',
       leading: Icon(Icons.bluetooth_audio_outlined),
-      subtitle: '检测到蓝牙音频输出时自动延后视频，默认补偿320ms',
+      subtitle: '检测到蓝牙音频输出时按路由自动延后视频',
       setKey: SettingBoxKey.bluetoothAudioDelay,
       defaultVal: true,
     ),
@@ -157,7 +157,9 @@ List<SettingsModel> get videoSettings => [
     NormalModel(
       title: '蓝牙音频补偿量',
       leading: const Icon(Icons.av_timer_outlined),
-      getSubtitle: () => '当前：${Pref.bluetoothAudioDelayMs}ms，范围0-400ms',
+      getSubtitle: () => Pref.bluetoothAudioDelayMsOrNull == null
+          ? '当前：自动，A2DP 300ms / BLE 180ms / 通话 120ms'
+          : '当前：${Pref.bluetoothAudioDelayMs}ms，范围0-400ms',
       onTap: _showBluetoothAudioDelayDialog,
     ),
   const SwitchModel(
@@ -515,7 +517,7 @@ void _showBluetoothAudioDelayDialog(
   BuildContext context,
   VoidCallback setState,
 ) {
-  String compensationMs = Pref.bluetoothAudioDelayMs.toString();
+  String compensationMs = Pref.bluetoothAudioDelayMsOrNull?.toString() ?? '';
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -526,7 +528,7 @@ void _showBluetoothAudioDelayDialog(
         keyboardType: TextInputType.number,
         decoration: const InputDecoration(
           suffixText: 'ms',
-          helperText: '建议从默认320ms开始，声音仍慢就调大，对口型不准就调小',
+          helperText: '留空使用自动补偿；手动范围0-400ms',
         ),
         onChanged: (value) => compensationMs = value,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -542,14 +544,18 @@ void _showBluetoothAudioDelayDialog(
         TextButton(
           onPressed: () async {
             try {
-              final value = BluetoothAudioDelay.clampCompensationMs(
-                int.parse(compensationMs),
-              );
               Get.back();
-              await GStorage.setting.put(
-                SettingBoxKey.bluetoothAudioDelayMs,
-                value,
-              );
+              if (compensationMs.trim().isEmpty) {
+                await GStorage.setting.delete(SettingBoxKey.bluetoothAudioDelayMs);
+              } else {
+                final value = BluetoothAudioDelay.clampCompensationMs(
+                  int.parse(compensationMs),
+                );
+                await GStorage.setting.put(
+                  SettingBoxKey.bluetoothAudioDelayMs,
+                  value,
+                );
+              }
               setState();
             } catch (e) {
               SmartDialog.showToast(e.toString());

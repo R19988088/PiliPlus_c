@@ -821,6 +821,14 @@ abstract final class Pref {
         ),
       );
 
+  static int? get bluetoothAudioDelayMsOrNull {
+    final value = _setting.get(SettingBoxKey.bluetoothAudioDelayMs);
+    if (value is! int) {
+      return null;
+    }
+    return BluetoothAudioDelay.clampCompensationMs(value);
+  }
+
   static String get audioOutput => _setting.get(
     SettingBoxKey.audioOutput,
     defaultValue: AudioOutput.defaultValue,

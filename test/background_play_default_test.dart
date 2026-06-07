@@ -295,6 +295,7 @@ void main() {
     );
     expect(initPlayer, contains('BluetoothAudioDelay.queryOptionValue('));
     expect(initPlayer, contains("opt['video-delay'] = bluetoothAudioDelay;"));
+    expect(initPlayer, contains('compensationMs: Pref.bluetoothAudioDelayMsOrNull,'));
 
     final completedListenerStart = playerController.indexOf(
       'stream.completed.listen((event) {',
@@ -348,28 +349,66 @@ void main() {
   test('蓝牙音频延迟优化默认启用并延后视频', () {
     expect(Pref.bluetoothAudioDelay, isTrue);
     expect(Pref.bluetoothAudioDelayMs, 320);
+    expect(Pref.bluetoothAudioDelayMsOrNull, isNull);
     expect(
       BluetoothAudioDelay.optionValue(
-        isBluetoothAudioOutput: true,
+        audioOutputType: BluetoothAudioDelayOutputType.a2dp,
         enabled: true,
-        compensationMs: Pref.bluetoothAudioDelayMs,
+        compensationMs: Pref.bluetoothAudioDelayMsOrNull,
       ),
-      '0.320',
+      '0.300',
     );
     expect(
       BluetoothAudioDelay.optionValue(
-        isBluetoothAudioOutput: false,
+        audioOutputType: BluetoothAudioDelayOutputType.none,
         enabled: true,
-        compensationMs: Pref.bluetoothAudioDelayMs,
+        compensationMs: Pref.bluetoothAudioDelayMsOrNull,
       ),
       isNull,
     );
   });
 
+  test('蓝牙自动补偿按输出路由选择默认值', () {
+    expect(
+      BluetoothAudioDelay.automaticCompensationMs(
+        BluetoothAudioDelayOutputType.a2dp,
+      ),
+      300,
+    );
+    expect(
+      BluetoothAudioDelay.automaticCompensationMs(
+        BluetoothAudioDelayOutputType.ble,
+      ),
+      180,
+    );
+    expect(
+      BluetoothAudioDelay.automaticCompensationMs(
+        BluetoothAudioDelayOutputType.sco,
+      ),
+      120,
+    );
+  });
+
+  test('用户手动补偿值优先于蓝牙自动补偿', () async {
+    await GStorage.setting.put(SettingBoxKey.bluetoothAudioDelayMs, 260);
+
+    expect(Pref.bluetoothAudioDelayMsOrNull, 260);
+    expect(
+      BluetoothAudioDelay.optionValue(
+        audioOutputType: BluetoothAudioDelayOutputType.a2dp,
+        enabled: true,
+        compensationMs: Pref.bluetoothAudioDelayMsOrNull,
+      ),
+      '0.260',
+    );
+
+    await GStorage.setting.delete(SettingBoxKey.bluetoothAudioDelayMs);
+  });
+
   test('蓝牙音频补偿量限制在0到400ms', () {
     expect(
       BluetoothAudioDelay.optionValue(
-        isBluetoothAudioOutput: true,
+        audioOutputType: BluetoothAudioDelayOutputType.a2dp,
         enabled: true,
         compensationMs: -20,
       ),
@@ -377,7 +416,7 @@ void main() {
     );
     expect(
       BluetoothAudioDelay.optionValue(
-        isBluetoothAudioOutput: true,
+        audioOutputType: BluetoothAudioDelayOutputType.a2dp,
         enabled: true,
         compensationMs: 999,
       ),
@@ -394,6 +433,8 @@ void main() {
     );
 
     expect(switchSetting.defaultVal, isTrue);
-    expect(delaySetting.effectiveSubtitle, contains('320ms'));
+    expect(delaySetting.effectiveSubtitle, contains('自动'));
+    expect(delaySetting.effectiveSubtitle, contains('A2DP 300ms'));
+    expect(delaySetting.effectiveSubtitle, contains('BLE 180ms'));
   }, skip: !Platform.isAndroid);
 }

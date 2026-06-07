@@ -854,7 +854,7 @@ class PlPlayerController with BlockConfigMixin {
       opt['ao'] = Pref.audioOutput;
       final bluetoothAudioDelay = await BluetoothAudioDelay.queryOptionValue(
         enabled: Pref.bluetoothAudioDelay,
-        compensationMs: Pref.bluetoothAudioDelayMs,
+        compensationMs: Pref.bluetoothAudioDelayMsOrNull,
       );
       if (bluetoothAudioDelay != null) {
         opt['video-delay'] = bluetoothAudioDelay;

@@ -191,6 +191,10 @@ class MainActivity : AudioServiceActivity() {
                     result.success(isBluetoothAudioOutput())
                 }
 
+                "bluetoothAudioOutputType" -> {
+                    result.success(bluetoothAudioOutputType())
+                }
+
                 "SystemChrome.setEnabledSystemUIMode" -> {
                     SystemChrome.onMethodCall(
                         this,
@@ -247,23 +251,34 @@ class MainActivity : AudioServiceActivity() {
     }
 
     private fun isBluetoothAudioOutput(): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false
-        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        return audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).any { device ->
-            when (device.type) {
-                AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
-                AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> true
-                else -> isBluetoothLeAudioDevice(device)
-            }
-        }
+        return bluetoothAudioOutputType() != "none"
     }
 
-    private fun isBluetoothLeAudioDevice(device: AudioDeviceInfo): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
+    private fun bluetoothAudioOutputType(): String {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return "none"
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        var detectedType = "none"
+        audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).forEach { device ->
+            val type = when (device.type) {
+                AudioDeviceInfo.TYPE_BLUETOOTH_A2DP -> "a2dp"
+                AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> "sco"
+                else -> bluetoothLeAudioOutputType(device)
+            }
+            when (type) {
+                "a2dp" -> return "a2dp"
+                "ble" -> detectedType = "ble"
+                "sco" -> if (detectedType == "none") detectedType = "sco"
+            }
+        }
+        return detectedType
+    }
+
+    private fun bluetoothLeAudioOutputType(device: AudioDeviceInfo): String {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return "none"
         return when (device.type) {
             AudioDeviceInfo.TYPE_BLE_HEADSET,
-            AudioDeviceInfo.TYPE_BLE_SPEAKER -> true
-            else -> false
+            AudioDeviceInfo.TYPE_BLE_SPEAKER -> "ble"
+            else -> "none"
         }
     }
 
