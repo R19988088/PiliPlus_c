@@ -180,6 +180,49 @@ void main() {
     expect(initializePlayer, contains('await (playIfExists() ?? play());'));
   });
 
+  test('锁屏后台生命周期暂停必须走播放器控制器保持媒体状态同步', () {
+    final playerView = File('lib/plugin/pl_player/view/view.dart')
+        .readAsStringSync();
+
+    final lifecycleStart = playerView.indexOf(
+      'void didChangeAppLifecycleState(AppLifecycleState state) {',
+    );
+    final brightnessStart = playerView.indexOf(
+      'Future<void> setBrightness(double value) async {',
+    );
+    expect(lifecycleStart, isNonNegative);
+    expect(brightnessStart, greaterThan(lifecycleStart));
+
+    final lifecycle = playerView.substring(lifecycleStart, brightnessStart);
+    expect(lifecycle, contains('plPlayerController.pause('));
+    expect(lifecycle, contains('plPlayerController.play('));
+    expect(lifecycle, isNot(contains('player.pause()')));
+    expect(lifecycle, isNot(contains('player?.play()')));
+  });
+
+  test('自动连播换集暂停不向锁屏媒体服务发布用户暂停状态', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    final pauseStart = playerController.indexOf(
+      'Future<void> pause({bool notify = true, bool isInterrupt = false}) async {',
+    );
+    final nextMemberStart = playerController.indexOf(
+      'bool tripling = false;',
+    );
+    expect(pauseStart, isNonNegative);
+    expect(nextMemberStart, greaterThan(pauseStart));
+
+    final pauseMethod = playerController.substring(pauseStart, nextMemberStart);
+    expect(pauseMethod, contains('if (notify) {'));
+    expect(pauseMethod, contains('playerStatus.value = PlayerStatus.paused;'));
+    expect(
+      pauseMethod.indexOf('playerStatus.value = PlayerStatus.paused;'),
+      greaterThan(pauseMethod.indexOf('if (notify) {')),
+    );
+  });
+
   test('稍后再看跨视频连播按bvid或aid定位当前条目，不再误用当前分P cid', () {
     final ugcIntroController = File(
       'lib/pages/video/introduction/ugc/controller.dart',

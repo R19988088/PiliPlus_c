@@ -175,6 +175,7 @@ class PlPlayerController with BlockConfigMixin {
   Duration _lastWatchdogBuffered = Duration.zero;
   int _startupWatchdogStallCount = 0;
   bool _bufferWatchdogRefreshing = false;
+  bool _suppressNextPausedStatusEvent = false;
 
   Box setting = GStorage.setting;
 
@@ -1048,6 +1049,10 @@ class PlPlayerController with BlockConfigMixin {
     final stream = player.stream;
     _subscriptions = [
       stream.playing.listen((event) {
+        final suppressPausedStatus = !event && _suppressNextPausedStatusEvent;
+        if (suppressPausedStatus) {
+          _suppressNextPausedStatusEvent = false;
+        }
         WakelockPlus.toggle(enable: event);
         if (event) {
           _startBufferWatchdog();
@@ -1062,20 +1067,24 @@ class PlPlayerController with BlockConfigMixin {
         } else {
           _stopBufferWatchdog();
           _disableAutoEnterPip();
-          playerStatus.value = PlayerStatus.paused;
+          if (!suppressPausedStatus) {
+            playerStatus.value = PlayerStatus.paused;
+          }
         }
-        videoPlayerServiceHandler?.onStatusChange(
-          playerStatus.value,
-          isBuffering.value,
-          isLive,
-        );
+        if (!suppressPausedStatus) {
+          videoPlayerServiceHandler?.onStatusChange(
+            playerStatus.value,
+            isBuffering.value,
+            isLive,
+          );
 
-        /// 触发回调事件
-        for (final element in _statusListeners) {
-          element(event ? PlayerStatus.playing : PlayerStatus.paused);
-        }
-        if (videoPlayerController!.state.position.inSeconds != 0) {
-          makeHeartBeat(positionSeconds.value, type: HeartBeatType.status);
+          /// 触发回调事件
+          for (final element in _statusListeners) {
+            element(event ? PlayerStatus.playing : PlayerStatus.paused);
+          }
+          if (videoPlayerController!.state.position.inSeconds != 0) {
+            makeHeartBeat(positionSeconds.value, type: HeartBeatType.status);
+          }
         }
       }),
       stream.completed.listen((event) {
@@ -1328,12 +1337,17 @@ class PlPlayerController with BlockConfigMixin {
     if (isInterrupt) {
       _invalidateSourceGeneration(enableRefresh: false);
     }
+    if (!notify && (_videoPlayerController?.state.playing ?? false)) {
+      _suppressNextPausedStatusEvent = true;
+    }
     await _videoPlayerController?.pause();
     _stopBufferWatchdog();
-    playerStatus.value = PlayerStatus.paused;
+    if (notify) {
+      playerStatus.value = PlayerStatus.paused;
+    }
 
     // 主动暂停时让出音频焦点
-    if (!isInterrupt) {
+    if (notify && !isInterrupt) {
       audioSessionHandler?.setActive(false);
     }
   }

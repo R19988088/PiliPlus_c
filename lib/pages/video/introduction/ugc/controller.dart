@@ -496,7 +496,10 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
         }
       }
 
-      await videoDetailCtr.plPlayerController.pause(isInterrupt: true);
+      await videoDetailCtr.plPlayerController.pause(
+        notify: false,
+        isInterrupt: true,
+      );
 
       videoDetailCtr
         ..makeHeartBeat()
