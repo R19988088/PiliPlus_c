@@ -90,7 +90,12 @@ void main() {
       nearEndGetterStart,
       instanceGetterStart,
     );
-    expect(nearEndGetter, contains('return position > Duration.zero;'));
+    expect(
+      nearEndGetter,
+      contains('final effectivePosition = position > Duration.zero'),
+    );
+    expect(nearEndGetter, contains(': _lastValidPosition;'));
+    expect(nearEndGetter, contains('return effectivePosition > Duration.zero;'));
 
     final completedListenerStart = playerController.indexOf(
       'stream.completed.listen((event) {',
@@ -126,6 +131,32 @@ void main() {
     expect(playerController, contains('copyWith(start: _refreshStartPosition)'));
     expect(playerController, contains('if (event > Duration.zero) {'));
     expect(playerController, contains('_lastValidPosition = event;'));
+  });
+
+  test('锁屏完成时瞬时0秒仍按最后有效进度自动连播并记录完成', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    final makeHeartBeatStart = playerController.indexOf(
+      'Future<void>? makeHeartBeat(',
+    );
+    final setPlayRepeatStart = playerController.indexOf(
+      'void setPlayRepeat(PlayRepeat type)',
+    );
+    expect(makeHeartBeatStart, isNonNegative);
+    expect(setPlayRepeatStart, greaterThan(makeHeartBeatStart));
+
+    final makeHeartBeat = playerController.substring(
+      makeHeartBeatStart,
+      setPlayRepeatStart,
+    );
+    expect(
+      makeHeartBeat,
+      contains('(type != HeartBeatType.completed && progress == 0)'),
+    );
+    expect(makeHeartBeat, contains('if (_isNearPlaybackEnd) {'));
+    expect(makeHeartBeat, contains('progress = -1;'));
   });
 
   test('自动连播新源初始化后优先走页面回调，避免稍后再看丢失监听', () {

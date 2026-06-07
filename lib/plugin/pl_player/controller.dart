@@ -536,11 +536,14 @@ class PlPlayerController with BlockConfigMixin {
   }
 
   bool get _isNearPlaybackEnd {
+    final effectivePosition = position > Duration.zero
+        ? position
+        : _lastValidPosition;
     final total = duration.value;
     if (total == Duration.zero) {
-      return position > Duration.zero;
+      return effectivePosition > Duration.zero;
     }
-    return (total - position).inMilliseconds <= 1000;
+    return (total - effectivePosition).inMilliseconds <= 1000;
   }
 
   void _invalidateSourceGeneration({bool enableRefresh = true}) {
@@ -1664,7 +1667,7 @@ class PlPlayerController with BlockConfigMixin {
   }) {
     if (isLive ||
         !enableHeart ||
-        progress == 0 ||
+        (type != HeartBeatType.completed && progress == 0) ||
         (playerStatus.isPaused && !isManual)) {
       return null;
     }
@@ -1694,8 +1697,7 @@ class PlPlayerController with BlockConfigMixin {
           return send();
         }
       case .completed:
-        if (playerStatus.isCompleted &&
-            (duration.value - position).inMilliseconds <= 1000) {
+        if (playerStatus.isCompleted && _isNearPlaybackEnd) {
           progress = -1;
         }
         return send();
