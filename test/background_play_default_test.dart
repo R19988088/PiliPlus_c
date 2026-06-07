@@ -63,6 +63,8 @@ void main() {
       'lib/plugin/pl_player/controller.dart',
     ).readAsStringSync();
 
+    expect(playerController, contains('void _notifyPlaybackCompleted()'));
+
     final completedListenerStart = playerController.indexOf(
       'stream.completed.listen((event) {',
     );
@@ -77,19 +79,66 @@ void main() {
       positionListenerStart,
     );
     expect(
-      completedListener,
+      functionBody(playerController, 'void _notifyPlaybackCompleted()'),
       contains('videoPlayerServiceHandler?.onStatusChange('),
     );
     expect(
-      completedListener.indexOf('playerStatus.value = PlayerStatus.completed'),
+      functionBody(
+        playerController,
+        'void _notifyPlaybackCompleted()',
+      ).indexOf('playerStatus.value = PlayerStatus.completed'),
       lessThan(
-        completedListener.indexOf('videoPlayerServiceHandler?.onStatusChange('),
+        functionBody(
+          playerController,
+          'void _notifyPlaybackCompleted()',
+        ).indexOf('videoPlayerServiceHandler?.onStatusChange('),
       ),
     );
     expect(
-      completedListener.indexOf('videoPlayerServiceHandler?.onStatusChange('),
+      functionBody(
+        playerController,
+        'void _notifyPlaybackCompleted()',
+      ).indexOf('videoPlayerServiceHandler?.onStatusChange('),
       lessThan(
-        completedListener.indexOf('for (final element in _statusListeners)'),
+        functionBody(
+          playerController,
+          'void _notifyPlaybackCompleted()',
+        ).indexOf('for (final element in _statusListeners)'),
+      ),
+    );
+    expect(completedListener, contains('_notifyPlaybackCompleted();'));
+  });
+
+  test('底层完成事件缺失时，进度到达结尾也会合成完成状态触发连播', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    final positionListenerStart = playerController.indexOf(
+      'stream.position.listen((event) {',
+    );
+    final durationListenerStart = playerController.indexOf(
+      'stream.duration.listen((Duration event) {',
+    );
+    expect(positionListenerStart, isNonNegative);
+    expect(durationListenerStart, greaterThan(positionListenerStart));
+
+    final positionListener = playerController.substring(
+      positionListenerStart,
+      durationListenerStart,
+    );
+    expect(
+      positionListener,
+      contains('if (_shouldSynthesizeCompletedFromPosition) {'),
+    );
+    expect(positionListener, contains('_notifyPlaybackCompleted();'));
+    expect(playerController, contains('!isSliderMoving.value &&'));
+    expect(
+      positionListener.indexOf('updatePositionSecond();'),
+      lessThan(
+        positionListener.indexOf(
+          'if (_shouldSynthesizeCompletedFromPosition) {',
+        ),
       ),
     );
   });

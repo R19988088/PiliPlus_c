@@ -547,6 +547,41 @@ class PlPlayerController with BlockConfigMixin {
     return (total - effectivePosition).inMilliseconds <= 1000;
   }
 
+  bool get _isPositionAtPlaybackEnd {
+    final effectivePosition = position > Duration.zero
+        ? position
+        : _lastValidPosition;
+    final total = duration.value;
+    return total > Duration.zero &&
+        effectivePosition > Duration.zero &&
+        (total - effectivePosition).inMilliseconds <= 500;
+  }
+
+  bool get _shouldSynthesizeCompletedFromPosition =>
+      !isLive &&
+      playerStatus.isPlaying &&
+      !isSliderMoving.value &&
+      _isPositionAtPlaybackEnd;
+
+  void _notifyPlaybackCompleted() {
+    if (playerStatus.isCompleted) {
+      return;
+    }
+    _stopBufferWatchdog();
+    playerStatus.value = PlayerStatus.completed;
+    videoPlayerServiceHandler?.onStatusChange(
+      playerStatus.value,
+      isBuffering.value,
+      isLive,
+    );
+
+    /// 触发回调事件
+    for (final element in _statusListeners) {
+      element(PlayerStatus.completed);
+    }
+    makeHeartBeat(positionSeconds.value, type: HeartBeatType.completed);
+  }
+
   void _invalidateSourceGeneration({bool enableRefresh = true}) {
     _sourceGeneration++;
     _sourceRefreshEnabled = enableRefresh;
@@ -1093,21 +1128,11 @@ class PlPlayerController with BlockConfigMixin {
             refreshPlayer();
             return;
           }
-          playerStatus.value = PlayerStatus.completed;
-          videoPlayerServiceHandler?.onStatusChange(
-            playerStatus.value,
-            isBuffering.value,
-            isLive,
-          );
-
-          /// 触发回调事件
-          for (final element in _statusListeners) {
-            element(PlayerStatus.completed);
-          }
+          _notifyPlaybackCompleted();
         } else {
           // playerStatus.value = PlayerStatus.playing;
+          makeHeartBeat(positionSeconds.value, type: HeartBeatType.completed);
         }
-        makeHeartBeat(positionSeconds.value, type: HeartBeatType.completed);
       }),
       stream.position.listen((event) {
         position = event;
@@ -1125,6 +1150,9 @@ class PlPlayerController with BlockConfigMixin {
           element(event);
         }
         makeHeartBeat(event.inSeconds);
+        if (_shouldSynthesizeCompletedFromPosition) {
+          _notifyPlaybackCompleted();
+        }
       }),
       stream.duration.listen((Duration event) {
         duration.value = event;
