@@ -113,6 +113,21 @@ void main() {
     );
   });
 
+  test('网络重试不会被瞬时0秒进度覆盖已播放位置', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    expect(
+      playerController,
+      contains('Duration _lastValidPosition = Duration.zero;'),
+    );
+    expect(playerController, contains('Duration get _refreshStartPosition'));
+    expect(playerController, contains('copyWith(start: _refreshStartPosition)'));
+    expect(playerController, contains('if (event > Duration.zero) {'));
+    expect(playerController, contains('_lastValidPosition = event;'));
+  });
+
   test('自动连播新源初始化后优先走页面回调，避免稍后再看丢失监听', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',

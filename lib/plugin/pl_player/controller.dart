@@ -168,6 +168,7 @@ class PlPlayerController with BlockConfigMixin {
   Timer? _timer;
   Timer? _bufferWatchdogTimer;
   StreamSubscription<Duration>? _subForSeek;
+  Duration _lastValidPosition = Duration.zero;
   Duration _lastWatchdogPosition = Duration.zero;
   Duration _lastWatchdogBuffered = Duration.zero;
   int _startupWatchdogStallCount = 0;
@@ -540,6 +541,9 @@ class PlPlayerController with BlockConfigMixin {
     return (total - position).inMilliseconds <= 1000;
   }
 
+  Duration get _refreshStartPosition =>
+      position > Duration.zero ? position : _lastValidPosition;
+
   static PlPlayerController? get instance => _instance;
 
   static bool instanceExists() {
@@ -909,6 +913,7 @@ class PlPlayerController with BlockConfigMixin {
     buffered.value = Duration.zero;
     _heartDuration = 0;
     position = Duration.zero;
+    _lastValidPosition = Duration.zero;
     // 初始化时清空弹幕，防止上次重叠
     danmakuController?.clear();
 
@@ -982,7 +987,9 @@ class PlPlayerController with BlockConfigMixin {
     }
     if (_videoPlayerController?.current.isNotEmpty ?? false) {
       return _videoPlayerController!.open(
-        _videoPlayerController!.current.last.copyWith(start: position),
+        _videoPlayerController!.current.last.copyWith(
+          start: _refreshStartPosition,
+        ),
         play: true,
       );
     }
@@ -1080,6 +1087,9 @@ class PlPlayerController with BlockConfigMixin {
       }),
       stream.position.listen((event) {
         position = event;
+        if (event > Duration.zero) {
+          _lastValidPosition = event;
+        }
         updatePositionSecond();
         if (!isSliderMoving.value) {
           sliderPosition = event;
