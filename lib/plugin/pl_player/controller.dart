@@ -168,6 +168,8 @@ class PlPlayerController with BlockConfigMixin {
   Timer? _timer;
   Timer? _bufferWatchdogTimer;
   StreamSubscription<Duration>? _subForSeek;
+  int _sourceGeneration = 0;
+  bool _sourceRefreshEnabled = true;
   Duration _lastValidPosition = Duration.zero;
   Duration _lastWatchdogPosition = Duration.zero;
   Duration _lastWatchdogBuffered = Duration.zero;
@@ -541,6 +543,11 @@ class PlPlayerController with BlockConfigMixin {
     return (total - position).inMilliseconds <= 1000;
   }
 
+  void _invalidateSourceGeneration({bool enableRefresh = true}) {
+    _sourceGeneration++;
+    _sourceRefreshEnabled = enableRefresh;
+  }
+
   Duration get _refreshStartPosition =>
       position > Duration.zero ? position : _lastValidPosition;
 
@@ -726,6 +733,7 @@ class PlPlayerController with BlockConfigMixin {
   }) async {
     try {
       _processing = true;
+      _invalidateSourceGeneration();
       this.isLive = isLive;
       _videoType = videoType ?? VideoType.ugc;
       this.width = width;
@@ -981,7 +989,11 @@ class PlPlayerController with BlockConfigMixin {
     );
   }
 
-  Future<void>? refreshPlayer() {
+  Future<void>? refreshPlayer({int? sourceGeneration}) {
+    if (!_sourceRefreshEnabled ||
+        (sourceGeneration != null && sourceGeneration != _sourceGeneration)) {
+      return null;
+    }
     if (dataSource is FileSource) {
       return null;
     }
@@ -1126,6 +1138,7 @@ class PlPlayerController with BlockConfigMixin {
           }
         })),
       stream.error.listen((String event) {
+        final sourceGeneration = _sourceGeneration;
         if (dataSource is FileSource &&
             event.startsWith("Failed to open file")) {
           return;
@@ -1134,7 +1147,10 @@ class PlPlayerController with BlockConfigMixin {
           if (event.startsWith('tcp: ffurl_read returned ') ||
               event.startsWith("Failed to open https://") ||
               event.startsWith("Can not open external file https://")) {
-            Future.delayed(const Duration(milliseconds: 3000), refreshPlayer);
+            Future.delayed(
+              const Duration(milliseconds: 3000),
+              () => refreshPlayer(sourceGeneration: sourceGeneration),
+            );
           }
           return;
         }
@@ -1159,7 +1175,7 @@ class PlPlayerController with BlockConfigMixin {
                     '视频链接打开失败，重试中',
                     displayTime: const Duration(milliseconds: 500),
                   );
-                  refreshPlayer();
+                  refreshPlayer(sourceGeneration: sourceGeneration);
                 }
               });
             },
@@ -1306,6 +1322,9 @@ class PlPlayerController with BlockConfigMixin {
 
   /// 暂停播放
   Future<void> pause({bool notify = true, bool isInterrupt = false}) async {
+    if (isInterrupt) {
+      _invalidateSourceGeneration(enableRefresh: false);
+    }
     await _videoPlayerController?.pause();
     _stopBufferWatchdog();
     playerStatus.value = PlayerStatus.paused;

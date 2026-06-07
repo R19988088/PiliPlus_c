@@ -249,6 +249,38 @@ void main() {
     );
   });
 
+  test('延迟网络重试不会跨视频源打断下一条播放', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    expect(playerController, contains('int _sourceGeneration = 0;'));
+    expect(playerController, contains('bool _sourceRefreshEnabled = true;'));
+    expect(playerController, contains('_sourceGeneration++;'));
+    expect(playerController, contains('if (isInterrupt) {'));
+    expect(
+      playerController,
+      contains('_invalidateSourceGeneration(enableRefresh: false);'),
+    );
+    expect(
+      playerController,
+      contains('Future<void>? refreshPlayer({int? sourceGeneration})'),
+    );
+    expect(playerController, contains('!_sourceRefreshEnabled'));
+    expect(
+      playerController,
+      contains('sourceGeneration != _sourceGeneration'),
+    );
+    expect(
+      playerController,
+      contains('final sourceGeneration = _sourceGeneration;'),
+    );
+    expect(
+      playerController,
+      contains('refreshPlayer(sourceGeneration: sourceGeneration)'),
+    );
+  });
+
   test('播放计时仍推进时也会检查缓冲是否停滞', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',
