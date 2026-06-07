@@ -295,6 +295,11 @@ void main() {
     final didPushNext = functionBody(videoPage, 'void didPushNext()');
     expect(didPushNext, contains('if (!Pref.continuePlayInBackground) {'));
     expect(didPushNext, contains('plPlayerController!.pause();'));
+    expect(didPushNext, contains('removePositionListener(positionListener)'));
+    expect(
+      didPushNext,
+      contains('if (!Pref.continuePlayInBackground || !isPlaying) {'),
+    );
     expect(
       didPushNext.indexOf('plPlayerController!.pause();'),
       greaterThan(didPushNext.indexOf('if (!Pref.continuePlayInBackground) {')),

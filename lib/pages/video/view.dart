@@ -405,9 +405,11 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       ..brightness = plPlayerController?.brightness.value;
     if (plPlayerController != null) {
       videoDetailController.makeHeartBeat();
-      plPlayerController!
-        ..removeStatusLister(playerListener)
-        ..removePositionListener(positionListener);
+      final isPlaying = plPlayerController!.playerStatus.isPlaying;
+      if (!Pref.continuePlayInBackground || !isPlaying) {
+        plPlayerController!.removeStatusLister(playerListener);
+      }
+      plPlayerController!.removePositionListener(positionListener);
       if (!Pref.continuePlayInBackground) {
         plPlayerController!.pause();
       }
