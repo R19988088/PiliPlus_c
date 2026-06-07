@@ -407,8 +407,10 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       videoDetailController.makeHeartBeat();
       plPlayerController!
         ..removeStatusLister(playerListener)
-        ..removePositionListener(positionListener)
-        ..pause();
+        ..removePositionListener(positionListener);
+      if (!Pref.continuePlayInBackground) {
+        plPlayerController!.pause();
+      }
     }
   }
 

@@ -289,6 +289,32 @@ void main() {
     expect(lifecycle, isNot(contains('player?.play()')));
   });
 
+  test('允许后台播放时离开视频页不能暂停播放器，否则锁屏连播会中断', () {
+    final videoPage = File('lib/pages/video/view.dart').readAsStringSync();
+
+    final didPushNext = functionBody(videoPage, 'void didPushNext()');
+    expect(didPushNext, contains('if (!Pref.continuePlayInBackground) {'));
+    expect(didPushNext, contains('plPlayerController!.pause();'));
+    expect(
+      didPushNext.indexOf('plPlayerController!.pause();'),
+      greaterThan(didPushNext.indexOf('if (!Pref.continuePlayInBackground) {')),
+    );
+  });
+
+  test('未知音频焦点事件不能中断后台播放，避免锁屏后停在暂停状态', () {
+    final audioSession = File(
+      'lib/services/audio_session.dart',
+    ).readAsStringSync();
+
+    final initSession = functionBody(audioSession, 'Future<void> initSession()');
+    final unknownBegin = initSession.substring(
+      initSession.indexOf('case AudioInterruptionType.unknown:'),
+      initSession.indexOf('} else {'),
+    );
+    expect(unknownBegin, isNot(contains('pauseIfExists')));
+    expect(unknownBegin, isNot(contains('_playInterrupted = true')));
+  });
+
   test('自动连播换集暂停不向锁屏媒体服务发布用户暂停状态', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',

@@ -38,9 +38,6 @@ class AudioSessionHandler {
             _playInterrupted = true;
             break;
           case AudioInterruptionType.unknown:
-            PlPlayerController.pauseIfExists(isInterrupt: true);
-            // player.pause(isInterrupt: true);
-            _playInterrupted = true;
             break;
         }
       } else {
