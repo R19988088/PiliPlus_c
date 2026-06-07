@@ -58,6 +58,13 @@ List<SettingsModel> get playSettings => [
     defaultVal: false,
   ),
   const SwitchModel(
+    title: '自动删除已播放视频',
+    subtitle: '稍后再看播放完成后静默移除已播放视频',
+    leading: Icon(Icons.playlist_remove_outlined),
+    setKey: SettingBoxKey.autoRemovePlayedWatchLater,
+    defaultVal: true,
+  ),
+  const SwitchModel(
     title: '全屏显示锁定按钮',
     leading: Icon(Icons.lock_outline),
     setKey: SettingBoxKey.showFsLockBtn,

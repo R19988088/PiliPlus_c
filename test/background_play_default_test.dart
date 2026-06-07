@@ -163,6 +163,52 @@ void main() {
     );
   });
 
+  test('稍后再看播放完成后按默认开启设置静默移除当前视频且不阻塞下一条', () {
+    final storageKey = File('lib/utils/storage_key.dart').readAsStringSync();
+    final storagePref = File('lib/utils/storage_pref.dart').readAsStringSync();
+    final playSettings = File(
+      'lib/pages/setting/models/play_settings.dart',
+    ).readAsStringSync();
+    final videoPage = File('lib/pages/video/view.dart').readAsStringSync();
+
+    expect(storageKey, contains("autoRemovePlayedWatchLater"));
+    expect(
+      storagePref,
+      contains(
+        '_setting.get(SettingBoxKey.autoRemovePlayedWatchLater, defaultValue: true)',
+      ),
+    );
+
+    final settingIndex = playSettings.indexOf("title: '自动删除已播放视频'");
+    final repeatIndex = playSettings.indexOf("title: '播放顺序'");
+    expect(settingIndex, isNonNegative);
+    expect(repeatIndex, greaterThan(settingIndex));
+    final settingBlock = playSettings.substring(settingIndex, repeatIndex);
+    expect(settingBlock, contains('setKey: SettingBoxKey.autoRemovePlayedWatchLater'));
+    expect(settingBlock, contains('defaultVal: true'));
+
+    expect(videoPage, contains("import 'package:PiliPlus/http/user.dart';"));
+    expect(videoPage, contains("import 'package:PiliPlus/models/common/video/source_type.dart';"));
+    expect(videoPage, contains('void _autoRemovePlayedWatchLater(int aid)'));
+    expect(videoPage, contains('if (!Pref.autoRemovePlayedWatchLater) return;'));
+    expect(videoPage, contains('if (videoDetailController.sourceType != SourceType.watchLater)'));
+    expect(videoPage, contains('UserHttp.toViewDel(aids: aid.toString()).then((res) {'));
+    expect(videoPage, contains('videoDetailController.mediaList.removeWhere((item) => item.aid == aid);'));
+
+    final completedStart = videoPage.indexOf('if (status.isCompleted) {');
+    final handlePlayStart = videoPage.indexOf('// 继续播放或重新播放');
+    expect(completedStart, isNonNegative);
+    expect(handlePlayStart, greaterThan(completedStart));
+    final completedBlock = videoPage.substring(completedStart, handlePlayStart);
+    expect(completedBlock, contains('final completedAid = videoDetailController.aid;'));
+    expect(completedBlock, contains('exitFlag = !introController.nextPlay();'));
+    expect(completedBlock, contains('_autoRemovePlayedWatchLater(completedAid);'));
+    expect(
+      completedBlock.indexOf('exitFlag = !introController.nextPlay();'),
+      lessThan(completedBlock.indexOf('_autoRemovePlayedWatchLater(completedAid);')),
+    );
+  });
+
   test('网络视频中途缓冲错误仍会自动重试，不只处理初始缓冲', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',
