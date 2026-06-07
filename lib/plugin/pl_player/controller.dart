@@ -517,6 +517,14 @@ class PlPlayerController with BlockConfigMixin {
 
     if (startupStalledTooLong ||
         (positionAdvanced && bufferStalled && bufferTooClose)) {
+      if (_isInPlaybackEndRefreshWindow) {
+        if (_isPositionAtPlaybackEnd) {
+          _notifyPlaybackCompleted();
+        }
+        _lastWatchdogPosition = position;
+        _lastWatchdogBuffered = buffered.value;
+        return;
+      }
       _bufferWatchdogRefreshing = true;
       _startupWatchdogStallCount = 0;
       final refresh = refreshPlayer();
@@ -555,6 +563,16 @@ class PlPlayerController with BlockConfigMixin {
     return total > Duration.zero &&
         effectivePosition > Duration.zero &&
         (total - effectivePosition).inMilliseconds <= 500;
+  }
+
+  bool get _isInPlaybackEndRefreshWindow {
+    final effectivePosition = position > Duration.zero
+        ? position
+        : _lastValidPosition;
+    final total = duration.value;
+    return total > Duration.zero &&
+        effectivePosition > Duration.zero &&
+        (total - effectivePosition).inMilliseconds <= 3000;
   }
 
   bool get _shouldSynthesizeCompletedFromPosition =>

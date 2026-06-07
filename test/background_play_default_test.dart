@@ -143,6 +143,24 @@ void main() {
     );
   });
 
+  test('接近结尾的缓冲停滞不刷新当前源，避免错误时间跳转阻断连播', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    final watchdog = functionBody(
+      playerController,
+      'void _checkBufferWatchdog()',
+    );
+    expect(playerController, contains('bool get _isInPlaybackEndRefreshWindow'));
+    expect(watchdog, contains('if (_isInPlaybackEndRefreshWindow) {'));
+    expect(watchdog, contains('_notifyPlaybackCompleted();'));
+    expect(
+      watchdog.indexOf('if (_isInPlaybackEndRefreshWindow) {'),
+      lessThan(watchdog.indexOf('final refresh = refreshPlayer();')),
+    );
+  });
+
   test('中途误报完成不会触发自动连播，而是重试当前视频', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',
