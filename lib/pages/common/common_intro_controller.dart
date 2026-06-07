@@ -57,8 +57,23 @@ abstract class CommonIntroController extends GetxController
 
   void queryVideoIntro();
 
-  bool prevPlay();
-  bool nextPlay();
+  Future<bool> prevPlay();
+  Future<bool> nextPlay();
+
+  Future<bool>? _playTransition;
+
+  @protected
+  Future<bool> runPlayTransition(Future<bool> Function() action) {
+    if (_playTransition case final transition?) {
+      return transition;
+    }
+
+    final transition = action().whenComplete(() {
+      _playTransition = null;
+    });
+    _playTransition = transition;
+    return transition;
+  }
 
   void actionShareVideo(BuildContext context);
 

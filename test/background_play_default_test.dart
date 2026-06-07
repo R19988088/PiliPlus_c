@@ -10,6 +10,28 @@ import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 
+String functionBody(String source, String signature) {
+  final signatureStart = source.indexOf(signature);
+  expect(signatureStart, isNonNegative);
+  final bodyStart = source.indexOf('{', signatureStart);
+  expect(bodyStart, isNonNegative);
+
+  var depth = 0;
+  for (var i = bodyStart; i < source.length; i++) {
+    final codeUnit = source.codeUnitAt(i);
+    if (codeUnit == 123) {
+      depth++;
+    } else if (codeUnit == 125) {
+      depth--;
+      if (depth == 0) {
+        return source.substring(bodyStart, i + 1);
+      }
+    }
+  }
+
+  fail('Could not find function body for $signature');
+}
+
 void main() {
   late Directory tempDir;
 
@@ -290,11 +312,94 @@ void main() {
     expect(handlePlayStart, greaterThan(completedStart));
     final completedBlock = videoPage.substring(completedStart, handlePlayStart);
     expect(completedBlock, contains('final completedAid = videoDetailController.aid;'));
-    expect(completedBlock, contains('exitFlag = !introController.nextPlay();'));
+    expect(
+      completedBlock,
+      contains('exitFlag = !await introController.nextPlay();'),
+    );
     expect(completedBlock, contains('_autoRemovePlayedWatchLater(completedAid);'));
     expect(
-      completedBlock.indexOf('exitFlag = !introController.nextPlay();'),
+      completedBlock.indexOf('exitFlag = !await introController.nextPlay();'),
       lessThan(completedBlock.indexOf('_autoRemovePlayedWatchLater(completedAid);')),
+    );
+  });
+
+  test('自动连播换源必须等待下一条初始化完成，避免旧源0秒重试串线', () {
+    final commonIntroController = File(
+      'lib/pages/common/common_intro_controller.dart',
+    ).readAsStringSync();
+    final ugcIntroController = File(
+      'lib/pages/video/introduction/ugc/controller.dart',
+    ).readAsStringSync();
+    final pgcIntroController = File(
+      'lib/pages/video/introduction/pgc/controller.dart',
+    ).readAsStringSync();
+    final localIntroController = File(
+      'lib/pages/video/introduction/local/controller.dart',
+    ).readAsStringSync();
+
+    expect(commonIntroController, contains('Future<bool> nextPlay();'));
+    expect(commonIntroController, contains('Future<bool> prevPlay();'));
+    expect(commonIntroController, contains('Future<bool>? _playTransition;'));
+    expect(commonIntroController, contains('Future<bool> runPlayTransition('));
+    expect(ugcIntroController, contains('Future<bool> nextPlay('));
+    expect(ugcIntroController, contains('runPlayTransition('));
+    expect(ugcIntroController, contains('Future<bool> _changeEpisode('));
+    expect(
+      functionBody(ugcIntroController, 'Future<bool> _nextPlay('),
+      contains('await _changeEpisode(episodes[nextIndex])'),
+    );
+    expect(
+      functionBody(ugcIntroController, 'Future<bool> _nextPlay('),
+      isNot(contains('return nextPlay(true);')),
+    );
+    expect(
+      functionBody(ugcIntroController, 'Future<bool> _nextPlay('),
+      isNot(contains('return playRelated();')),
+    );
+    expect(
+      functionBody(ugcIntroController, 'Future<bool> _prevPlay('),
+      contains('await _changeEpisode(episodes[prevIndex])'),
+    );
+    expect(
+      functionBody(ugcIntroController, 'Future<bool> _prevPlay('),
+      isNot(contains('return prevPlay(true);')),
+    );
+    expect(pgcIntroController, contains('Future<bool> nextPlay()'));
+    expect(pgcIntroController, contains('runPlayTransition('));
+    expect(pgcIntroController, contains('Future<bool> _changeEpisode('));
+    expect(
+      functionBody(pgcIntroController, 'Future<bool> _nextPlay('),
+      contains('await _changeEpisode(episodes[nextIndex])'),
+    );
+    expect(
+      functionBody(pgcIntroController, 'Future<bool> _prevPlay('),
+      contains('await _changeEpisode(episodes[prevIndex])'),
+    );
+    expect(localIntroController, contains('runPlayTransition('));
+    expect(localIntroController, contains('Future<bool> _playIndex('));
+    expect(
+      functionBody(localIntroController, 'Future<bool> _nextPlay('),
+      contains('return _playIndex(next);'),
+    );
+    expect(
+      functionBody(localIntroController, 'Future<bool> _nextPlay('),
+      contains('return _playIndex(0);'),
+    );
+    expect(
+      functionBody(localIntroController, 'Future<bool> _nextPlay('),
+      isNot(contains('return playIndex(next);')),
+    );
+    expect(
+      functionBody(localIntroController, 'Future<bool> _nextPlay('),
+      isNot(contains('return playIndex(0);')),
+    );
+    expect(
+      functionBody(localIntroController, 'Future<bool> _prevPlay('),
+      contains('return _playIndex(prev);'),
+    );
+    expect(
+      functionBody(localIntroController, 'Future<bool> _prevPlay('),
+      isNot(contains('return playIndex(prev);')),
     );
   });
 

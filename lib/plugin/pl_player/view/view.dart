@@ -420,8 +420,8 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
           size: 22,
           color: Colors.white,
         ),
-        onTap: () {
-          if (!introController.prevPlay()) {
+        onTap: () async {
+          if (!await introController.prevPlay()) {
             SmartDialog.showToast('已经是第一集了');
           }
         },
@@ -437,8 +437,8 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
           size: 22,
           color: Colors.white,
         ),
-        onTap: () {
-          if (!introController.nextPlay()) {
+        onTap: () async {
+          if (!await introController.nextPlay()) {
             SmartDialog.showToast('已经是最后一集了');
           }
         },

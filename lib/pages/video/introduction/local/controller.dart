@@ -92,20 +92,24 @@ class LocalIntroController extends CommonIntroController {
   final list = RxList<BiliDownloadEntryInfo>();
 
   @override
-  bool nextPlay() {
+  Future<bool> nextPlay() {
+    return runPlayTransition(_nextPlay);
+  }
+
+  Future<bool> _nextPlay() async {
     final next = index.value + 1;
     if (next < list.length) {
-      playIndex(next);
-      return true;
+      return _playIndex(next);
     } else {
       final playCtr = videoDetailCtr.plPlayerController;
       if (playCtr.playRepeat == PlayRepeat.listCycle) {
         if (list.length == 1) {
           if (playCtr.videoPlayerController case final ctr?) {
-            ctr.seek(Duration.zero).whenComplete(ctr.play);
+            await ctr.seek(Duration.zero);
+            await ctr.play();
           }
         } else {
-          playIndex(0);
+          return _playIndex(0);
         }
         return true;
       }
@@ -114,19 +118,29 @@ class LocalIntroController extends CommonIntroController {
   }
 
   @override
-  bool prevPlay() {
-    final prev = index.value - 1;
-    if (prev >= 0) {
-      playIndex(prev);
-      return true;
-    }
-    return false;
+  Future<bool> prevPlay() {
+    return runPlayTransition(_prevPlay);
   }
 
-  void playIndex(
+  Future<bool> _prevPlay() {
+    final prev = index.value - 1;
+    if (prev >= 0) {
+      return _playIndex(prev);
+    }
+    return Future.value(false);
+  }
+
+  Future<bool> playIndex(
     int index, {
     BiliDownloadEntryInfo? entry,
   }) {
+    return runPlayTransition(() => _playIndex(index, entry: entry));
+  }
+
+  Future<bool> _playIndex(
+    int index, {
+    BiliDownloadEntryInfo? entry,
+  }) async {
     entry ??= list[index];
     videoDetailCtr
       ..onReset()
@@ -135,8 +149,8 @@ class LocalIntroController extends CommonIntroController {
       ..bvid = entry.bvid
       ..cid.value = entry.cid
       ..args['dirPath'] = entry.entryDirPath
-      ..initFileSource(entry, isInit: false)
-      ..playerInit();
+      ..initFileSource(entry, isInit: false);
+    await videoDetailCtr.playerInit();
     videoDetail
       ..value.title = entry.showTitle
       ..refresh();
@@ -144,6 +158,7 @@ class LocalIntroController extends CommonIntroController {
     if (PlatformUtils.isMobile) {
       onVideoDetailChange(entry);
     }
+    return true;
   }
 
   void onVideoDetailChange(BiliDownloadEntryInfo entry) {

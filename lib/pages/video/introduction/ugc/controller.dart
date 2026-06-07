@@ -460,6 +460,15 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
   Future<bool> onChangeEpisode(
     BaseEpisodeItem episode, {
     bool isStein = false,
+  }) {
+    return runPlayTransition(
+      () => _changeEpisode(episode, isStein: isStein),
+    );
+  }
+
+  Future<bool> _changeEpisode(
+    BaseEpisodeItem episode, {
+    bool isStein = false,
   }) async {
     try {
       final String bvid = episode.bvid ?? this.bvid;
@@ -507,8 +516,8 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
         ..onReset(isStein: isStein)
         ..bvid = bvid
         ..aid = aid
-        ..cid.value = cid
-        ..queryVideoUrl();
+        ..cid.value = cid;
+      await videoDetailCtr.queryVideoUrl();
 
       if (this.bvid != bvid) {
         reload = true;
@@ -579,7 +588,11 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
 
   /// 播放上一个
   @override
-  bool prevPlay([bool skipPart = false]) {
+  Future<bool> prevPlay([bool skipPart = false]) {
+    return runPlayTransition(() => _prevPlay(skipPart));
+  }
+
+  Future<bool> _prevPlay([bool skipPart = false]) async {
     final List<BaseEpisodeItem> episodes = <BaseEpisodeItem>[];
     bool isPart = false;
 
@@ -618,7 +631,7 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
     if (prevIndex < 0) {
       if (isPart &&
           (videoDetailCtr.isPlayAll || videoDetail.ugcSeason != null)) {
-        return prevPlay(true);
+        return _prevPlay(true);
       }
       if (playRepeat == PlayRepeat.listCycle) {
         prevIndex = episodes.length - 1;
@@ -637,8 +650,7 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
     }
 
     if (cid != this.cid.value) {
-      onChangeEpisode(episodes[prevIndex]);
-      return true;
+      return await _changeEpisode(episodes[prevIndex]);
     } else {
       return false;
     }
@@ -646,7 +658,11 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
 
   /// 列表循环或者顺序播放时，自动播放下一个
   @override
-  bool nextPlay([bool skipPart = false]) {
+  Future<bool> nextPlay([bool skipPart = false]) {
+    return runPlayTransition(() => _nextPlay(skipPart));
+  }
+
+  Future<bool> _nextPlay([bool skipPart = false]) async {
     try {
       final List<BaseEpisodeItem> episodes = <BaseEpisodeItem>[];
       bool isPart = false;
@@ -678,7 +694,7 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
         }
         if (playRepeat == PlayRepeat.autoPlayRelated &&
             videoDetailCtr.plPlayerController.showRelatedVideo) {
-          return playRelated();
+          return _playRelated();
         }
         return false;
       }
@@ -707,14 +723,14 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
       if (nextIndex >= episodes.length) {
         if (isPart &&
             (videoDetailCtr.isPlayAll || videoDetail.ugcSeason != null)) {
-          return nextPlay(true);
+          return _nextPlay(true);
         }
 
         if (playRepeat == PlayRepeat.listCycle) {
           nextIndex = 0;
         } else if (playRepeat == PlayRepeat.autoPlayRelated &&
             videoDetailCtr.plPlayerController.showRelatedVideo) {
-          return playRelated();
+          return _playRelated();
         } else {
           return false;
         }
@@ -730,8 +746,7 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
       }
 
       if (cid != this.cid.value) {
-        onChangeEpisode(episodes[nextIndex]);
-        return true;
+        return await _changeEpisode(episodes[nextIndex]);
       } else {
         return false;
       }
@@ -740,13 +755,13 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
     }
   }
 
-  bool playRelated() {
+  Future<bool> _playRelated() async {
     RelatedController relatedCtr;
     if (Get.isRegistered<RelatedController>(tag: heroTag)) {
       relatedCtr = Get.find<RelatedController>(tag: heroTag);
     } else {
       relatedCtr = Get.put(RelatedController(autoQuery: false), tag: heroTag)
-        ..queryData().whenComplete(playRelated);
+        ..queryData().whenComplete(() => runPlayTransition(_playRelated));
       return false;
     }
 
@@ -756,7 +771,7 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
         SmartDialog.showToast('暂无相关视频，停止连播');
         return false;
       }
-      onChangeEpisode(
+      return await _changeEpisode(
         BaseEpisodeItem(
           aid: firstItem.aid,
           bvid: firstItem.bvid,
@@ -764,7 +779,6 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
           cover: firstItem.cover,
         ),
       );
-      return true;
     }
 
     return false;

@@ -259,7 +259,11 @@ class PgcIntroController extends CommonIntroController {
   }
 
   // 修改分P或番剧分集
-  Future<bool> onChangeEpisode(BaseEpisodeItem episode) async {
+  Future<bool> onChangeEpisode(BaseEpisodeItem episode) {
+    return runPlayTransition(() => _changeEpisode(episode));
+  }
+
+  Future<bool> _changeEpisode(BaseEpisodeItem episode) async {
     try {
       final int epId = episode.epId ?? episode.id!;
       final String bvid = episode.bvid ?? this.bvid;
@@ -286,8 +290,8 @@ class PgcIntroController extends CommonIntroController {
         ..epId = epId
         ..bvid = bvid
         ..aid = aid
-        ..cid.value = cid
-        ..queryVideoUrl();
+        ..cid.value = cid;
+      await videoDetailCtr.queryVideoUrl();
       if (cover != null && cover.isNotEmpty) {
         videoDetailCtr.cover.value = cover;
       }
@@ -355,7 +359,11 @@ class PgcIntroController extends CommonIntroController {
   }
 
   @override
-  bool prevPlay() {
+  Future<bool> prevPlay() {
+    return runPlayTransition(_prevPlay);
+  }
+
+  Future<bool> _prevPlay() async {
     final episodes = pgcItem.episodes!;
     int currentIndex = episodes.indexWhere(
       (e) => e.cid == videoDetailCtr.cid.value,
@@ -369,13 +377,16 @@ class PgcIntroController extends CommonIntroController {
         return false;
       }
     }
-    onChangeEpisode(episodes[prevIndex]);
-    return true;
+    return await _changeEpisode(episodes[prevIndex]);
   }
 
   /// 列表循环或者顺序播放时，自动播放下一个；自动连播时，播放相关视频
   @override
-  bool nextPlay() {
+  Future<bool> nextPlay() {
+    return runPlayTransition(_nextPlay);
+  }
+
+  Future<bool> _nextPlay() async {
     try {
       final episodes = pgcItem.episodes!;
 
@@ -395,8 +406,7 @@ class PgcIntroController extends CommonIntroController {
           return false;
         }
       }
-      onChangeEpisode(episodes[nextIndex]);
-      return true;
+      return await _changeEpisode(episodes[nextIndex]);
     } catch (_) {
       return false;
     }
