@@ -306,6 +306,22 @@ void main() {
     );
   });
 
+  test('后台连播切到下一条后不能一直停在封面不可见状态', () {
+    final videoController = File(
+      'lib/pages/video/controller.dart',
+    ).readAsStringSync();
+
+    final playerInit = functionBody(
+      videoController,
+      'Future<void> playerInit({',
+    );
+    expect(playerInit, contains('videoState.value = true;'));
+    expect(
+      playerInit.indexOf('videoState.value = true;'),
+      lessThan(playerInit.indexOf('await plPlayerController.setDataSource(')),
+    );
+  });
+
   test('未知音频焦点事件不能中断后台播放，避免锁屏后停在暂停状态', () {
     final audioSession = File(
       'lib/services/audio_session.dart',

@@ -754,6 +754,7 @@ class VideoDetailController extends GetxController
     if (seek == null || seek == Duration.zero) {
       seek = getFirstSegment();
     }
+    videoState.value = true;
     await plPlayerController.setDataSource(
       isFileSource
           ? FileSource(
