@@ -550,7 +550,7 @@ void main() {
     );
   });
 
-  test('播放中缓冲导致的playing=false不能当成用户暂停，否则断流后不会恢复', () {
+  test('底层playing=false不直接当成用户暂停，断流恢复统一交给watchdog', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',
     ).readAsStringSync();
@@ -568,17 +568,13 @@ void main() {
       playingListenerStart,
       completedListenerStart,
     );
-    expect(playingListener, contains('final isNetworkBufferingPause ='));
-    expect(playingListener, contains('!event && isBuffering.value'));
-    expect(playingListener, contains('} else if (isNetworkBufferingPause) {'));
-    expect(
-      playingListener.indexOf('} else if (isNetworkBufferingPause) {'),
-      lessThan(playingListener.indexOf('_stopBufferWatchdog();')),
-    );
+    expect(playingListener, isNot(contains('PlayerStatus.paused')));
+    expect(playingListener, isNot(contains('_stopBufferWatchdog();')));
     expect(
       playingListener,
-      contains('event ? PlayerStatus.playing : playerStatus.value'),
+      contains('WakelockPlus.toggle(enable: event || playerStatus.isPlaying)'),
     );
+    expect(playingListener, contains('if (event && !suppressPausedStatus) {'));
   });
 
   test('延迟网络重试不会跨视频源打断下一条播放', () {
@@ -632,10 +628,11 @@ void main() {
     );
     expect(
       playerController,
-      contains('final bufferTooClose = buffered.value <= position +'),
+      contains('final playbackOutrunsBuffer ='),
     );
     expect(playerController, contains('int _bufferWatchdogStallCount = 0;'));
-    expect(playerController, contains('++_bufferWatchdogStallCount >= 3'));
+    expect(playerController, contains('_bufferWatchdogStallCount++;'));
+    expect(playerController, contains('if (_bufferWatchdogStallCount >= 3)'));
     expect(playerController, contains('final refresh = refreshPlayer();'));
     expect(playerController, contains('refresh.whenComplete('));
     expect(playerController, contains('_startBufferWatchdog();'));
@@ -647,13 +644,11 @@ void main() {
       'lib/plugin/pl_player/controller.dart',
     ).readAsStringSync();
 
-    expect(playerController, contains('final startupStalled ='));
+    expect(playerController, contains('final waitingForStartup ='));
     expect(playerController, contains('position == Duration.zero'));
     expect(playerController, contains('buffered.value == Duration.zero'));
-    expect(playerController, contains('int _startupWatchdogStallCount = 0;'));
-    expect(playerController, contains('++_startupWatchdogStallCount >= 3'));
-    expect(playerController, contains('_startupWatchdogStallCount = 0;'));
-    expect(playerController, contains('startupStalledTooLong ||'));
+    expect(playerController, contains('final shouldRefresh ='));
+    expect(playerController, contains('waitingForStartup || playbackOutrunsBuffer'));
   });
 
   test('蓝牙补偿只注入mpv初始化参数，不参与页面和进度状态', () {

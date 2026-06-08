@@ -173,7 +173,6 @@ class PlPlayerController with BlockConfigMixin {
   Duration _lastValidPosition = Duration.zero;
   Duration _lastWatchdogPosition = Duration.zero;
   Duration _lastWatchdogBuffered = Duration.zero;
-  int _startupWatchdogStallCount = 0;
   int _bufferWatchdogStallCount = 0;
   bool _bufferWatchdogRefreshing = false;
   bool _suppressNextPausedStatusEvent = false;
@@ -475,11 +474,13 @@ class PlPlayerController with BlockConfigMixin {
       _stopBufferWatchdog();
       return;
     }
+    if (_bufferWatchdogTimer != null) {
+      return;
+    }
     _lastWatchdogPosition = position;
     _lastWatchdogBuffered = buffered.value;
-    _startupWatchdogStallCount = 0;
     _bufferWatchdogStallCount = 0;
-    _bufferWatchdogTimer ??= Timer.periodic(
+    _bufferWatchdogTimer = Timer.periodic(
       const Duration(seconds: 2),
       (_) => _checkBufferWatchdog(),
     );
@@ -489,7 +490,6 @@ class PlPlayerController with BlockConfigMixin {
     _bufferWatchdogTimer?.cancel();
     _bufferWatchdogTimer = null;
     _bufferWatchdogRefreshing = false;
-    _startupWatchdogStallCount = 0;
     _bufferWatchdogStallCount = 0;
   }
 
@@ -502,30 +502,26 @@ class PlPlayerController with BlockConfigMixin {
         _videoPlayerController?.current.isEmpty != false) {
       _lastWatchdogPosition = position;
       _lastWatchdogBuffered = buffered.value;
-      _startupWatchdogStallCount = 0;
       _bufferWatchdogStallCount = 0;
       return;
     }
 
     final positionAdvanced = position > _lastWatchdogPosition;
     final bufferStalled = buffered.value <= _lastWatchdogBuffered;
-    final startupStalled =
+    final waitingForStartup =
         position == Duration.zero && buffered.value == Duration.zero;
-    final startupStalledTooLong =
-        startupStalled && ++_startupWatchdogStallCount >= 3;
-    final bufferTooClose =
+    final playbackOutrunsBuffer =
+        positionAdvanced &&
+        bufferStalled &&
         buffered.value <= position + const Duration(seconds: 2);
-    final bufferStalledTooLong =
-        positionAdvanced && bufferStalled && bufferTooClose &&
-        ++_bufferWatchdogStallCount >= 3;
-    if (!startupStalled) {
-      _startupWatchdogStallCount = 0;
-    }
-    if (!positionAdvanced || !bufferStalled || !bufferTooClose) {
+    final shouldRefresh = waitingForStartup || playbackOutrunsBuffer;
+    if (shouldRefresh) {
+      _bufferWatchdogStallCount++;
+    } else {
       _bufferWatchdogStallCount = 0;
     }
 
-    if (startupStalledTooLong || bufferStalledTooLong) {
+    if (_bufferWatchdogStallCount >= 3) {
       if (_isInPlaybackEndRefreshWindow) {
         if (_isPositionAtPlaybackEnd) {
           _notifyPlaybackCompleted();
@@ -535,7 +531,6 @@ class PlPlayerController with BlockConfigMixin {
         return;
       }
       _bufferWatchdogRefreshing = true;
-      _startupWatchdogStallCount = 0;
       _bufferWatchdogStallCount = 0;
       final refresh = refreshPlayer();
       if (refresh == null) {
@@ -1121,9 +1116,7 @@ class PlPlayerController with BlockConfigMixin {
         if (suppressPausedStatus) {
           _suppressNextPausedStatusEvent = false;
         }
-        final isNetworkBufferingPause =
-            !event && isBuffering.value && playerStatus.isPlaying;
-        WakelockPlus.toggle(enable: event || isNetworkBufferingPause);
+        WakelockPlus.toggle(enable: event || playerStatus.isPlaying);
         if (event) {
           _startBufferWatchdog();
           if (_shouldSetPip) {
@@ -1134,16 +1127,8 @@ class PlPlayerController with BlockConfigMixin {
             }
           }
           playerStatus.value = PlayerStatus.playing;
-        } else if (isNetworkBufferingPause) {
-          _startBufferWatchdog();
-        } else {
-          _stopBufferWatchdog();
-          _disableAutoEnterPip();
-          if (!suppressPausedStatus) {
-            playerStatus.value = PlayerStatus.paused;
-          }
         }
-        if (!suppressPausedStatus) {
+        if (event && !suppressPausedStatus) {
           videoPlayerServiceHandler?.onStatusChange(
             playerStatus.value,
             isBuffering.value,
@@ -1152,7 +1137,7 @@ class PlPlayerController with BlockConfigMixin {
 
           /// 触发回调事件
           for (final element in _statusListeners) {
-            element(event ? PlayerStatus.playing : playerStatus.value);
+            element(PlayerStatus.playing);
           }
           if (videoPlayerController!.state.position.inSeconds != 0) {
             makeHeartBeat(positionSeconds.value, type: HeartBeatType.status);
