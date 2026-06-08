@@ -21,7 +21,7 @@ class SpaceArchiveItem extends BaseSimpleVideoItemModel {
   String? label;
 
   SpaceArchiveItem.fromJson(Map<String, dynamic> json) {
-    setVipVideoFromJson(json);
+    setCoverBadgeFromJson(json);
     title = json['title'];
     cover = json['cover'];
     uri = json['uri'];

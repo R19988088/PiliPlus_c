@@ -2,7 +2,6 @@ import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/image/image_save.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
-import 'package:PiliPlus/common/widgets/video_card/vip_video_badge.dart';
 import 'package:PiliPlus/http/search.dart';
 import 'package:PiliPlus/models/common/badge_type.dart';
 import 'package:PiliPlus/models_new/space/space_archive/item.dart';
@@ -114,12 +113,6 @@ class VideoCardVMemberHome extends StatelessWidget {
                             videoItem.duration,
                           ),
                         ),
-                      if (videoItem.isVipVideo)
-                        const VipVideoBadge(
-                          top: 6,
-                          right: 6,
-                        )
-                      else
                       if (videoItem.badges?.isNotEmpty == true)
                         PBadge(
                           text: videoItem.badges!

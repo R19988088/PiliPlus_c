@@ -6,14 +6,33 @@ abstract class BaseSimpleVideoItemModel {
   int duration = -1;
   late BaseOwner owner;
   late BaseStat stat;
-  bool isVipVideo = false;
+  String? coverBadge;
 
-  void setVipVideoFromJson(Map<String, dynamic> json) {
+  void setCoverBadgeFromJson(Map<String, dynamic> json) {
+    if (json['charging_pay']?['level'] != null ||
+        json['is_charging_arc'] == true) {
+      coverBadge = '充电专属';
+      return;
+    }
+
+    if (json['badges'] case final List badges) {
+      final text = badges
+          .map((item) => item is Map ? item['text'] : null)
+          .whereType<String>()
+          .where((text) => text.isNotEmpty)
+          .join('|');
+      if (text.isNotEmpty) {
+        coverBadge = text;
+        return;
+      }
+    }
+
     final ugcPay = json['ugc_pay'];
-    isVipVideo =
-        json['is_ugcpay'] == true ||
+    if (json['is_ugcpay'] == true ||
         ugcPay == true ||
-        (ugcPay is num && ugcPay > 0);
+        (ugcPay is num && ugcPay > 0)) {
+      coverBadge = '会员视频';
+    }
   }
 }
 

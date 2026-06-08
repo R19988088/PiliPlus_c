@@ -16,7 +16,7 @@ class HotVideoItemModel extends HorizontalVideoModel with MultiSelectData {
   String? pubLocation;
 
   HotVideoItemModel.fromJson(Map<String, dynamic> json) {
-    setVipVideoFromJson(json);
+    setCoverBadgeFromJson(json);
     aid = json["aid"];
     cid = json["cid"];
     bvid = json["bvid"];

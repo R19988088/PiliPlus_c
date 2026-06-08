@@ -75,7 +75,7 @@ class SearchVideoItemModel extends HorizontalVideoModel {
   int? get seasonId => aid;
 
   SearchVideoItemModel.fromJson(Map<String, dynamic> json) {
-    setVipVideoFromJson(json);
+    setCoverBadgeFromJson(json);
     id = json['id'];
     arcurl = json['arcurl'];
     aid = json['aid'];

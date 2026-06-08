@@ -4,8 +4,8 @@ import 'package:PiliPlus/common/widgets/image/image_save.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/stat/stat.dart';
 import 'package:PiliPlus/common/widgets/video_popup_menu.dart';
-import 'package:PiliPlus/common/widgets/video_card/vip_video_badge.dart';
 import 'package:PiliPlus/http/search.dart';
+import 'package:PiliPlus/models/common/badge_type.dart';
 import 'package:PiliPlus/models/common/stat_type.dart';
 import 'package:PiliPlus/models/home/rcmd/result.dart';
 import 'package:PiliPlus/models/model_owner.dart';
@@ -131,10 +131,14 @@ class VideoCardV extends StatelessWidget {
                                 videoItem.duration,
                               ),
                             ),
-                          if (videoItem.isVipVideo)
-                            const VipVideoBadge(
+                          if (videoItem.coverBadge case final badge?)
+                            PBadge(
+                              text: badge,
                               top: 6,
                               right: 6,
+                              type: badge == '充电专属'
+                                  ? PBadgeType.error
+                                  : PBadgeType.primary,
                             ),
                         ],
                       );
