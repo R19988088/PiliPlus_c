@@ -13,6 +13,7 @@ abstract class BaseRcmdVideoItemModel extends BaseVideoItemModel {
 
 class RcmdVideoItemModel extends BaseRcmdVideoItemModel {
   RcmdVideoItemModel.fromJson(Map<String, dynamic> json) {
+    setVipVideoFromJson(json);
     aid = json["id"];
     bvid = json["bvid"];
     cid = json["cid"];

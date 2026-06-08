@@ -4,6 +4,7 @@ import 'package:PiliPlus/common/widgets/image/image_save.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/stat/stat.dart';
 import 'package:PiliPlus/common/widgets/video_popup_menu.dart';
+import 'package:PiliPlus/common/widgets/video_card/vip_video_badge.dart';
 import 'package:PiliPlus/http/search.dart';
 import 'package:PiliPlus/models/common/stat_type.dart';
 import 'package:PiliPlus/models/home/rcmd/result.dart';
@@ -129,6 +130,11 @@ class VideoCardV extends StatelessWidget {
                               text: DurationUtils.formatDuration(
                                 videoItem.duration,
                               ),
+                            ),
+                          if (videoItem.isVipVideo)
+                            const VipVideoBadge(
+                              top: 6,
+                              right: 6,
                             ),
                         ],
                       );

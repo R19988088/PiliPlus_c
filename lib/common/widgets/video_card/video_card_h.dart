@@ -5,6 +5,7 @@ import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/progress_bar/video_progress_indicator.dart';
 import 'package:PiliPlus/common/widgets/stat/stat.dart';
 import 'package:PiliPlus/common/widgets/video_popup_menu.dart';
+import 'package:PiliPlus/common/widgets/video_card/vip_video_badge.dart';
 import 'package:PiliPlus/http/search.dart';
 import 'package:PiliPlus/models/horizontal_video_model.dart';
 import 'package:PiliPlus/models/model_owner.dart';
@@ -125,12 +126,17 @@ class VideoCardH extends StatelessWidget {
                             if (videoItem.badge case final badge?)
                               PBadge(
                                 text: badge,
-                                top: 6.0,
+                                top: videoItem.isVipVideo ? 30.0 : 6.0,
                                 right: 6.0,
                                 type: switch (badge) {
                                   '充电专属' => .error,
                                   _ => .primary,
                                 },
+                              ),
+                            if (videoItem.isVipVideo)
+                              const VipVideoBadge(
+                                top: 6,
+                                right: 6,
                               ),
                             if (progress != null && progress != 0) ...[
                               PBadge(

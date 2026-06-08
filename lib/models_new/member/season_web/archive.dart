@@ -3,6 +3,7 @@ import 'package:PiliPlus/models/model_video.dart';
 
 class SeasonArchive extends HorizontalVideoModel {
   SeasonArchive.fromJson(Map<String, dynamic> json) {
+    setVipVideoFromJson(json);
     aid = json['aid'];
     bvid = json['bvid'];
     cover = json['pic'];

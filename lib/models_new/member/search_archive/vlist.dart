@@ -4,6 +4,7 @@ import 'package:PiliPlus/utils/duration_utils.dart';
 
 class VListItemModel extends HorizontalVideoModel {
   VListItemModel.fromJson(Map<String, dynamic> json) {
+    setVipVideoFromJson(json);
     cover = json['pic'];
     desc = json['description'];
     title = json['title'];

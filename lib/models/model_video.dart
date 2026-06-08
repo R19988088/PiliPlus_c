@@ -6,6 +6,15 @@ abstract class BaseSimpleVideoItemModel {
   int duration = -1;
   late BaseOwner owner;
   late BaseStat stat;
+  bool isVipVideo = false;
+
+  void setVipVideoFromJson(Map<String, dynamic> json) {
+    final ugcPay = json['ugc_pay'];
+    isVipVideo =
+        json['is_ugcpay'] == true ||
+        ugcPay == true ||
+        (ugcPay is num && ugcPay > 0);
+  }
 }
 
 abstract class BaseVideoItemModel extends BaseSimpleVideoItemModel {
