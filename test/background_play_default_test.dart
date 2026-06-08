@@ -595,6 +595,8 @@ void main() {
       playerController,
       contains('final bufferTooClose = buffered.value <= position +'),
     );
+    expect(playerController, contains('int _bufferWatchdogStallCount = 0;'));
+    expect(playerController, contains('++_bufferWatchdogStallCount >= 3'));
     expect(playerController, contains('final refresh = refreshPlayer();'));
     expect(playerController, contains('refresh.whenComplete('));
     expect(playerController, contains('_startBufferWatchdog();'));

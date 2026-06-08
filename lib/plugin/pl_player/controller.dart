@@ -174,6 +174,7 @@ class PlPlayerController with BlockConfigMixin {
   Duration _lastWatchdogPosition = Duration.zero;
   Duration _lastWatchdogBuffered = Duration.zero;
   int _startupWatchdogStallCount = 0;
+  int _bufferWatchdogStallCount = 0;
   bool _bufferWatchdogRefreshing = false;
   bool _suppressNextPausedStatusEvent = false;
 
@@ -477,6 +478,7 @@ class PlPlayerController with BlockConfigMixin {
     _lastWatchdogPosition = position;
     _lastWatchdogBuffered = buffered.value;
     _startupWatchdogStallCount = 0;
+    _bufferWatchdogStallCount = 0;
     _bufferWatchdogTimer ??= Timer.periodic(
       const Duration(seconds: 2),
       (_) => _checkBufferWatchdog(),
@@ -488,6 +490,7 @@ class PlPlayerController with BlockConfigMixin {
     _bufferWatchdogTimer = null;
     _bufferWatchdogRefreshing = false;
     _startupWatchdogStallCount = 0;
+    _bufferWatchdogStallCount = 0;
   }
 
   void _checkBufferWatchdog() {
@@ -500,6 +503,7 @@ class PlPlayerController with BlockConfigMixin {
       _lastWatchdogPosition = position;
       _lastWatchdogBuffered = buffered.value;
       _startupWatchdogStallCount = 0;
+      _bufferWatchdogStallCount = 0;
       return;
     }
 
@@ -511,12 +515,17 @@ class PlPlayerController with BlockConfigMixin {
         startupStalled && ++_startupWatchdogStallCount >= 3;
     final bufferTooClose =
         buffered.value <= position + const Duration(seconds: 2);
+    final bufferStalledTooLong =
+        positionAdvanced && bufferStalled && bufferTooClose &&
+        ++_bufferWatchdogStallCount >= 3;
     if (!startupStalled) {
       _startupWatchdogStallCount = 0;
     }
+    if (!positionAdvanced || !bufferStalled || !bufferTooClose) {
+      _bufferWatchdogStallCount = 0;
+    }
 
-    if (startupStalledTooLong ||
-        (positionAdvanced && bufferStalled && bufferTooClose)) {
+    if (startupStalledTooLong || bufferStalledTooLong) {
       if (_isInPlaybackEndRefreshWindow) {
         if (_isPositionAtPlaybackEnd) {
           _notifyPlaybackCompleted();
@@ -527,6 +536,7 @@ class PlPlayerController with BlockConfigMixin {
       }
       _bufferWatchdogRefreshing = true;
       _startupWatchdogStallCount = 0;
+      _bufferWatchdogStallCount = 0;
       final refresh = refreshPlayer();
       if (refresh == null) {
         _bufferWatchdogRefreshing = false;
