@@ -13,7 +13,24 @@ import 'package:hive_ce/hive.dart';
 String functionBody(String source, String signature) {
   final signatureStart = source.indexOf(signature);
   expect(signatureStart, isNonNegative);
-  final bodyStart = source.indexOf('{', signatureStart);
+
+  var parenDepth = 0;
+  var signatureEnd = -1;
+  for (var i = signatureStart; i < source.length; i++) {
+    final codeUnit = source.codeUnitAt(i);
+    if (codeUnit == 40) {
+      parenDepth++;
+    } else if (codeUnit == 41) {
+      parenDepth--;
+      if (parenDepth == 0) {
+        signatureEnd = i;
+        break;
+      }
+    }
+  }
+  expect(signatureEnd, isNonNegative);
+
+  final bodyStart = source.indexOf('{', signatureEnd);
   expect(bodyStart, isNonNegative);
 
   var depth = 0;
@@ -458,6 +475,27 @@ void main() {
     expect(ugcIntroController, contains('Future<bool> nextPlay('));
     expect(ugcIntroController, contains('runPlayTransition('));
     expect(ugcIntroController, contains('Future<bool> _changeEpisode('));
+    final ugcChangeEpisode = functionBody(
+      ugcIntroController,
+      'Future<bool> _changeEpisode(',
+    );
+    expect(ugcChangeEpisode, contains('final oldAid = videoDetailCtr.aid;'));
+    expect(ugcChangeEpisode, contains('final oldBvid = videoDetailCtr.bvid;'));
+    expect(ugcChangeEpisode, contains('final oldCid = videoDetailCtr.cid.value;'));
+    expect(ugcChangeEpisode, contains('final oldProgress ='));
+    expect(ugcChangeEpisode, contains('positionSeconds.value;'));
+    expect(
+      ugcChangeEpisode,
+      contains('plPlayerController.makeHeartBeat('),
+    );
+    expect(ugcChangeEpisode, contains('type: HeartBeatType.completed'));
+    expect(ugcChangeEpisode, contains('isManual: true'));
+    expect(ugcChangeEpisode, contains('aid: oldAid'));
+    expect(ugcChangeEpisode, contains('bvid: oldBvid'));
+    expect(
+      ugcChangeEpisode,
+      contains('cid: oldCid'),
+    );
     expect(
       functionBody(ugcIntroController, 'Future<bool> _nextPlay('),
       contains('await _changeEpisode(episodes[nextIndex])'),
@@ -481,6 +519,27 @@ void main() {
     expect(pgcIntroController, contains('Future<bool> nextPlay()'));
     expect(pgcIntroController, contains('runPlayTransition('));
     expect(pgcIntroController, contains('Future<bool> _changeEpisode('));
+    final pgcChangeEpisode = functionBody(
+      pgcIntroController,
+      'Future<bool> _changeEpisode(',
+    );
+    expect(pgcChangeEpisode, contains('final oldAid = videoDetailCtr.aid;'));
+    expect(pgcChangeEpisode, contains('final oldBvid = videoDetailCtr.bvid;'));
+    expect(pgcChangeEpisode, contains('final oldCid = videoDetailCtr.cid.value;'));
+    expect(pgcChangeEpisode, contains('final oldProgress ='));
+    expect(pgcChangeEpisode, contains('positionSeconds.value;'));
+    expect(
+      pgcChangeEpisode,
+      contains('plPlayerController.makeHeartBeat('),
+    );
+    expect(pgcChangeEpisode, contains('type: HeartBeatType.completed'));
+    expect(pgcChangeEpisode, contains('isManual: true'));
+    expect(pgcChangeEpisode, contains('aid: oldAid'));
+    expect(pgcChangeEpisode, contains('bvid: oldBvid'));
+    expect(
+      pgcChangeEpisode,
+      contains('cid: oldCid'),
+    );
     expect(
       functionBody(pgcIntroController, 'Future<bool> _nextPlay('),
       contains('await _changeEpisode(episodes[nextIndex])'),

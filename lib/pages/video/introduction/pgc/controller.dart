@@ -17,6 +17,7 @@ import 'package:PiliPlus/models_new/video/video_detail/stat_detail.dart';
 import 'package:PiliPlus/pages/common/common_intro_controller.dart';
 import 'package:PiliPlus/pages/dynamics_repost/view.dart';
 import 'package:PiliPlus/pages/video/reply/controller.dart';
+import 'package:PiliPlus/plugin/pl_player/models/heart_beat_type.dart';
 import 'package:PiliPlus/plugin/pl_player/models/play_repeat.dart';
 import 'package:PiliPlus/services/service_locator.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
@@ -279,13 +280,27 @@ class PgcIntroController extends CommonIntroController {
       this.epId = epId;
       this.bvid = bvid;
 
+      final oldAid = videoDetailCtr.aid;
+      final oldBvid = videoDetailCtr.bvid;
+      final oldCid = videoDetailCtr.cid.value;
+      final oldProgress =
+          videoDetailCtr.plPlayerController.positionSeconds.value;
+
       await videoDetailCtr.plPlayerController.pause(
         notify: false,
         isInterrupt: true,
       );
 
+      videoDetailCtr.plPlayerController.makeHeartBeat(
+        oldProgress,
+        type: HeartBeatType.completed,
+        isManual: true,
+        aid: oldAid,
+        bvid: oldBvid,
+        cid: oldCid,
+      );
+
       videoDetailCtr
-        ..makeHeartBeat()
         ..onReset()
         ..epId = epId
         ..bvid = bvid

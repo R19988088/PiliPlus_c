@@ -26,6 +26,7 @@ import 'package:PiliPlus/pages/common/common_intro_controller.dart';
 import 'package:PiliPlus/pages/dynamics_repost/view.dart';
 import 'package:PiliPlus/pages/video/related/controller.dart';
 import 'package:PiliPlus/pages/video/reply/controller.dart';
+import 'package:PiliPlus/plugin/pl_player/models/heart_beat_type.dart';
 import 'package:PiliPlus/plugin/pl_player/models/play_repeat.dart';
 import 'package:PiliPlus/services/service_locator.dart';
 import 'package:PiliPlus/utils/accounts.dart';
@@ -505,13 +506,27 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
         }
       }
 
+      final oldAid = videoDetailCtr.aid;
+      final oldBvid = videoDetailCtr.bvid;
+      final oldCid = videoDetailCtr.cid.value;
+      final oldProgress =
+          videoDetailCtr.plPlayerController.positionSeconds.value;
+
       await videoDetailCtr.plPlayerController.pause(
         notify: false,
         isInterrupt: true,
       );
 
+      videoDetailCtr.plPlayerController.makeHeartBeat(
+        oldProgress,
+        type: HeartBeatType.completed,
+        isManual: true,
+        aid: oldAid,
+        bvid: oldBvid,
+        cid: oldCid,
+      );
+
       videoDetailCtr
-        ..makeHeartBeat()
         ..updateMediaListHistory(aid)
         ..onReset(isStein: isStein)
         ..bvid = bvid
