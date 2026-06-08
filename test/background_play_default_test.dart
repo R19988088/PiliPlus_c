@@ -517,7 +517,7 @@ void main() {
     );
   });
 
-  test('网络视频中途缓冲错误仍会自动重试，不只处理初始缓冲', () {
+  test('网络打开错误只在启动阶段重试，避免新视频已播放后被错误事件打断', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',
     ).readAsStringSync();
@@ -535,10 +535,18 @@ void main() {
       errorListenerStart,
       mediaNotificationStart,
     );
-    expect(errorListener, contains('if (isBuffering.value) {'));
+    expect(playerController, contains('bool get _shouldRetryOpenError'));
+    final retryGuard = playerController.substring(
+      playerController.indexOf('bool get _shouldRetryOpenError'),
+      playerController.indexOf('static PlPlayerController? get instance'),
+    );
+    expect(retryGuard, contains('isBuffering.value'));
+    expect(retryGuard, contains('position == Duration.zero'));
+    expect(retryGuard, contains('_lastValidPosition == Duration.zero'));
+    expect(errorListener, contains('if (_shouldRetryOpenError) {'));
     expect(
       errorListener,
-      isNot(contains('isBuffering.value && buffered.value == Duration.zero')),
+      isNot(contains('if (isBuffering.value) {')),
     );
   });
 

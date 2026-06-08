@@ -618,6 +618,11 @@ class PlPlayerController with BlockConfigMixin {
   Duration get _refreshStartPosition =>
       position > Duration.zero ? position : _lastValidPosition;
 
+  bool get _shouldRetryOpenError =>
+      isBuffering.value &&
+      position == Duration.zero &&
+      _lastValidPosition == Duration.zero;
+
   static PlPlayerController? get instance => _instance;
 
   static bool instanceExists() {
@@ -1238,7 +1243,7 @@ class PlPlayerController with BlockConfigMixin {
                 // if (kDebugMode) {
                 //   debugPrint("_buffered.value: ${_buffered.value}");
                 // }
-                if (isBuffering.value) {
+                if (_shouldRetryOpenError) {
                   SmartDialog.showToast(
                     '视频链接打开失败，重试中',
                     displayTime: const Duration(milliseconds: 500),
