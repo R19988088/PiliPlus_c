@@ -550,6 +550,37 @@ void main() {
     );
   });
 
+  test('播放中缓冲导致的playing=false不能当成用户暂停，否则断流后不会恢复', () {
+    final playerController = File(
+      'lib/plugin/pl_player/controller.dart',
+    ).readAsStringSync();
+
+    final playingListenerStart = playerController.indexOf(
+      'stream.playing.listen((event) {',
+    );
+    final completedListenerStart = playerController.indexOf(
+      'stream.completed.listen((event) {',
+    );
+    expect(playingListenerStart, isNonNegative);
+    expect(completedListenerStart, greaterThan(playingListenerStart));
+
+    final playingListener = playerController.substring(
+      playingListenerStart,
+      completedListenerStart,
+    );
+    expect(playingListener, contains('final isNetworkBufferingPause ='));
+    expect(playingListener, contains('!event && isBuffering.value'));
+    expect(playingListener, contains('} else if (isNetworkBufferingPause) {'));
+    expect(
+      playingListener.indexOf('} else if (isNetworkBufferingPause) {'),
+      lessThan(playingListener.indexOf('_stopBufferWatchdog();')),
+    );
+    expect(
+      playingListener,
+      contains('event ? PlayerStatus.playing : playerStatus.value'),
+    );
+  });
+
   test('延迟网络重试不会跨视频源打断下一条播放', () {
     final playerController = File(
       'lib/plugin/pl_player/controller.dart',

@@ -1121,7 +1121,9 @@ class PlPlayerController with BlockConfigMixin {
         if (suppressPausedStatus) {
           _suppressNextPausedStatusEvent = false;
         }
-        WakelockPlus.toggle(enable: event);
+        final isNetworkBufferingPause =
+            !event && isBuffering.value && playerStatus.isPlaying;
+        WakelockPlus.toggle(enable: event || isNetworkBufferingPause);
         if (event) {
           _startBufferWatchdog();
           if (_shouldSetPip) {
@@ -1132,6 +1134,8 @@ class PlPlayerController with BlockConfigMixin {
             }
           }
           playerStatus.value = PlayerStatus.playing;
+        } else if (isNetworkBufferingPause) {
+          _startBufferWatchdog();
         } else {
           _stopBufferWatchdog();
           _disableAutoEnterPip();
@@ -1148,7 +1152,7 @@ class PlPlayerController with BlockConfigMixin {
 
           /// 触发回调事件
           for (final element in _statusListeners) {
-            element(event ? PlayerStatus.playing : PlayerStatus.paused);
+            element(event ? PlayerStatus.playing : playerStatus.value);
           }
           if (videoPlayerController!.state.position.inSeconds != 0) {
             makeHeartBeat(positionSeconds.value, type: HeartBeatType.status);
