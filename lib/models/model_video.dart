@@ -9,7 +9,8 @@ abstract class BaseSimpleVideoItemModel {
   String? coverBadge;
 
   void setCoverBadgeFromJson(Map<String, dynamic> json) {
-    if (json['charging_pay']?['level'] != null ||
+    if (json['is_upower_exclusive'] == true ||
+        json['charging_pay']?['level'] != null ||
         json['is_charging_arc'] == true) {
       coverBadge = '充电专属';
       return;

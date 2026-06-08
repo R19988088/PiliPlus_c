@@ -33,6 +33,7 @@ void main() {
 
     expect(baseModel, contains('String? coverBadge'));
     expect(baseModel, contains('setCoverBadgeFromJson'));
+    expect(baseModel, contains('is_upower_exclusive'));
     expect(baseModel, contains('charging_pay'));
     expect(baseModel, contains('is_charging_arc'));
     expect(baseModel, contains('badges'));
@@ -41,5 +42,13 @@ void main() {
     expect(recommend, contains('setCoverBadgeFromJson(json)'));
     expect(recommendApp, contains('setCoverBadgeFromJson(json)'));
     expect(hot, contains('setCoverBadgeFromJson(json)'));
+  });
+
+  test('App 首页推荐用视频详情补齐充电专属角标', () {
+    final videoHttp = File('lib/http/video.dart').readAsStringSync();
+
+    expect(videoHttp, contains('_fillRcmdCoverBadges(list)'));
+    expect(videoHttp, contains('Api.videoIntro'));
+    expect(videoHttp, contains('item.setCoverBadgeFromJson'));
   });
 }

@@ -158,10 +158,36 @@ abstract final class VideoHttp {
           }
         }
       }
+      await _fillRcmdCoverBadges(list);
       return Success(list);
     } else {
       return Error(res.data['message']);
     }
+  }
+
+  static Future<void> _fillRcmdCoverBadges(
+    List<BaseRcmdVideoItemModel> list,
+  ) async {
+    await Future.wait(
+      list
+          .where(
+            (item) =>
+                item.coverBadge == null &&
+                item.goto == 'av' &&
+                item.bvid?.isNotEmpty == true,
+          )
+          .map((item) async {
+            try {
+              final res = await Request().get(
+                Api.videoIntro,
+                queryParameters: {'bvid': item.bvid},
+              );
+              if (res.data['code'] == 0 && res.data['data'] is Map) {
+                item.setCoverBadgeFromJson(res.data['data']);
+              }
+            } catch (_) {}
+          }),
+    );
   }
 
   // 最热视频
