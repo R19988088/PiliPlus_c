@@ -405,7 +405,7 @@ void main() {
     );
   });
 
-  test('稍后再看播放完成后按默认开启设置静默移除当前视频且不阻塞下一条', () {
+  test('稍后再看播放超过70%且手动到末尾切下一条后才自动删除', () {
     final storageKey = File('lib/utils/storage_key.dart').readAsStringSync();
     final storagePref = File('lib/utils/storage_pref.dart').readAsStringSync();
     final playSettings = File(
@@ -431,6 +431,12 @@ void main() {
 
     expect(videoPage, contains("import 'package:PiliPlus/http/user.dart';"));
     expect(videoPage, contains("import 'package:PiliPlus/models/common/video/source_type.dart';"));
+    expect(videoPage, contains('static const double _autoRemoveWatchLaterThreshold = 0.7;'));
+    expect(videoPage, contains('Duration _watchedDuration = Duration.zero;'));
+    expect(videoPage, contains("if (_watchedAid != aid) {"));
+    expect(videoPage, contains("_watchedDuration += delta;"));
+    expect(videoPage, contains('bool _canAutoRemovePlayedWatchLater('));
+    expect(videoPage, contains('_watchedDuration.inMilliseconds / duration.inMilliseconds >='));
     expect(videoPage, contains('void _autoRemovePlayedWatchLater(int aid)'));
     expect(videoPage, contains('if (!Pref.autoRemovePlayedWatchLater) return;'));
     expect(videoPage, contains('if (videoDetailController.sourceType != SourceType.watchLater)'));
@@ -443,15 +449,35 @@ void main() {
     expect(handlePlayStart, greaterThan(completedStart));
     final completedBlock = videoPage.substring(completedStart, handlePlayStart);
     expect(completedBlock, contains('final completedAid = videoDetailController.aid;'));
+    expect(completedBlock, contains('final completedDuration = plPlayerController!.duration.value;'));
+    expect(completedBlock, contains('final canAutoRemoveWatchLater = _canAutoRemovePlayedWatchLater('));
     expect(
       completedBlock,
-      contains('exitFlag = !await introController.nextPlay();'),
+      contains('final playedNext = await introController.nextPlay();'),
     );
-    expect(completedBlock, contains('_autoRemovePlayedWatchLater(completedAid);'));
+    expect(completedBlock, contains('exitFlag = !playedNext;'));
+    expect(completedBlock, contains('if (playedNext && canAutoRemoveWatchLater) {'));
     expect(
-      completedBlock.indexOf('exitFlag = !await introController.nextPlay();'),
+      completedBlock,
+      contains('_autoRemovePlayedWatchLater(completedAid);'),
+    );
+    expect(
+      completedBlock.indexOf('final playedNext = await introController.nextPlay();'),
       lessThan(completedBlock.indexOf('_autoRemovePlayedWatchLater(completedAid);')),
     );
+  });
+
+  test('移动端系统状态栏背景使用30%透明度', () {
+    final main = File('lib/main.dart').readAsStringSync();
+
+    expect(
+      main,
+      contains('statusBarColor: Colors.black.withValues(alpha: 0.3)'),
+    );
+
+    final videoPage = File('lib/pages/video/view.dart').readAsStringSync();
+    expect(videoPage, contains('statusBarColor: Colors.black.withValues('));
+    expect(videoPage, contains('alpha: 0.3'));
   });
 
   test('自动连播换源必须等待下一条初始化完成，避免旧源0秒重试串线', () {

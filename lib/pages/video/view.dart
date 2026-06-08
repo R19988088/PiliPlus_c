@@ -104,6 +104,12 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
   late final PgcIntroController pgcIntroController;
   late final LocalIntroController localIntroController;
 
+  static const double _autoRemoveWatchLaterThreshold = 0.7;
+
+  int? _watchedAid;
+  Duration _lastWatchedPosition = Duration.zero;
+  Duration _watchedDuration = Duration.zero;
+
   bool get autoExitFullscreen =>
       videoDetailController.plPlayerController.autoExitFullscreen;
 
@@ -185,6 +191,21 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
 
   void positionListener(Duration position) {
     videoDetailController.playedTime = position;
+    final aid = videoDetailController.aid;
+    if (_watchedAid != aid) {
+      _watchedAid = aid;
+      _lastWatchedPosition = position;
+      _watchedDuration = Duration.zero;
+      return;
+    }
+    final delta = position - _lastWatchedPosition;
+    if ((plPlayerController?.playerStatus.isPlaying ?? false) &&
+        !(plPlayerController?.isSliderMoving.value ?? true) &&
+        delta > Duration.zero &&
+        delta <= const Duration(seconds: 5)) {
+      _watchedDuration += delta;
+    }
+    _lastWatchedPosition = position;
   }
 
   @override
@@ -214,6 +235,12 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
         ..addPositionListener(positionListener);
     }
     return plPlayerController?.play();
+  }
+
+  bool _canAutoRemovePlayedWatchLater(Duration duration) {
+    if (duration <= Duration.zero) return false;
+    return _watchedDuration.inMilliseconds / duration.inMilliseconds >=
+        _autoRemoveWatchLaterThreshold;
   }
 
   void _autoRemovePlayedWatchLater(int aid) {
@@ -270,6 +297,10 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
 
       bool exitFlag = true;
       final completedAid = videoDetailController.aid;
+      final completedDuration = plPlayerController!.duration.value;
+      final canAutoRemoveWatchLater = _canAutoRemovePlayedWatchLater(
+        completedDuration,
+      );
 
       /// 顺序播放 列表循环
       if (shutdownTimerService.isWaiting) {
@@ -282,8 +313,11 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
           case PlayRepeat.listOrder:
           case PlayRepeat.listCycle:
           case PlayRepeat.autoPlayRelated:
-            exitFlag = !await introController.nextPlay();
-            _autoRemovePlayedWatchLater(completedAid);
+            final playedNext = await introController.nextPlay();
+            exitFlag = !playedNext;
+            if (playedNext && canAutoRemoveWatchLater) {
+              _autoRemovePlayedWatchLater(completedAid);
+            }
           case PlayRepeat.pause:
         }
       }
@@ -541,6 +575,9 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                                     flag && scrollRatio >= 0.5
                                     ? themeData.brightness.reverse
                                     : Brightness.light,
+                                statusBarColor: Colors.black.withValues(
+                                  alpha: 0.3,
+                                ),
                                 systemNavigationBarIconBrightness:
                                     themeData.brightness.reverse,
                               )

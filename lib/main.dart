@@ -142,10 +142,10 @@ void main() async {
   if (PlatformUtils.isMobile) {
     setEnabledSystemUIMode(.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.transparent,
         systemNavigationBarDividerColor: Colors.transparent,
-        statusBarColor: Colors.transparent,
+        statusBarColor: Colors.black.withValues(alpha: 0.3),
         systemNavigationBarContrastEnforced: false,
       ),
     );
