@@ -30,6 +30,7 @@ class ShutdownTimerService {
 
   Timer? _shutdownTimer;
   bool get isActive => _shutdownTimer?.isActive ?? false;
+  final ValueNotifier<int> remainingSeconds = ValueNotifier<int>(0);
   int _durationInMinutes = 0;
   _ShutdownType _shutdownType = .pause;
 
@@ -44,6 +45,7 @@ class ShutdownTimerService {
       _shutdownTimer!.cancel();
       _shutdownTimer = null;
     }
+    remainingSeconds.value = 0;
   }
 
   void reset([int durationInMinutes = 0]) {
@@ -59,10 +61,18 @@ class ShutdownTimerService {
       return;
     }
     SmartDialog.showToast('设置 ${_format(durationInMinutes)} 后定时关闭');
-    _shutdownTimer = Timer(
-      Duration(minutes: durationInMinutes),
-      _handleShutdown,
-    );
+    remainingSeconds.value = durationInMinutes * 60;
+    _shutdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final int nextSeconds = remainingSeconds.value - 1;
+      if (nextSeconds <= 0) {
+        timer.cancel();
+        _shutdownTimer = null;
+        remainingSeconds.value = 0;
+        _handleShutdown();
+        return;
+      }
+      remainingSeconds.value = nextSeconds;
+    });
   }
 
   void _handleShutdown() {
@@ -134,6 +144,18 @@ class ShutdownTimerService {
     } else {
       return '$minute分钟';
     }
+  }
+
+  static String formatRemainingSeconds(int seconds) {
+    final int hours = seconds ~/ 3600;
+    final int minutes = (seconds % 3600) ~/ 60;
+    final int remainSeconds = seconds % 60;
+    if (hours > 0) {
+      return '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}';
+    }
+    return '${minutes.toString().padLeft(2, '0')}:'
+        '${remainSeconds.toString().padLeft(2, '0')}';
   }
 
   void _adjustCustomDuration({
@@ -298,9 +320,6 @@ class ShutdownTimerService {
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              const Center(
-                                child: Text('定时关闭', style: titleStyle),
-                              ),
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: FilledButton.tonal(
@@ -375,7 +394,8 @@ class ShutdownTimerService {
                                 (context as Element).markNeedsBuild();
                               }
 
-                              return InkWell(
+                              return GestureDetector(
+                                behavior: HitTestBehavior.opaque,
                                 onTap: onChanged,
                                 child: Padding(
                                   padding: const .symmetric(

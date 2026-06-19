@@ -88,6 +88,12 @@ void main() {
     expect(timerIndex, lessThan(pipIndex));
     expect(headerControl, contains('Icons.hourglass_top_outlined'));
     expect(headerControl, isNot(contains('Icons.schedule')));
+    expect(headerControl, contains('ValueListenableBuilder<int>'));
+    expect(headerControl, contains('shutdownTimerService.remainingSeconds'));
+    expect(
+      headerControl,
+      contains('ShutdownTimerService.formatRemainingSeconds'),
+    );
 
     expect(
       headerControl,
@@ -117,6 +123,9 @@ void main() {
     expect(shutdownTimer, contains('hours * 60'));
     expect(shutdownTimer, contains('minutes * 15'));
     expect(shutdownTimer, contains('reset(duration);'));
+    expect(shutdownTimer, contains('ValueNotifier<int> remainingSeconds'));
+    expect(shutdownTimer, contains('Timer.periodic(const Duration(seconds: 1)'));
+    expect(shutdownTimer, contains('formatRemainingSeconds'));
     expect(shutdownTimer, contains("'开始定时播放'"));
     expect(shutdownTimer, contains('_startShutdownTimer('));
     expect(shutdownTimer, contains('_durationInMinutes,'));
@@ -130,6 +139,9 @@ void main() {
     expect(shutdownTimer, isNot(contains("title: const Text('禁用'")));
     expect(shutdownTimer, isNot(contains("'关闭并关闭'")));
     expect(shutdownTimer, isNot(contains('_startShutdownTimer(0);')));
+    expect(shutdownTimer, isNot(contains("child: Text('定时关闭'")));
+    expect(shutdownTimer, isNot(contains("child: Text('定时关闭', style: titleStyle)")));
+    expect(shutdownTimer, isNot(contains('return InkWell(')));
     expect(shutdownTimer, isNot(contains("return ListTile(\n                                dense: true,\n                                onTap: onChanged,")));
     expect(shutdownTimer, isNot(contains("title: const Text('自定义'")));
   });

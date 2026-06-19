@@ -37,7 +37,7 @@ import 'package:PiliPlus/plugin/pl_player/models/data_source.dart';
 import 'package:PiliPlus/plugin/pl_player/models/play_repeat.dart';
 import 'package:PiliPlus/services/service_locator.dart';
 import 'package:PiliPlus/services/shutdown_timer_service.dart'
-    show shutdownTimerService;
+    show ShutdownTimerService, shutdownTimerService;
 import 'package:PiliPlus/utils/accounts.dart';
 import 'package:PiliPlus/utils/accounts/account.dart';
 import 'package:PiliPlus/utils/connectivity_utils.dart';
@@ -1860,20 +1860,40 @@ class HeaderControlState extends State<HeaderControl>
               if (Platform.isAndroid ||
                   (PlatformUtils.isDesktop && !isFullScreen))
                 SizedBox(
-                  width: btnWidth,
+                  width: 48,
                   height: btnHeight,
-                  child: IconButton(
-                    tooltip: '定时关闭',
-                    style: btnStyle,
-                    onPressed: () =>
-                        shutdownTimerService.showScheduleExitDialog(
-                          this.context,
-                          isFullScreen: isFullScreen,
-                        ),
-                    icon: const Icon(
-                      Icons.hourglass_top_outlined,
-                      size: 19,
-                      color: Colors.white,
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: shutdownTimerService.remainingSeconds,
+                    builder: (_, remainingSeconds, _) => Tooltip(
+                      message: '定时关闭',
+                      child: TextButton(
+                        style: btnStyle,
+                        onPressed: () =>
+                            shutdownTimerService.showScheduleExitDialog(
+                              this.context,
+                              isFullScreen: isFullScreen,
+                            ),
+                        child: remainingSeconds > 0
+                            ? FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  ShutdownTimerService.formatRemainingSeconds(
+                                    remainingSeconds,
+                                  ),
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              )
+                            : const Icon(
+                                Icons.hourglass_top_outlined,
+                                size: 19,
+                                color: Colors.white,
+                              ),
+                      ),
                     ),
                   ),
                 ),
