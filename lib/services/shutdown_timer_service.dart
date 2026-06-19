@@ -7,7 +7,6 @@ import 'package:PiliPlus/pages/video/introduction/ugc/widgets/menu_row.dart';
 import 'package:PiliPlus/plugin/pl_player/controller.dart';
 import 'package:PiliPlus/plugin/pl_player/models/play_status.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
@@ -37,6 +36,8 @@ class ShutdownTimerService {
   bool _isWaiting = false;
   bool get isWaiting => _isWaiting;
   bool _waitUntilCompleted = false;
+  double _hourDragOffset = 0;
+  double _minuteDragOffset = 0;
 
   void _stopTimer() {
     if (_shutdownTimer != null) {
@@ -135,12 +136,133 @@ class ShutdownTimerService {
     }
   }
 
+  void _adjustCustomDuration({
+    int hours = 0,
+    int minutes = 0,
+  }) {
+    final duration = (_durationInMinutes + hours * 60 + minutes * 15)
+        .clamp(
+          0,
+          23 * 60 + 45,
+        )
+        .toInt();
+    _startShutdownTimer(duration);
+  }
+
+  Widget _buildInlineTimePicker(
+    ThemeData theme,
+    void Function(void Function()) setState,
+  ) {
+    const dragStep = 28.0;
+
+    void handleDrag({
+      required double delta,
+      required bool isHour,
+    }) {
+      var offset = isHour ? _hourDragOffset : _minuteDragOffset;
+      offset += delta;
+      while (offset.abs() >= dragStep) {
+        final direction = offset < 0 ? 1 : -1;
+        setState(() {
+          _adjustCustomDuration(
+            hours: isHour ? direction : 0,
+            minutes: isHour ? 0 : direction,
+          );
+        });
+        offset += offset < 0 ? dragStep : -dragStep;
+      }
+      if (isHour) {
+        _hourDragOffset = offset;
+      } else {
+        _minuteDragOffset = offset;
+      }
+    }
+
+    final (hour, minute) = _parseMinutes(_durationInMinutes);
+    final timeStyle = TextStyle(
+      fontSize: 48,
+      fontWeight: FontWeight.w600,
+      color: theme.colorScheme.onSurface,
+      height: 1,
+    );
+    final labelStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: theme.colorScheme.onSurface,
+    );
+    final cardDecoration = BoxDecoration(
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
+    );
+
+    Widget timeColumn({
+      required String value,
+      required String label,
+      required bool isHour,
+    }) {
+      return Expanded(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onVerticalDragUpdate: (details) => handleDrag(
+            delta: details.primaryDelta ?? 0,
+            isHour: isHour,
+          ),
+          onVerticalDragEnd: (_) {
+            if (isHour) {
+              _hourDragOffset = 0;
+            } else {
+              _minuteDragOffset = 0;
+            }
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DecoratedBox(
+                decoration: cardDecoration,
+                child: SizedBox(
+                  height: 86,
+                  child: Center(
+                    child: Text(value, style: timeStyle),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(label, style: labelStyle),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(28, 18, 28, 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          timeColumn(
+            value: hour.toString().padLeft(2, '0'),
+            label: '小时',
+            isHour: true,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: Text(':', style: timeStyle),
+          ),
+          timeColumn(
+            value: minute.toString().padLeft(2, '0'),
+            label: '分钟',
+            isHour: false,
+          ),
+        ],
+      ),
+    );
+  }
+
   void showScheduleExitDialog(
     BuildContext context, {
     required bool isFullScreen,
     bool isLive = false,
   }) {
-    const Set<int> scheduleTimeMinutes = {0, 15, 30, 45, 60};
     const TextStyle titleStyle = TextStyle(fontSize: 14);
     if (isLive) {
       _waitUntilCompleted = false;
@@ -164,56 +286,23 @@ class ShutdownTimerService {
                   children: [
                     const Center(child: Text('定时关闭', style: titleStyle)),
                     const SizedBox(height: 10),
-                    ...{...scheduleTimeMinutes, _durationInMinutes}
-                        .sorted((a, b) => a.compareTo(b))
-                        .map(
-                          (minutes) => ListTile(
-                            dense: true,
-                            onTap: () {
-                              Navigator.pop(context);
-                              _startShutdownTimer(minutes);
-                            },
-                            title: Text(
-                              switch (minutes) {
-                                0 => '禁用',
-                                _ => _format(minutes),
-                              },
-                              style: titleStyle,
-                            ),
-                            trailing: _durationInMinutes == minutes
-                                ? Icon(
-                                    size: 20,
-                                    Icons.done,
-                                    color: theme.colorScheme.primary,
-                                  )
-                                : null,
-                          ),
-                        ),
                     ListTile(
                       dense: true,
                       onTap: () {
-                        final (int hour, int minute) = _parseMinutes(
-                          _durationInMinutes,
-                        );
-                        showTimePicker(
-                          context: context,
-                          initialEntryMode: .inputOnly,
-                          initialTime: TimeOfDay(hour: hour, minute: minute),
-                          builder: (context, child) => MediaQuery(
-                            data: MediaQuery.of(
-                              context,
-                            ).copyWith(alwaysUse24HourFormat: true),
-                            child: child!,
-                          ),
-                        ).then((time) {
-                          if (time != null) {
-                            _startShutdownTimer(time.hour * 60 + time.minute);
-                            setState(() {});
-                          }
+                        setState(() {
+                          _startShutdownTimer(0);
                         });
                       },
-                      title: const Text('自定义', style: titleStyle),
+                      title: const Text('禁用', style: titleStyle),
+                      trailing: _durationInMinutes == 0
+                          ? Icon(
+                              size: 20,
+                              Icons.done,
+                              color: theme.colorScheme.primary,
+                            )
+                          : null,
                     ),
+                    _buildInlineTimePicker(theme, setState),
                     if (!isLive) ...[
                       Builder(
                         builder: (context) {

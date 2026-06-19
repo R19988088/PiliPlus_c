@@ -418,18 +418,6 @@ class HeaderControlState extends State<HeaderControl>
                     leading: const Icon(Icons.image_outlined, size: 20),
                     title: const Text('保存封面', style: titleStyle),
                   ),
-                ListTile(
-                  dense: true,
-                  onTap: () {
-                    Get.back();
-                    shutdownTimerService.showScheduleExitDialog(
-                      this.context,
-                      isFullScreen: isFullScreen,
-                    );
-                  },
-                  leading: const Icon(Icons.hourglass_top_outlined, size: 20),
-                  title: const Text('定时关闭', style: titleStyle),
-                ),
                 if (!isFileSource) ...[
                   ListTile(
                     dense: true,
@@ -1760,22 +1748,6 @@ class HeaderControlState extends State<HeaderControl>
                       plPlayerController.onPopInvokedWithResult(false, null),
                 ),
               ),
-              if (!plPlayerController.isDesktopPip &&
-                  (!isFullScreen || !isPortrait))
-                SizedBox(
-                  width: btnWidth,
-                  height: btnHeight,
-                  child: IconButton(
-                    tooltip: '返回主页',
-                    style: btnStyle,
-                    icon: const Icon(
-                      FontAwesomeIcons.house,
-                      size: 15,
-                      color: Colors.white,
-                    ),
-                    onPressed: plPlayerController.onCloseAll,
-                  ),
-                ),
               title,
               // show current datetime
               ...?timeBatteryWidgets,
@@ -1870,7 +1842,7 @@ class HeaderControlState extends State<HeaderControl>
                       : const SizedBox.shrink(),
                 ),
               ],
-              if (!isPortrait || isFullScreen || PlatformUtils.isDesktop) ...[
+              if (!isPortrait || isFullScreen || PlatformUtils.isDesktop)
                 SizedBox(
                   width: btnWidth,
                   height: btnHeight,
@@ -1885,56 +1857,26 @@ class HeaderControlState extends State<HeaderControl>
                     ),
                   ),
                 ),
+              if (Platform.isAndroid ||
+                  (PlatformUtils.isDesktop && !isFullScreen))
                 SizedBox(
                   width: btnWidth,
                   height: btnHeight,
-                  child: Obx(
-                    () {
-                      final enableShowDanmaku =
-                          plPlayerController.enableShowDanmaku.value;
-                      return IconButton(
-                        tooltip: "${enableShowDanmaku ? '关闭' : '开启'}弹幕",
-                        style: btnStyle,
-                        onPressed: () {
-                          final newVal = !enableShowDanmaku;
-                          plPlayerController.enableShowDanmaku.value = newVal;
-                          if (!plPlayerController.tempPlayerConf) {
-                            setting.put(
-                              SettingBoxKey.enableShowDanmaku,
-                              newVal,
-                            );
-                          }
-                        },
-                        icon: enableShowDanmaku
-                            ? const Icon(
-                                size: 20,
-                                CustomIcons.dm_on,
-                                color: Colors.white,
-                              )
-                            : const Icon(
-                                size: 20,
-                                CustomIcons.dm_off,
-                                color: Colors.white,
-                              ),
-                      );
-                    },
+                  child: IconButton(
+                    tooltip: '定时关闭',
+                    style: btnStyle,
+                    onPressed: () =>
+                        shutdownTimerService.showScheduleExitDialog(
+                          this.context,
+                          isFullScreen: isFullScreen,
+                        ),
+                    icon: const Icon(
+                      Icons.schedule,
+                      size: 19,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ],
-              SizedBox(
-                width: btnWidth,
-                height: btnHeight,
-                child: IconButton(
-                  tooltip: '弹幕设置',
-                  style: btnStyle,
-                  onPressed: showSetDanmaku,
-                  icon: const Icon(
-                    size: 20,
-                    CustomIcons.dm_settings,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
               if (Platform.isAndroid ||
                   (PlatformUtils.isDesktop && !isFullScreen))
                 SizedBox(

@@ -61,4 +61,60 @@ void main() {
       contains(r"'/member?mid=$mid&from_view_aid=${videoDetailCtr.aid}'"),
     );
   });
+
+  test('视频顶部控制栏移除主页和弹幕开关并直达定时关闭', () {
+    final headerControl = File(
+      'lib/pages/video/widgets/header_control.dart',
+    ).readAsStringSync();
+
+    expect(headerControl, isNot(contains("tooltip: '返回主页'")));
+    expect(headerControl, isNot(contains('FontAwesomeIcons.house')));
+    expect(headerControl, isNot(contains("tooltip: '弹幕设置'")));
+    expect(
+      headerControl,
+      contains("title: const Text('弹幕设置', style: titleStyle)"),
+    );
+    expect(
+      headerControl,
+      isNot(
+        contains("tooltip: \"\${enableShowDanmaku ? '关闭' : '开启'}弹幕\""),
+      ),
+    );
+
+    final timerIndex = headerControl.indexOf("tooltip: '定时关闭'");
+    final pipIndex = headerControl.indexOf("tooltip: '画中画'");
+    expect(timerIndex, isNonNegative);
+    expect(pipIndex, isNonNegative);
+    expect(timerIndex, lessThan(pipIndex));
+
+    expect(
+      headerControl,
+      isNot(contains("title: const Text('定时关闭', style: titleStyle)")),
+    );
+  });
+
+  test('UGC 简介标题间距增大且超过三行才折叠', () {
+    final introView = File(
+      'lib/pages/video/introduction/ugc/view.dart',
+    ).readAsStringSync();
+
+    expect(introView, contains('const _kTitleVerticalSpacing = 10.4;'));
+    expect(introView, contains('maxLines: isExpand ? null : 3'));
+  });
+
+  test('定时关闭面板直接显示自定义时间滑动选择器', () {
+    final shutdownTimer = File(
+      'lib/services/shutdown_timer_service.dart',
+    ).readAsStringSync();
+
+    expect(shutdownTimer, contains('_buildInlineTimePicker'));
+    expect(shutdownTimer, contains('onVerticalDragUpdate'));
+    expect(shutdownTimer, contains('_adjustCustomDuration('));
+    expect(shutdownTimer, contains('hours: isHour ? direction : 0'));
+    expect(shutdownTimer, contains('minutes: isHour ? 0 : direction'));
+    expect(shutdownTimer, contains('hours * 60'));
+    expect(shutdownTimer, contains('minutes * 15'));
+    expect(shutdownTimer, isNot(contains('showTimePicker(')));
+    expect(shutdownTimer, isNot(contains("title: const Text('自定义'")));
+  });
 }

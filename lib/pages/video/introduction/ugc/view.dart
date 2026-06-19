@@ -66,6 +66,8 @@ class UgcIntroPanel extends StatefulWidget {
 }
 
 class _UgcIntroPanelState extends State<UgcIntroPanel> {
+  static const _kTitleVerticalSpacing = 10.4;
+
   late final UgcIntroController introController;
   late final VideoDetailController videoDetailCtr =
       Get.find<VideoDetailController>(tag: widget.heroTag);
@@ -132,7 +134,7 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
                       expanded: _buildTitle(theme, videoDetail, isExpand: true),
                       theme: expandTheme,
                     ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: _kTitleVerticalSpacing),
 
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
@@ -198,7 +200,7 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: _kTitleVerticalSpacing),
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
@@ -475,7 +477,7 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
             TextSpan(text: videoDetail.title ?? ''),
           ],
         ),
-        maxLines: isExpand ? null : 2,
+        maxLines: isExpand ? null : 3,
         overflow: isExpand ? null : TextOverflow.ellipsis,
         style: const TextStyle(fontSize: 16),
       );
