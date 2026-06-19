@@ -1871,7 +1871,7 @@ class HeaderControlState extends State<HeaderControl>
                           isFullScreen: isFullScreen,
                         ),
                     icon: const Icon(
-                      Icons.schedule,
+                      Icons.hourglass_top_outlined,
                       size: 19,
                       color: Colors.white,
                     ),

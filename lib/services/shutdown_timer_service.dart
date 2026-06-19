@@ -180,7 +180,7 @@ class ShutdownTimerService {
 
     final (hour, minute) = _parseMinutes(_durationInMinutes);
     final timeStyle = TextStyle(
-      fontSize: 48,
+      fontSize: 40,
       fontWeight: FontWeight.w600,
       color: theme.colorScheme.onSurface,
       height: 1,
@@ -220,13 +220,13 @@ class ShutdownTimerService {
               DecoratedBox(
                 decoration: cardDecoration,
                 child: SizedBox(
-                  height: 86,
+                  height: 72,
                   child: Center(
                     child: Text(value, style: timeStyle),
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(label, style: labelStyle),
             ],
           ),
@@ -235,7 +235,7 @@ class ShutdownTimerService {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 18, 28, 24),
+      padding: const EdgeInsets.fromLTRB(28, 14, 28, 18),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -245,7 +245,7 @@ class ShutdownTimerService {
             isHour: true,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Text(':', style: timeStyle),
           ),
           timeColumn(
@@ -278,80 +278,117 @@ class ShutdownTimerService {
             child: Padding(
               padding: const .all(12),
               child: Material(
-                clipBehavior: .hardEdge,
+                elevation: 12,
+                shadowColor: theme.colorScheme.shadow.withValues(alpha: 0.22),
+                clipBehavior: Clip.antiAlias,
                 color: theme.colorScheme.surface,
                 borderRadius: const .all(.circular(12)),
-                child: ListView(
-                  padding: const .symmetric(vertical: 14),
-                  children: [
-                    const Center(child: Text('定时关闭', style: titleStyle)),
-                    const SizedBox(height: 10),
-                    ListTile(
-                      dense: true,
-                      onTap: () {
-                        setState(() {
-                          _startShutdownTimer(0);
-                        });
-                      },
-                      title: const Text('禁用', style: titleStyle),
-                      trailing: _durationInMinutes == 0
-                          ? Icon(
-                              size: 20,
-                              Icons.done,
-                              color: theme.colorScheme.primary,
-                            )
-                          : null,
-                    ),
-                    _buildInlineTimePicker(theme, setState),
-                    if (!isLive) ...[
-                      Builder(
-                        builder: (context) {
-                          void onChanged([_]) {
-                            _waitUntilCompleted = !_waitUntilCompleted;
-                            (context as Element).markNeedsBuild();
-                          }
-
-                          return ListTile(
-                            dense: true,
-                            onTap: onChanged,
-                            title: const Text('额外等待视频播放完毕', style: titleStyle),
-                            trailing: Transform.scale(
-                              alignment: Alignment.centerRight,
-                              scale: 0.8,
-                              child: Switch(
-                                value: _waitUntilCompleted,
-                                onChanged: onChanged,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                    const SizedBox(height: 5),
-                    Padding(
-                      padding: const .only(left: 18),
-                      child: Builder(
-                        builder: (context) {
-                          return Row(
-                            spacing: 12,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const .symmetric(vertical: 12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const .symmetric(horizontal: 16),
+                          child: Stack(
+                            alignment: Alignment.center,
                             children: [
-                              const Text('倒计时结束:', style: titleStyle),
-                              ..._ShutdownType.values.map(
-                                (e) => ActionRowLineItem(
-                                  onTap: () {
-                                    _shutdownType = e;
-                                    (context as Element).markNeedsBuild();
+                              const Center(
+                                child: Text('定时关闭', style: titleStyle),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    padding: const .symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    foregroundColor:
+                                        theme.colorScheme.onSurface,
+                                    backgroundColor: theme
+                                        .colorScheme
+                                        .surfaceContainerHighest
+                                        .withValues(alpha: 0.55),
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    reset();
+                                    Navigator.pop(context);
                                   },
-                                  text: ' ${e.label} ',
-                                  selectStatus: _shutdownType == e,
+                                  child: const Text(
+                                    '关闭并关闭',
+                                    style: titleStyle,
+                                  ),
                                 ),
                               ),
                             ],
-                          );
-                        },
-                      ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildInlineTimePicker(theme, setState),
+                        if (!isLive) ...[
+                          Builder(
+                            builder: (context) {
+                              void onChanged([_]) {
+                                _waitUntilCompleted = !_waitUntilCompleted;
+                                (context as Element).markNeedsBuild();
+                              }
+
+                              return ListTile(
+                                dense: true,
+                                onTap: onChanged,
+                                title: const Text(
+                                  '额外等待视频播放完毕',
+                                  style: titleStyle,
+                                ),
+                                trailing: Transform.scale(
+                                  alignment: Alignment.centerRight,
+                                  scale: 0.8,
+                                  child: Switch(
+                                    value: _waitUntilCompleted,
+                                    onChanged: onChanged,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                        const SizedBox(height: 5),
+                        Padding(
+                          padding: const .only(left: 18),
+                          child: Builder(
+                            builder: (context) {
+                              return Row(
+                                spacing: 12,
+                                children: [
+                                  const Text('倒计时结束:', style: titleStyle),
+                                  ..._ShutdownType.values.map(
+                                    (e) => ActionRowLineItem(
+                                      onTap: () {
+                                        _shutdownType = e;
+                                        (context as Element).markNeedsBuild();
+                                      },
+                                      text: ' ${e.label} ',
+                                      selectStatus: _shutdownType == e,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

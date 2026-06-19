@@ -86,6 +86,8 @@ void main() {
     expect(timerIndex, isNonNegative);
     expect(pipIndex, isNonNegative);
     expect(timerIndex, lessThan(pipIndex));
+    expect(headerControl, contains('Icons.hourglass_top_outlined'));
+    expect(headerControl, isNot(contains('Icons.schedule')));
 
     expect(
       headerControl,
@@ -114,7 +116,15 @@ void main() {
     expect(shutdownTimer, contains('minutes: isHour ? 0 : direction'));
     expect(shutdownTimer, contains('hours * 60'));
     expect(shutdownTimer, contains('minutes * 15'));
+    expect(shutdownTimer, contains("'关闭并关闭'"));
+    expect(shutdownTimer, contains('Navigator.pop(context)'));
+    expect(shutdownTimer, contains('mainAxisSize: MainAxisSize.min'));
+    expect(shutdownTimer, contains('SingleChildScrollView('));
+    expect(shutdownTimer, contains('elevation:'));
+    expect(shutdownTimer, contains('shadowColor:'));
     expect(shutdownTimer, isNot(contains('showTimePicker(')));
+    expect(shutdownTimer, isNot(contains("title: const Text('禁用'")));
+    expect(shutdownTimer, isNot(contains('_startShutdownTimer(0);')));
     expect(shutdownTimer, isNot(contains("title: const Text('自定义'")));
   });
 }
