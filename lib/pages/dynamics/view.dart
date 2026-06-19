@@ -165,44 +165,106 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
     }
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        primary: false,
-        leading: leading,
-        leadingWidth: 50,
-        toolbarHeight: 50,
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        flexibleSpace: const ProgressiveTopBlur(child: SizedBox.expand()),
-        title: SizedBox(
-          height: 50,
-          child: TabBar(
-            dividerHeight: 0,
-            isScrollable: true,
-            tabAlignment: .center,
-            dividerColor: Colors.transparent,
-            labelColor: theme.colorScheme.primary,
-            indicatorColor: theme.colorScheme.primary,
-            controller: _dynamicsController.tabController,
-            unselectedLabelColor: theme.colorScheme.onSurface,
-            labelStyle:
-                TabBarTheme.of(context).labelStyle?.copyWith(fontSize: 13) ??
-                const TextStyle(fontSize: 13),
-            tabs: DynamicsTabType.values.map((e) => Tab(text: e.label)).toList(),
-            onTap: (index) {
-              if (!_dynamicsController.tabController.indexIsChanging) {
-                _dynamicsController.animateToTop();
-              }
-            },
-          ),
-        ),
-        actions: actions,
-      ),
       drawer: drawer,
       endDrawer: endDrawer,
-      body: onBuild(child),
+      body: Column(
+        children: [
+          _buildTopBar(theme, leading: leading, actions: actions),
+          Expanded(child: onBuild(child)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopBar(
+    ThemeData theme, {
+    Widget? leading,
+    List<Widget>? actions,
+  }) {
+    return ProgressiveTopBlur(
+      child: SizedBox(
+        height: 50,
+        child: Row(
+          children: [
+            if (upPanelPosition == UpPanelPosition.leftDrawer)
+              Builder(
+                builder: (context) => _drawerButton(
+                  theme,
+                  tooltip: '关注列表',
+                  icon: Icons.menu,
+                  onPressed: Scaffold.of(context).openDrawer,
+                ),
+              )
+            else if (leading != null)
+              leading,
+            Expanded(
+              child: TabBar(
+                dividerHeight: 0,
+                isScrollable: true,
+                tabAlignment: .center,
+                dividerColor: Colors.transparent,
+                labelColor: theme.colorScheme.primary,
+                indicatorColor: theme.colorScheme.primary,
+                controller: _dynamicsController.tabController,
+                unselectedLabelColor: theme.colorScheme.onSurface,
+                labelStyle: TabBarTheme.of(context).labelStyle?.copyWith(
+                      fontSize: 13,
+                    ) ??
+                    const TextStyle(fontSize: 13),
+                tabs: DynamicsTabType.values
+                    .map((e) => Tab(text: e.label))
+                    .toList(),
+                onTap: (index) {
+                  if (!_dynamicsController.tabController.indexIsChanging) {
+                    _dynamicsController.animateToTop();
+                  }
+                },
+              ),
+            ),
+            if (actions != null) ...actions,
+            if (upPanelPosition == UpPanelPosition.rightDrawer)
+              Builder(
+                builder: (context) => _drawerButton(
+                  theme,
+                  tooltip: '关注列表',
+                  icon: Icons.menu_open,
+                  onPressed: Scaffold.of(context).openEndDrawer,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerButton(
+    ThemeData theme, {
+    required String tooltip,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return Center(
+      child: Container(
+        width: 34,
+        height: 34,
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        child: IconButton(
+          tooltip: tooltip,
+          style: ButtonStyle(
+            padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+            backgroundColor: WidgetStatePropertyAll(
+              theme.colorScheme.secondaryContainer,
+            ),
+          ),
+          onPressed: onPressed,
+          icon: Icon(
+            icon,
+            size: 18,
+            color: theme.colorScheme.onSecondaryContainer,
+          ),
+        ),
+      ),
     );
   }
 }

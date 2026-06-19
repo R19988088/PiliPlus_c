@@ -122,7 +122,9 @@ void main() {
 
     final dynamics = File('lib/pages/dynamics/view.dart').readAsStringSync();
     expect(dynamics, contains('ProgressiveTopBlur'));
-    expect(dynamics, contains('extendBodyBehindAppBar: true'));
-    expect(dynamics, contains('backgroundColor: Colors.transparent'));
+    expect(dynamics, contains('Widget _buildTopBar('));
+    expect(dynamics, isNot(contains('extendBodyBehindAppBar: true')));
+    expect(dynamics, isNot(contains('appBar: AppBar(')));
+    expect(dynamics, isNot(contains('backgroundColor: Colors.transparent')));
   });
 }
