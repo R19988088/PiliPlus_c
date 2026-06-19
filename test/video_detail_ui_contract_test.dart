@@ -116,7 +116,11 @@ void main() {
     expect(shutdownTimer, contains('minutes: isHour ? 0 : direction'));
     expect(shutdownTimer, contains('hours * 60'));
     expect(shutdownTimer, contains('minutes * 15'));
-    expect(shutdownTimer, contains("'关闭并关闭'"));
+    expect(shutdownTimer, contains('reset(duration);'));
+    expect(shutdownTimer, contains("'开始定时播放'"));
+    expect(shutdownTimer, contains('_startShutdownTimer('));
+    expect(shutdownTimer, contains('_durationInMinutes,'));
+    expect(shutdownTimer, contains("'取消'"));
     expect(shutdownTimer, contains('Navigator.pop(context)'));
     expect(shutdownTimer, contains('mainAxisSize: MainAxisSize.min'));
     expect(shutdownTimer, contains('SingleChildScrollView('));
@@ -124,7 +128,9 @@ void main() {
     expect(shutdownTimer, contains('shadowColor:'));
     expect(shutdownTimer, isNot(contains('showTimePicker(')));
     expect(shutdownTimer, isNot(contains("title: const Text('禁用'")));
+    expect(shutdownTimer, isNot(contains("'关闭并关闭'")));
     expect(shutdownTimer, isNot(contains('_startShutdownTimer(0);')));
+    expect(shutdownTimer, isNot(contains("return ListTile(\n                                dense: true,\n                                onTap: onChanged,")));
     expect(shutdownTimer, isNot(contains("title: const Text('自定义'")));
   });
 }

@@ -146,7 +146,7 @@ class ShutdownTimerService {
           23 * 60 + 45,
         )
         .toInt();
-    _startShutdownTimer(duration);
+    reset(duration);
   }
 
   Widget _buildInlineTimePicker(
@@ -264,6 +264,10 @@ class ShutdownTimerService {
     bool isLive = false,
   }) {
     const TextStyle titleStyle = TextStyle(fontSize: 14);
+    const TextStyle buttonStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+    );
     if (isLive) {
       _waitUntilCompleted = false;
     }
@@ -299,11 +303,40 @@ class ShutdownTimerService {
                               ),
                               Align(
                                 alignment: Alignment.centerLeft,
+                                child: FilledButton.tonal(
+                                  style: FilledButton.styleFrom(
+                                    padding: const .symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                    ),
+                                  ),
+                                  onPressed: _durationInMinutes == 0
+                                      ? null
+                                      : () {
+                                          _startShutdownTimer(
+                                            _durationInMinutes,
+                                          );
+                                          Navigator.pop(context);
+                                        },
+                                  child: const Text(
+                                    '开始定时播放',
+                                    style: buttonStyle,
+                                  ),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight,
                                 child: TextButton(
                                   style: TextButton.styleFrom(
                                     padding: const .symmetric(
                                       horizontal: 12,
-                                      vertical: 6,
+                                      vertical: 8,
                                     ),
                                     minimumSize: Size.zero,
                                     tapTargetSize:
@@ -324,8 +357,8 @@ class ShutdownTimerService {
                                     Navigator.pop(context);
                                   },
                                   child: const Text(
-                                    '关闭并关闭',
-                                    style: titleStyle,
+                                    '取消',
+                                    style: buttonStyle,
                                   ),
                                 ),
                               ),
@@ -342,19 +375,30 @@ class ShutdownTimerService {
                                 (context as Element).markNeedsBuild();
                               }
 
-                              return ListTile(
-                                dense: true,
+                              return InkWell(
                                 onTap: onChanged,
-                                title: const Text(
-                                  '额外等待视频播放完毕',
-                                  style: titleStyle,
-                                ),
-                                trailing: Transform.scale(
-                                  alignment: Alignment.centerRight,
-                                  scale: 0.8,
-                                  child: Switch(
-                                    value: _waitUntilCompleted,
-                                    onChanged: onChanged,
+                                child: Padding(
+                                  padding: const .symmetric(
+                                    horizontal: 18,
+                                    vertical: 8,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Expanded(
+                                        child: Text(
+                                          '额外等待视频播放完毕',
+                                          style: titleStyle,
+                                        ),
+                                      ),
+                                      Transform.scale(
+                                        alignment: Alignment.centerRight,
+                                        scale: 0.8,
+                                        child: Switch(
+                                          value: _waitUntilCompleted,
+                                          onChanged: onChanged,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               );
