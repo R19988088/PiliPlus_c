@@ -48,3 +48,43 @@ Color applyGlassNavBrightnessCurve(Color color, int brightness) {
     curve(argb & 0xff),
   );
 }
+
+double glassNavLightIntensityForBrightness(
+  int brightness, {
+  double neutral = 0.6,
+}) => _brightnessCurve(
+  brightness,
+  dark: 0.16,
+  neutral: neutral,
+  light: 1.35,
+);
+
+double glassNavAmbientStrengthForBrightness(
+  int brightness, {
+  double neutral = 1.0,
+}) => _brightnessCurve(
+  brightness,
+  dark: 0.26,
+  neutral: neutral,
+  light: 1.75,
+);
+
+double _brightnessCurve(
+  int brightness, {
+  required double dark,
+  required double neutral,
+  required double light,
+}) {
+  final clamped = brightness.clamp(0, 100);
+  if (clamped == 50) return neutral;
+
+  if (clamped < 50) {
+    final t = clamped / 50;
+    final eased = math.pow(t, 1.4).toDouble();
+    return dark + (neutral - dark) * eased;
+  }
+
+  final t = (clamped - 50) / 50;
+  final eased = 1 - math.pow(1 - t, 1.4).toDouble();
+  return neutral + (light - neutral) * eased;
+}

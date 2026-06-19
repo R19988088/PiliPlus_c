@@ -41,6 +41,8 @@ void main() {
     expect(navigationBar, contains('size: 26.4'));
     expect(navigationBar, contains('weight: 700'));
     expect(navigationBar, contains('glassColor: navTint'));
+    expect(navigationBar, contains('lightIntensity: glassLightIntensity'));
+    expect(navigationBar, contains('ambientStrength: glassAmbientStrength'));
     expect(navigationBar, contains('thickness: glassLensRadius'));
     expect(navigationBar, contains('blur: glassBlur'));
     expect(navigationBar, contains('chromaticAberration: chromaticAberration'));
@@ -81,6 +83,9 @@ void main() {
     ).readAsStringSync();
     expect(glassNavTint, contains('math.pow('));
     expect(glassNavTint, contains('buildGlassNavTint'));
+    expect(glassNavTint, contains('double glassNavLightIntensityForBrightness'));
+    expect(glassNavTint, contains('double glassNavAmbientStrengthForBrightness'));
+    expect(glassNavTint, contains('if (clamped == 50) return neutral'));
     expect(glassNavTint, isNot(contains('Colors.black')));
     expect(glassNavTint, isNot(contains('Colors.white')));
 

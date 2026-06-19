@@ -87,6 +87,12 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
       brightness: Pref.glassNavBlend,
       opacity: Pref.glassNavOpacity,
     );
+    final glassLightIntensity = glassNavLightIntensityForBrightness(
+      Pref.glassNavBlend,
+    );
+    final glassAmbientStrength = glassNavAmbientStrengthForBrightness(
+      Pref.glassNavBlend,
+    );
     final glassBlur = Pref.glassNavBlur.clamp(0, 100) / 10;
     final glassLensRadius = Pref.glassNavThickness.clamp(0, 100).toDouble();
     final chromaticAberration =
@@ -176,6 +182,8 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                   shape: const LiquidRoundedSuperellipse(borderRadius: 30),
                   settings: _kReplyButtonGlassDefaults.copyWith(
                     glassColor: navTint,
+                    lightIntensity: glassLightIntensity,
+                    ambientStrength: glassAmbientStrength,
                     thickness: glassLensRadius,
                     blur: glassBlur,
                     chromaticAberration: chromaticAberration,

@@ -35,6 +35,8 @@ void main() {
     );
     expect(replyView, contains('buildGlassNavTint('));
     expect(replyView, contains('brightness: Pref.glassNavBlend'));
+    expect(replyView, contains('lightIntensity: glassLightIntensity'));
+    expect(replyView, contains('ambientStrength: glassAmbientStrength'));
     expect(replyView, isNot(contains('blend: glassBlend')));
     expect(replyView, contains('SizedBox.square('));
     expect(replyView, contains('Icons.reply'));
