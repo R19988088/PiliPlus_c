@@ -115,6 +115,25 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (isLoading)
+                    _buildVideoTitle(theme, videoDetail)
+                  else if (isHorizontal && PlatformUtils.isDesktop)
+                    SelectionArea(
+                      child: _buildVideoTitle(
+                        theme,
+                        videoDetail,
+                        isExpand: true,
+                      ),
+                    )
+                  else
+                    ExpandablePanel(
+                      controller: introController.expandableCtr,
+                      collapsed: _buildTitle(theme, videoDetail),
+                      expanded: _buildTitle(theme, videoDetail, isExpand: true),
+                      theme: expandTheme,
+                    ),
+                  const SizedBox(height: 8),
+
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () {},
@@ -179,24 +198,6 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  if (isLoading)
-                    _buildVideoTitle(theme, videoDetail)
-                  else if (isHorizontal && PlatformUtils.isDesktop)
-                    SelectionArea(
-                      child: _buildVideoTitle(
-                        theme,
-                        videoDetail,
-                        isExpand: true,
-                      ),
-                    )
-                  else
-                    ExpandablePanel(
-                      controller: introController.expandableCtr,
-                      collapsed: _buildTitle(theme, videoDetail),
-                      expanded: _buildTitle(theme, videoDetail, isExpand: true),
-                      theme: expandTheme,
-                    ),
                   const SizedBox(height: 8),
                   Stack(
                     clipBehavior: Clip.none,

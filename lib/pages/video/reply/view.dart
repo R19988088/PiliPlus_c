@@ -1,12 +1,12 @@
 import 'package:PiliPlus/common/skeleton/video_reply.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/liquid_glass_surface.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/sliver/sliver_floating_header.dart';
 import 'package:PiliPlus/grpc/bilibili/main/community/reply/v1.pb.dart'
     show ReplyInfo;
 import 'package:PiliPlus/http/loading_state.dart';
-import 'package:PiliPlus/pages/common/fab_mixin.dart';
 import 'package:PiliPlus/pages/video/reply/controller.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/reply_item_grpc.dart';
 import 'package:PiliPlus/pages/video/reply_reply/view.dart';
@@ -33,10 +33,7 @@ class VideoReplyPanel extends StatefulWidget {
 }
 
 class _VideoReplyPanelState extends State<VideoReplyPanel>
-    with
-        AutomaticKeepAliveClientMixin,
-        SingleTickerProviderStateMixin,
-        FabMixin {
+    with AutomaticKeepAliveClientMixin {
   late VideoReplyController _videoReplyController;
 
   String get heroTag => widget.heroTag;
@@ -65,85 +62,77 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
   Widget build(BuildContext context) {
     super.build(context);
     final theme = Theme.of(context);
-    final child = NotificationListener<UserScrollNotification>(
-      onNotification: (notification) {
-        switch (notification.direction) {
-          case .forward:
-            showFab();
-          case .reverse:
-            hideFab();
-          case _:
-        }
-        return false;
-      },
-      child: refreshIndicator(
-        onRefresh: _videoReplyController.onRefresh,
-        isClampingScrollPhysics: widget.isNested,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            CustomScrollView(
-              controller: widget.isNested
-                  ? null
-                  : _videoReplyController.scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              key: const PageStorageKey(_VideoReplyPanelState),
-              slivers: [
-                SliverFloatingHeaderWidget(
-                  backgroundColor: theme.colorScheme.surface,
-                  child: Padding(
-                    padding: const .fromLTRB(12, 2.5, 6, 2.5),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Obx(
-                          () => Text(
-                            _videoReplyController.sortType.value.title,
-                            style: const TextStyle(fontSize: 13),
-                          ),
+    final child = refreshIndicator(
+      onRefresh: _videoReplyController.onRefresh,
+      isClampingScrollPhysics: widget.isNested,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          CustomScrollView(
+            controller: widget.isNested
+                ? null
+                : _videoReplyController.scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            key: const PageStorageKey(_VideoReplyPanelState),
+            slivers: [
+              SliverFloatingHeaderWidget(
+                backgroundColor: theme.colorScheme.surface,
+                child: Padding(
+                  padding: const .fromLTRB(12, 2.5, 6, 2.5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Obx(
+                        () => Text(
+                          _videoReplyController.sortType.value.title,
+                          style: const TextStyle(fontSize: 13),
                         ),
-                        TextButton.icon(
-                          style: Style.buttonStyle,
-                          onPressed: _videoReplyController.queryBySort,
-                          icon: Icon(
-                            Icons.sort,
-                            size: 16,
-                            color: theme.colorScheme.secondary,
-                          ),
-                          label: Obx(
-                            () => Text(
-                              _videoReplyController.sortType.value.label,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: theme.colorScheme.secondary,
-                              ),
+                      ),
+                      TextButton.icon(
+                        style: Style.buttonStyle,
+                        onPressed: _videoReplyController.queryBySort,
+                        icon: Icon(
+                          Icons.sort,
+                          size: 16,
+                          color: theme.colorScheme.secondary,
+                        ),
+                        label: Obx(
+                          () => Text(
+                            _videoReplyController.sortType.value.label,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: theme.colorScheme.secondary,
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                Obx(
-                  () => _buildBody(
-                    theme,
-                    _videoReplyController.loadingState.value,
-                  ),
+              ),
+              Obx(
+                () => _buildBody(
+                  theme,
+                  _videoReplyController.loadingState.value,
                 ),
-              ],
-            ),
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: SlideTransition(
-                position: fabAnimation,
-                child: Padding(
-                  padding: .only(
-                    right: kFloatingActionButtonMargin,
-                    bottom: kFloatingActionButtonMargin + bottom,
-                  ),
-                  child: FloatingActionButton(
-                    heroTag: null,
+              ),
+            ],
+          ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Padding(
+              padding: .only(
+                right: kFloatingActionButtonMargin,
+                bottom: kFloatingActionButtonMargin + bottom,
+              ),
+              child: LiquidGlassSurface(
+                shape: const CircleBorder(),
+                backgroundColor: theme.colorScheme.secondaryContainer,
+                blurSigma: 16,
+                child: SizedBox.square(
+                  dimension: 60,
+                  child: IconButton(
                     onPressed: () {
                       feedBack();
                       _videoReplyController.onReply(
@@ -153,13 +142,25 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                       );
                     },
                     tooltip: '发表评论',
-                    child: const Icon(Icons.reply),
+                    icon: Icon(
+                      Icons.reply,
+                      size: 27,
+                      color: theme.colorScheme.onSecondaryContainer,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 8,
+                          color: theme.colorScheme.shadow.withValues(
+                            alpha: 0.12,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
     if (widget.isNested) {
