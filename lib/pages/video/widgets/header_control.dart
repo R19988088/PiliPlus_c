@@ -1860,7 +1860,7 @@ class HeaderControlState extends State<HeaderControl>
               if (Platform.isAndroid ||
                   (PlatformUtils.isDesktop && !isFullScreen))
                 SizedBox(
-                  width: 48,
+                  width: 58,
                   height: btnHeight,
                   child: ValueListenableBuilder<int>(
                     valueListenable: shutdownTimerService.remainingSeconds,
@@ -1876,16 +1876,28 @@ class HeaderControlState extends State<HeaderControl>
                         child: remainingSeconds > 0
                             ? FittedBox(
                                 fit: BoxFit.scaleDown,
-                                child: Text(
-                                  ShutdownTimerService.formatRemainingSeconds(
-                                    remainingSeconds,
-                                  ),
-                                  maxLines: 1,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.hourglass_top_outlined,
+                                      size: 13,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      ShutdownTimerService
+                                          .formatRemainingSeconds(
+                                        remainingSeconds,
+                                      ),
+                                      maxLines: 1,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               )
                             : const Icon(

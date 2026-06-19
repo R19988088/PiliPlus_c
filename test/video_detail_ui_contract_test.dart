@@ -81,7 +81,7 @@ void main() {
       ),
     );
 
-    final timerIndex = headerControl.indexOf("tooltip: '定时关闭'");
+    final timerIndex = headerControl.indexOf("message: '定时关闭'");
     final pipIndex = headerControl.indexOf("tooltip: '画中画'");
     expect(timerIndex, isNonNegative);
     expect(pipIndex, isNonNegative);
@@ -94,6 +94,8 @@ void main() {
       headerControl,
       contains('ShutdownTimerService.formatRemainingSeconds'),
     );
+    expect(headerControl, contains('mainAxisSize: MainAxisSize.min'));
+    expect(headerControl, contains('const SizedBox(width: 3)'));
 
     expect(
       headerControl,
