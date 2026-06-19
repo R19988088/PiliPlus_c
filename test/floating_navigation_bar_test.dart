@@ -53,9 +53,39 @@ void main() {
     expect(mainController, contains('startNavTapFeedback'));
     expect(mainController, contains('endNavTapFeedback'));
     expect(mainController, contains('cancelNavTapFeedback'));
+    expect(mainController, contains('triggerNavFeedbackRefreshByGesture'));
     expect(mainView, contains('onDestinationPressStart'));
     expect(mainView, contains('onDestinationPressEnd'));
     expect(mainView, contains('onDestinationPressCancel'));
+    expect(
+      mainView,
+      contains(
+        'onDestinationLongPress:\n'
+        '                _mainController.triggerNavFeedbackRefreshByGesture',
+      ),
+    );
+  });
+
+  test('下滑刷新不再被滚动位置和回顶动画割裂', () {
+    final refreshIndicator = File(
+      'lib/common/widgets/flutter/refresh_indicator.dart',
+    ).readAsStringSync();
+    final commonController = File(
+      'lib/pages/common/common_controller.dart',
+    ).readAsStringSync();
+
+    expect(refreshIndicator, isNot(contains('metrics.extentBefore == 0.0')));
+    expect(refreshIndicator, contains('_dragStartScrollOffset'));
+    expect(refreshIndicator, contains('_handleDragUpdate'));
+
+    final triggerStart = commonController.indexOf(
+      'Future<void> triggerNavRefresh()',
+    );
+    final triggerEnd = commonController.indexOf(
+      'Future<void> _animateNavTapFeedbackExit()',
+    );
+    final triggerBody = commonController.substring(triggerStart, triggerEnd);
+    expect(triggerBody, isNot(contains('jumpToTop();')));
   });
 
   testWidgets('导航单击反馈按进度下压并在释放后回弹', (tester) async {

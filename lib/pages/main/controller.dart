@@ -386,6 +386,35 @@ class MainController extends GetxController
     }
   }
 
+  void triggerNavFeedbackRefreshByGesture(int index) {
+    if (index != selectedIndex.value) return;
+    final currentNav = navigationBars[index];
+    if (!_useExplicitNavRefreshGesture(currentNav)) {
+      refreshActiveTabByNavGesture(index);
+      return;
+    }
+    switch (currentNav) {
+      case NavigationBarType.home:
+        homeController.controller.triggerNavTapFeedbackRefresh(
+          onTriggerRefresh: () => refreshActiveTabByNavGesture(index),
+        );
+      case NavigationBarType.dynamics:
+        dynamicController.triggerNavTapFeedbackRefresh(
+          onTriggerRefresh: () => refreshActiveTabByNavGesture(index),
+        );
+      case NavigationBarType.fav:
+        favController.triggerNavTapFeedbackRefresh(
+          onTriggerRefresh: () => refreshActiveTabByNavGesture(index),
+        );
+      case NavigationBarType.later:
+        laterController.triggerNavTapFeedbackRefresh(
+          onTriggerRefresh: () => refreshActiveTabByNavGesture(index),
+        );
+      default:
+        break;
+    }
+  }
+
   void endNavFeedbackByGesture(int index) {
     if (index != selectedIndex.value) return;
     final currentNav = navigationBars[index];

@@ -71,6 +71,15 @@ mixin ScrollOrRefreshMixin {
     }
   }
 
+  void triggerNavTapFeedbackRefresh({required VoidCallback onTriggerRefresh}) {
+    if (_isNavRefreshRunning || _isNavTapFeedbackRefreshTriggered) return;
+    _isNavTapFeedbackRefreshTriggered = true;
+    _navTapFeedbackTimer?.cancel();
+    _navTapFeedbackTimer = null;
+    navTapFeedbackProgress.value = 1.0;
+    onTriggerRefresh();
+  }
+
   void endNavTapFeedback() {
     if (_isNavTapFeedbackRefreshTriggered) return;
     cancelNavTapFeedback();
@@ -90,7 +99,6 @@ mixin ScrollOrRefreshMixin {
     navRefreshContentPhase.value = NavRefreshContentPhase.exiting;
 
     await Future<void>.delayed(const Duration(milliseconds: 16));
-    jumpToTop();
     if (useNavTapFeedbackExit) {
       await _animateNavTapFeedbackExit();
     } else {

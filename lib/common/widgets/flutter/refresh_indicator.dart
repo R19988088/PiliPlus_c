@@ -219,6 +219,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
   RefreshIndicatorStatus? _status;
   late Future<void> _pendingRefreshFuture;
   double? _dragOffset;
+  double? _dragStartScrollOffset;
   late Color _effectiveValueColor;
   // late Color _backgroundColor;
 
@@ -306,8 +307,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
                 notification.dragDetails != null) ||
             (notification is ScrollUpdateNotification &&
                 notification.dragDetails != null)) &&
-        notification.metrics.extentBefore == 0.0 &&
-        _start();
+        _start(notification.metrics.pixels);
   }
 
   bool _handleScrollNotification(ScrollNotification notification) {
@@ -322,8 +322,11 @@ class RefreshIndicatorState extends State<RefreshIndicator>
     }
     if (notification is ScrollUpdateNotification) {
       if (_status == RefreshIndicatorStatus.drag) {
-        _dragOffset = _dragOffset! - notification.scrollDelta!;
-        _checkDragOffset(notification.metrics.viewportDimension);
+        _handleDragUpdate(
+          notification.scrollDelta ?? 0,
+          notification.metrics.pixels,
+          notification.metrics.viewportDimension,
+        );
 
         if (notification.dragDetails == null &&
             _valueColor.value!.a == _effectiveValueColor.a) {
@@ -371,13 +374,32 @@ class RefreshIndicatorState extends State<RefreshIndicator>
     return false;
   }
 
-  bool _start() {
+  bool _start(double scrollOffset) {
     assert(_status == null);
     assert(_dragOffset == null);
+    assert(_dragStartScrollOffset == null);
     _dragOffset = 0.0;
+    _dragStartScrollOffset = scrollOffset;
     _scaleController.value = 0.0;
     _positionController.value = 0.0;
     return true;
+  }
+
+  void _handleDragUpdate(
+    double scrollDelta,
+    double scrollOffset,
+    double viewportDimension,
+  ) {
+    final dragDistanceFromStart = (_dragStartScrollOffset! - scrollOffset)
+        .clamp(0.0, double.infinity)
+        .toDouble();
+    final accumulatedDrag = (_dragOffset! - scrollDelta)
+        .clamp(0.0, double.infinity)
+        .toDouble();
+    _dragOffset = accumulatedDrag > dragDistanceFromStart
+        ? accumulatedDrag
+        : dragDistanceFromStart;
+    _checkDragOffset(viewportDimension);
   }
 
   void _checkDragOffset(double containerExtent) {
@@ -424,6 +446,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
     }
     if (mounted && _status == newMode) {
       _dragOffset = null;
+      _dragStartScrollOffset = null;
       setState(() {
         _status = null;
       });
@@ -478,7 +501,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
     if (_status != RefreshIndicatorStatus.refresh &&
         _status != RefreshIndicatorStatus.snap) {
       if (_status == null) {
-        _start();
+        _start(0);
       }
       _show();
     }
@@ -499,8 +522,10 @@ class RefreshIndicatorState extends State<RefreshIndicator>
     assert(() {
       if (_status == null) {
         assert(_dragOffset == null);
+        assert(_dragStartScrollOffset == null);
       } else {
         assert(_dragOffset != null);
+        assert(_dragStartScrollOffset != null);
       }
       return true;
     }());
