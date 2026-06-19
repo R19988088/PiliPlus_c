@@ -1,7 +1,6 @@
 import 'package:PiliPlus/common/skeleton/video_reply.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
-import 'package:PiliPlus/common/widgets/liquid_glass_surface.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/sliver/sliver_floating_header.dart';
 import 'package:PiliPlus/grpc/bilibili/main/community/reply/v1.pb.dart'
@@ -10,11 +9,21 @@ import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/pages/video/reply/controller.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/reply_item_grpc.dart';
 import 'package:PiliPlus/pages/video/reply_reply/view.dart';
+import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:easy_debounce/easy_throttle.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+
+const _kReplyButtonGlassDefaults = LiquidGlassSettings(
+  lightIntensity: 0.6,
+  saturation: 0.7,
+  ambientStrength: 1,
+  lightAngle: 2.356194490192345,
+);
 
 class VideoReplyPanel extends StatefulWidget {
   const VideoReplyPanel({
@@ -62,6 +71,27 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
   Widget build(BuildContext context) {
     super.build(context);
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isLight = colorScheme.brightness.isLight;
+    final themeHue = HSLColor.fromColor(colorScheme.primary);
+    final navUsesLightDefinition = Pref.inverseNavigationBar
+        ? !isLight
+        : isLight;
+    final navTint = themeHue
+        .withSaturation(navUsesLightDefinition ? 0.12 : 0.18)
+        .withLightness(navUsesLightDefinition ? 1.0 : 0.20)
+        .toColor()
+        .withValues(alpha: Pref.glassNavOpacity.clamp(0, 100) / 100);
+    final glassBlur = Pref.glassNavBlur.clamp(0, 100) / 10;
+    final glassLensRadius = Pref.glassNavThickness.clamp(0, 100).toDouble();
+    final chromaticAberration =
+        Pref.glassNavChromaticAberration.clamp(0, 200) / 100;
+    final refractiveIndex = 1 + Pref.glassNavRefraction.clamp(0, 100) * 0.0118;
+    final glassBlend = Pref.glassNavBlend.clamp(0, 100) / 100;
+    final iconColor = navUsesLightDefinition ? Colors.black : Colors.white;
+    final buttonShadowColor = isLight
+        ? colorScheme.primary.darken(0.84).withValues(alpha: 0.26)
+        : Colors.black.withValues(alpha: 0.44);
     final child = refreshIndicator(
       onRefresh: _videoReplyController.onRefresh,
       isClampingScrollPhysics: widget.isNested,
@@ -126,34 +156,48 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                 right: kFloatingActionButtonMargin,
                 bottom: kFloatingActionButtonMargin + bottom,
               ),
-              child: LiquidGlassSurface(
-                shape: const CircleBorder(),
-                backgroundColor: theme.colorScheme.secondaryContainer,
-                blurSigma: 16,
-                child: SizedBox.square(
-                  dimension: 60,
-                  child: IconButton(
-                    onPressed: () {
-                      feedBack();
-                      _videoReplyController.onReply(
-                        null,
-                        oid: _videoReplyController.aid,
-                        replyType: _videoReplyController.videoType.replyType,
-                      );
-                    },
-                    tooltip: '发表评论',
-                    icon: Icon(
-                      Icons.reply,
-                      size: 27,
-                      color: theme.colorScheme.onSecondaryContainer,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 8,
-                          color: theme.colorScheme.shadow.withValues(
-                            alpha: 0.12,
-                          ),
-                        ),
-                      ],
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: buttonShadowColor,
+                      blurRadius: 30,
+                      spreadRadius: -4,
+                      offset: const Offset(0, 12),
+                    ),
+                  ],
+                ),
+                child: GlassContainer(
+                  shape: const LiquidRoundedSuperellipse(borderRadius: 30),
+                  settings: _kReplyButtonGlassDefaults.copyWith(
+                    glassColor: navTint,
+                    thickness: glassLensRadius,
+                    blur: glassBlur,
+                    chromaticAberration: chromaticAberration,
+                    refractiveIndex: refractiveIndex,
+                    blend: glassBlend,
+                  ),
+                  quality: GlassQuality.premium,
+                  useOwnLayer: true,
+                  clipBehavior: Clip.antiAlias,
+                  child: SizedBox.square(
+                    dimension: 60,
+                    child: IconButton(
+                      onPressed: () {
+                        feedBack();
+                        _videoReplyController.onReply(
+                          null,
+                          oid: _videoReplyController.aid,
+                          replyType: _videoReplyController.videoType.replyType,
+                        );
+                      },
+                      tooltip: '发表评论',
+                      icon: Icon(
+                        Icons.reply,
+                        size: 27,
+                        color: iconColor,
+                      ),
                     ),
                   ),
                 ),
