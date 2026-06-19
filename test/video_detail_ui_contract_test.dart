@@ -33,7 +33,9 @@ void main() {
       replyView,
       contains('Pref.glassNavRefraction.clamp(0, 100) * 0.0118'),
     );
-    expect(replyView, contains('Pref.glassNavBlend.clamp(0, 100) / 100'));
+    expect(replyView, contains('buildGlassNavTint('));
+    expect(replyView, contains('brightness: Pref.glassNavBlend'));
+    expect(replyView, isNot(contains('blend: glassBlend')));
     expect(replyView, contains('SizedBox.square('));
     expect(replyView, contains('Icons.reply'));
     expect(replyView, isNot(contains('hideFab()')));

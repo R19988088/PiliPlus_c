@@ -1,6 +1,7 @@
 import 'package:PiliPlus/common/skeleton/video_reply.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/glass_nav_tint.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/sliver/sliver_floating_header.dart';
 import 'package:PiliPlus/grpc/bilibili/main/community/reply/v1.pb.dart'
@@ -73,21 +74,24 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isLight = colorScheme.brightness.isLight;
-    final themeHue = HSLColor.fromColor(colorScheme.primary);
     final navUsesLightDefinition = Pref.inverseNavigationBar
         ? !isLight
         : isLight;
-    final navTint = themeHue
-        .withSaturation(navUsesLightDefinition ? 0.12 : 0.18)
-        .withLightness(navUsesLightDefinition ? 1.0 : 0.20)
-        .toColor()
-        .withValues(alpha: Pref.glassNavOpacity.clamp(0, 100) / 100);
+    final navTint = buildGlassNavTint(
+      primary: colorScheme.primary,
+      navUsesLightDefinition: navUsesLightDefinition,
+      saturationMin: Pref.glassNavSaturationMin,
+      saturationMax: Pref.glassNavSaturationMax,
+      lightnessLight: Pref.glassNavLightnessLight,
+      lightnessDark: Pref.glassNavLightnessDark,
+      brightness: Pref.glassNavBlend,
+      opacity: Pref.glassNavOpacity,
+    );
     final glassBlur = Pref.glassNavBlur.clamp(0, 100) / 10;
     final glassLensRadius = Pref.glassNavThickness.clamp(0, 100).toDouble();
     final chromaticAberration =
         Pref.glassNavChromaticAberration.clamp(0, 200) / 100;
     final refractiveIndex = 1 + Pref.glassNavRefraction.clamp(0, 100) * 0.0118;
-    final glassBlend = Pref.glassNavBlend.clamp(0, 100) / 100;
     final iconColor = navUsesLightDefinition ? Colors.black : Colors.white;
     final buttonShadowColor = isLight
         ? colorScheme.primary.darken(0.84).withValues(alpha: 0.26)
@@ -176,7 +180,6 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                     blur: glassBlur,
                     chromaticAberration: chromaticAberration,
                     refractiveIndex: refractiveIndex,
-                    blend: glassBlend,
                   ),
                   quality: GlassQuality.premium,
                   useOwnLayer: true,

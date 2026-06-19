@@ -94,7 +94,7 @@ abstract final class Pref {
 
   static int get _themeTypeInt => _setting.get(
     SettingBoxKey.themeMode,
-    defaultValue: ThemeType.system.index,
+    defaultValue: ThemeType.light.index,
   );
 
   static ThemeType get themeType => ThemeType.values[_themeTypeInt];
@@ -1013,18 +1013,18 @@ abstract final class Pref {
       _setting.get(SettingBoxKey.glassNavOpacity, defaultValue: 10);
 
   static int get glassNavRefraction =>
-      _setting.get(SettingBoxKey.glassNavRefraction, defaultValue: 25);
+      _setting.get(SettingBoxKey.glassNavRefraction, defaultValue: 20);
 
   static int get glassNavChromaticAberration => _setting.get(
     SettingBoxKey.glassNavChromaticAberration,
-    defaultValue: 190,
+    defaultValue: 50,
   );
 
   static int get glassNavBlur =>
-      _setting.get(SettingBoxKey.glassNavBlur, defaultValue: 50);
+      _setting.get(SettingBoxKey.glassNavBlur, defaultValue: 10);
 
   static int get glassNavThickness =>
-      _setting.get(SettingBoxKey.glassNavThickness, defaultValue: 50);
+      _setting.get(SettingBoxKey.glassNavThickness, defaultValue: 40);
 
   static int get glassNavBlend =>
       _setting.get(SettingBoxKey.glassNavBlend, defaultValue: 50);

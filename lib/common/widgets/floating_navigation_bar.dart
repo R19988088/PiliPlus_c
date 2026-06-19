@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:PiliPlus/common/widgets/glass_nav_tint.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
-const _kGlassNavBarVersion = '导航条9.9';
+const _kGlassNavBarVersion = '导航条10.0';
 const double _kMaxLabelTextScaleFactor = 1.3;
 
 const _kNavigationHeight = 64.0;
@@ -81,21 +82,24 @@ class FloatingNavigationBar extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isLight = colorScheme.brightness.isLight;
     final padding = MediaQuery.viewPaddingOf(context);
-    final themeHue = HSLColor.fromColor(colorScheme.primary);
     final navUsesLightDefinition = Pref.inverseNavigationBar
         ? !isLight
         : isLight;
-    final navTint = themeHue
-        .withSaturation(navUsesLightDefinition ? 0.12 : 0.18)
-        .withLightness(navUsesLightDefinition ? 1.0 : 0.20)
-        .toColor()
-        .withValues(alpha: Pref.glassNavOpacity.clamp(0, 100) / 100);
+    final navTint = buildGlassNavTint(
+      primary: colorScheme.primary,
+      navUsesLightDefinition: navUsesLightDefinition,
+      saturationMin: Pref.glassNavSaturationMin,
+      saturationMax: Pref.glassNavSaturationMax,
+      lightnessLight: Pref.glassNavLightnessLight,
+      lightnessDark: Pref.glassNavLightnessDark,
+      brightness: Pref.glassNavBlend,
+      opacity: Pref.glassNavOpacity,
+    );
     final glassBlur = Pref.glassNavBlur.clamp(0, 100) / 10;
     final glassLensRadius = Pref.glassNavThickness.clamp(0, 100).toDouble();
     final chromaticAberration =
         Pref.glassNavChromaticAberration.clamp(0, 200) / 100;
     final refractiveIndex = 1 + Pref.glassNavRefraction.clamp(0, 100) * 0.0118;
-    final glassBlend = Pref.glassNavBlend.clamp(0, 100) / 100;
     final iconColor = navUsesLightDefinition ? Colors.black : Colors.white;
     final shadowColor = isLight
         ? colorScheme.primary.darken(0.84).withValues(alpha: 0.26)
@@ -145,7 +149,6 @@ class FloatingNavigationBar extends StatelessWidget {
                 blur: glassBlur,
                 chromaticAberration: chromaticAberration,
                 refractiveIndex: refractiveIndex,
-                blend: glassBlend,
               ),
             ),
           ),

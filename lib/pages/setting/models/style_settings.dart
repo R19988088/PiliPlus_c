@@ -186,13 +186,13 @@ List<SettingsModel> get styleSettings => [
     ),
   ),
   NormalModel(
-    title: '颜色混合',
+    title: '亮度调节',
     leading: const Icon(Icons.palette_outlined),
     getSubtitle: () => '当前：${Pref.glassNavBlend}%',
     onTap: (context, setState) => _showGlassNavEffectDialog(
       context: context,
       setState: setState,
-      title: '颜色混合',
+      title: '亮度调节',
       setKey: SettingBoxKey.glassNavBlend,
       initValue: Pref.glassNavBlend,
     ),

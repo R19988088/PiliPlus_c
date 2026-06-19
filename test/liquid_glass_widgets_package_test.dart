@@ -22,24 +22,21 @@ void main() {
     expect(navigationBar, contains('GlassBottomBar'));
     expect(navigationBar, contains('GlassBottomBarTab'));
     expect(navigationBar, contains('label: null'));
-    expect(navigationBar, contains("const _kGlassNavBarVersion = '导航条9.9'"));
+    expect(navigationBar, contains("const _kGlassNavBarVersion = '导航条10.0'"));
     expect(navigationBar, contains('const _kBottomBarGlassDefaults = LiquidGlassSettings'));
     expect(navigationBar, contains('Pref.glassNavBlur.clamp(0, 100) / 10'));
     expect(navigationBar, contains('Pref.glassNavThickness.clamp(0, 100).toDouble()'));
     expect(navigationBar, contains('Pref.glassNavChromaticAberration.clamp(0, 200) / 100'));
     expect(navigationBar, contains('Pref.glassNavRefraction.clamp(0, 100) * 0.0118'));
-    expect(navigationBar, contains('Pref.glassNavBlend.clamp(0, 100) / 100'));
+    expect(navigationBar, contains('buildGlassNavTint('));
     expect(navigationBar, isNot(contains('quality: GlassQuality.standard')));
     expect(navigationBar, contains('glassSettings: _kBottomBarGlassDefaults.copyWith'));
-    expect(navigationBar, contains('HSLColor.fromColor(colorScheme.primary)'));
-    expect(navigationBar, isNot(contains('Pref.glassNavSaturationMin')));
-    expect(navigationBar, isNot(contains('Pref.glassNavSaturationMax')));
-    expect(navigationBar, isNot(contains('Pref.glassNavLightnessLight')));
-    expect(navigationBar, isNot(contains('Pref.glassNavLightnessDark')));
+    expect(navigationBar, contains('Pref.glassNavSaturationMin'));
+    expect(navigationBar, contains('Pref.glassNavSaturationMax'));
+    expect(navigationBar, contains('Pref.glassNavLightnessLight'));
+    expect(navigationBar, contains('Pref.glassNavLightnessDark'));
+    expect(navigationBar, contains('brightness: Pref.glassNavBlend'));
     expect(navigationBar, contains('final navUsesLightDefinition = Pref.inverseNavigationBar'));
-    expect(navigationBar, contains('withSaturation(navUsesLightDefinition ? 0.12 : 0.18)'));
-    expect(navigationBar, contains('withLightness(navUsesLightDefinition ? 1.0 : 0.20)'));
-    expect(navigationBar, contains('withValues(alpha: Pref.glassNavOpacity.clamp(0, 100) / 100)'));
     expect(navigationBar, contains('final iconColor = navUsesLightDefinition ? Colors.black : Colors.white'));
     expect(navigationBar, contains('size: 26.4'));
     expect(navigationBar, contains('weight: 700'));
@@ -48,7 +45,7 @@ void main() {
     expect(navigationBar, contains('blur: glassBlur'));
     expect(navigationBar, contains('chromaticAberration: chromaticAberration'));
     expect(navigationBar, contains('refractiveIndex: refractiveIndex'));
-    expect(navigationBar, contains('blend: glassBlend'));
+    expect(navigationBar, isNot(contains('blend: glassBlend')));
     expect(navigationBar, contains('boxShadow:'));
     expect(navigationBar, contains('interactionGlowColor: colorScheme.primary'));
     expect(navigationBar, isNot(contains('indicatorSettings:')));
@@ -68,15 +65,24 @@ void main() {
     expect(main, isNot(contains('quality: GlassQuality.standard')));
 
     final pref = File('lib/utils/storage_pref.dart').readAsStringSync();
+    expect(pref, contains('defaultValue: ThemeType.light.index'));
     expect(pref, contains('SettingBoxKey.glassNavOpacity, defaultValue: 10'));
     expect(
       pref,
-      contains('SettingBoxKey.glassNavChromaticAberration,\n    defaultValue: 190'),
+      contains('SettingBoxKey.glassNavChromaticAberration,\n    defaultValue: 50'),
     );
-    expect(pref, contains('SettingBoxKey.glassNavBlur, defaultValue: 50'));
-    expect(pref, contains('SettingBoxKey.glassNavRefraction, defaultValue: 25'));
-    expect(pref, contains('SettingBoxKey.glassNavThickness, defaultValue: 50'));
+    expect(pref, contains('SettingBoxKey.glassNavBlur, defaultValue: 10'));
+    expect(pref, contains('SettingBoxKey.glassNavRefraction, defaultValue: 20'));
+    expect(pref, contains('SettingBoxKey.glassNavThickness, defaultValue: 40'));
     expect(pref, contains('SettingBoxKey.glassNavBlend, defaultValue: 50'));
+
+    final glassNavTint = File(
+      'lib/common/widgets/glass_nav_tint.dart',
+    ).readAsStringSync();
+    expect(glassNavTint, contains('math.pow('));
+    expect(glassNavTint, contains('buildGlassNavTint'));
+    expect(glassNavTint, isNot(contains('Colors.black')));
+    expect(glassNavTint, isNot(contains('Colors.white')));
 
     final manifest = File(
       'android/app/src/main/AndroidManifest.xml',
