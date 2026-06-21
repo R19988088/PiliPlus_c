@@ -74,7 +74,9 @@ void main() {
       'lib/pages/common/common_controller.dart',
     ).readAsStringSync();
 
-    expect(refreshIndicator, isNot(contains('metrics.extentBefore == 0.0')));
+    expect(refreshIndicator, contains('_kRefreshStartOffsetTolerance'));
+    expect(refreshIndicator, contains('metrics.extentBefore'));
+    expect(refreshIndicator, contains('<= _kRefreshStartOffsetTolerance'));
     expect(refreshIndicator, contains('_dragStartScrollOffset'));
     expect(refreshIndicator, contains('_handleDragUpdate'));
 

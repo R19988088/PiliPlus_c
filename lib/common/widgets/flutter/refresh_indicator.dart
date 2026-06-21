@@ -39,6 +39,8 @@ const Duration _kIndicatorSnapDuration = Duration(milliseconds: 150);
 // has completed.
 const Duration _kIndicatorScaleDuration = Duration(milliseconds: 200);
 
+const double _kRefreshStartOffsetTolerance = 1.0;
+
 /// Indicates current status of Material `RefreshIndicator`.
 enum RefreshIndicatorStatus {
   /// Pointer is down.
@@ -307,6 +309,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
                 notification.dragDetails != null) ||
             (notification is ScrollUpdateNotification &&
                 notification.dragDetails != null)) &&
+        notification.metrics.extentBefore <= _kRefreshStartOffsetTolerance &&
         _start(notification.metrics.pixels);
   }
 
