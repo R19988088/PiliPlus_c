@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'dart:math' as math;
 
+import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/dialog/report_member.dart';
@@ -42,6 +43,7 @@ import 'package:PiliPlus/utils/utils.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -490,12 +492,12 @@ class _MemberPageState extends State<MemberPage> {
                 const LogPage(),
                 arguments: CoinLogController(),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(FontAwesomeIcons.b, size: 16),
-                  SizedBox(width: 10),
-                  Text('硬币记录'),
+                  SvgPicture.asset(Assets.wiliwiliCoin, width: 16, height: 16),
+                  const SizedBox(width: 10),
+                  const Text('硬币记录'),
                 ],
               ),
             ),

@@ -258,6 +258,7 @@ flutter:
     - path: assets/images/live/
     - path: assets/images/video/
     - path: assets/images/paycoins/
+    - path: assets/images/wiliwili/
     - path: assets/shaders/
 
   fonts:

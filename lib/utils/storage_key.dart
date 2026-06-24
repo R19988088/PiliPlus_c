@@ -70,6 +70,7 @@ abstract final class SettingBoxKey {
       enableSystemProxy = 'enableSystemProxy',
       enableAi = 'enableAi',
       disableLikeMsg = 'disableLikeMsg',
+      disableDislikeFeature = 'disableDislikeFeature',
       defaultHomePage = 'defaultHomePage',
       previewQuality = 'previewQuality',
       checkDynamic = 'checkDynamic',

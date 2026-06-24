@@ -3,6 +3,7 @@ import 'dart:convert' show jsonDecode, utf8;
 import 'dart:io' show Platform, File;
 import 'dart:typed_data' show Uint8List;
 
+import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
@@ -61,6 +62,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:floating/floating.dart';
 import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/material.dart' hide showBottomSheet;
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -2058,7 +2060,8 @@ class HeaderControlState extends State<HeaderControl>
                     ),
                   ),
                 ),
-                if (introController case final UgcIntroController ugc)
+                if (!Pref.disableDislikeFeature &&
+                    introController case final UgcIntroController ugc)
                   SizedBox(
                     width: btnWidth,
                     height: btnHeight,
@@ -2085,11 +2088,16 @@ class HeaderControlState extends State<HeaderControl>
                     () => ActionItem(
                       expand: false,
                       animation: introController.tripleAnimation,
-                      icon: const Icon(
-                        FontAwesomeIcons.b,
-                        color: Colors.white,
+                      icon: SvgPicture.asset(
+                        Assets.wiliwiliCoin,
+                        width: 24,
+                        height: 24,
                       ),
-                      selectIcon: const Icon(FontAwesomeIcons.b),
+                      selectIcon: SvgPicture.asset(
+                        Assets.wiliwiliCoin,
+                        width: 24,
+                        height: 24,
+                      ),
                       onTap: introController.actionCoinVideo,
                       selectStatus: introController.hasCoin,
                       semanticsLabel: '投币',

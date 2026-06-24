@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart';
 import 'package:PiliPlus/http/api.dart';
@@ -45,6 +46,7 @@ import 'package:PiliPlus/utils/utils.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 
@@ -291,6 +293,9 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
     final videoDetail = this.videoDetail.value;
     final playedTimePos = videoDetailCtr.playedTimePos;
     String videoUrl = '${HttpString.baseUrl}/video/$bvid';
+    final copyText = videoDetail.title?.isNotEmpty == true
+        ? '${videoDetail.title} - $videoUrl'
+        : videoUrl;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -301,13 +306,18 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
           children: [
             ListTile(
               dense: true,
+              leading: SvgPicture.asset(
+                Assets.wiliwiliCopyLink,
+                width: 20,
+                height: 20,
+              ),
               title: const Text(
                 '复制链接',
                 style: TextStyle(fontSize: 14),
               ),
               onTap: () {
                 Get.back();
-                Utils.copyText(videoUrl);
+                Utils.copyText(copyText);
               },
               trailing: playedTimePos.isNotEmpty
                   ? iconButton(
@@ -315,7 +325,7 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
                       icon: const Icon(Icons.timer_outlined),
                       onPressed: () {
                         Get.back();
-                        Utils.copyText('$videoUrl$playedTimePos');
+                        Utils.copyText('$copyText$playedTimePos');
                       },
                     )
                   : null,

@@ -32,6 +32,7 @@ import 'package:PiliPlus/utils/storage_key.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart' hide DraggableScrollableSheet;
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -667,8 +668,12 @@ class _AudioPageState extends State<AudioPage> {
           Obx(
             () => ActionItem(
               animation: _controller.tripleAnimation,
-              icon: const Icon(FontAwesomeIcons.b),
-              selectIcon: const Icon(FontAwesomeIcons.b),
+              icon: SvgPicture.asset(Assets.wiliwiliCoin, width: 24, height: 24),
+              selectIcon: SvgPicture.asset(
+                Assets.wiliwiliCoin,
+                width: 24,
+                height: 24,
+              ),
               onTap: _controller.actionCoinVideo,
               selectStatus: _controller.hasCoin,
               semanticsLabel: '投币',

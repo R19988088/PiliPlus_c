@@ -36,9 +36,11 @@ import 'package:PiliPlus/utils/num_utils.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/request_utils.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -546,23 +548,28 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
               onCancelTriple: introController.onCancelTriple,
             ),
           ),
-          Obx(
-            () => ActionItem(
-              icon: const Icon(FontAwesomeIcons.thumbsDown),
-              selectIcon: const Icon(FontAwesomeIcons.solidThumbsDown),
-              onTap: () => introController.handleAction(
-                introController.actionDislikeVideo,
+          if (!Pref.disableDislikeFeature)
+            Obx(
+              () => ActionItem(
+                icon: const Icon(FontAwesomeIcons.thumbsDown),
+                selectIcon: const Icon(FontAwesomeIcons.solidThumbsDown),
+                onTap: () => introController.handleAction(
+                  introController.actionDislikeVideo,
+                ),
+                selectStatus: introController.hasDislike.value,
+                semanticsLabel: '点踩',
+                text: "点踩",
               ),
-              selectStatus: introController.hasDislike.value,
-              semanticsLabel: '点踩',
-              text: "点踩",
             ),
-          ),
           Obx(
             () => ActionItem(
               animation: introController.tripleAnimation,
-              icon: const Icon(FontAwesomeIcons.b),
-              selectIcon: const Icon(FontAwesomeIcons.b),
+              icon: SvgPicture.asset(Assets.wiliwiliCoin, width: 24, height: 24),
+              selectIcon: SvgPicture.asset(
+                Assets.wiliwiliCoin,
+                width: 24,
+                height: 24,
+              ),
               onTap: introController.actionCoinVideo,
               selectStatus: introController.hasCoin,
               semanticsLabel: '投币',

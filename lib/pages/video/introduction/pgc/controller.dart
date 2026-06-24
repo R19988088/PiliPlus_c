@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' show max;
 
+import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/http/constants.dart';
 import 'package:PiliPlus/http/fav.dart';
 import 'package:PiliPlus/http/loading_state.dart';
@@ -30,6 +31,7 @@ import 'package:PiliPlus/utils/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 
@@ -122,6 +124,9 @@ class PgcIntroController extends CommonIntroController {
   void actionShareVideo(BuildContext context) {
     String videoUrl =
         '${HttpString.baseUrl}/bangumi/play/ep$epId${videoDetailCtr.playedTimePos}';
+    final item = pgcItem.episodes?.firstWhereOrNull((item) => item.epId == epId);
+    final copyText =
+        '${pgcItem.title}${item != null ? ' ${item.showTitle}' : ''} - $videoUrl';
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -132,13 +137,18 @@ class PgcIntroController extends CommonIntroController {
           children: [
             ListTile(
               dense: true,
+              leading: SvgPicture.asset(
+                Assets.wiliwiliCopyLink,
+                width: 20,
+                height: 20,
+              ),
               title: const Text(
                 '复制链接',
                 style: TextStyle(fontSize: 14),
               ),
               onTap: () {
                 Get.back();
-                Utils.copyText(videoUrl);
+                Utils.copyText(copyText);
               },
             ),
             ListTile(
@@ -160,14 +170,8 @@ class PgcIntroController extends CommonIntroController {
                   style: TextStyle(fontSize: 14),
                 ),
                 onTap: () {
-                  final item = pgcItem.episodes?.firstWhereOrNull(
-                    (item) => item.epId == epId,
-                  );
                   Get.back();
-                  ShareUtils.shareText(
-                    '${pgcItem.title}${item != null ? ' ${item.showTitle}' : ''}'
-                    ' - $videoUrl',
-                  );
+                  ShareUtils.shareText(copyText);
                 },
               ),
             ListTile(

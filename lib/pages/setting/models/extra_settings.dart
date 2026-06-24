@@ -524,6 +524,13 @@ List<SettingsModel> get extraSettings => [
     defaultVal: false,
   ),
   const SwitchModel(
+    title: '禁用点踩功能',
+    subtitle: '隐藏视频页和视频菜单内的点踩入口',
+    leading: Icon(Icons.thumb_down_off_alt_outlined),
+    setKey: SettingBoxKey.disableDislikeFeature,
+    defaultVal: true,
+  ),
+  const SwitchModel(
     title: '默认展示评论区',
     subtitle: '在视频详情页默认切换至评论区页（仅Tab型布局）',
     leading: Icon(Icons.mode_comment_outlined),

@@ -35,6 +35,12 @@ abstract final class Assets {
   static const rightDisable = 'assets/images/paycoins/ic_right_disable.png';
   static const panelClose = 'assets/images/paycoins/ic_panel_close.png';
 
+  static const wiliwiliCoin = 'assets/images/wiliwili/bpx-svg-sprite-coin.svg';
+  static const wiliwiliCopyLink =
+      'assets/images/wiliwili/bpx-svg-sprite-share.svg';
+  static const wiliwiliDislike =
+      'assets/images/wiliwili/comment-disagree-grey.svg';
+
   static const List<String> mpvAnime4KShaders = [
     'Anime4K_Clamp_Highlights.glsl',
     'Anime4K_Restore_CNN_VL.glsl',

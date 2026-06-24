@@ -660,6 +660,11 @@ abstract final class Pref {
   static bool get disableLikeMsg =>
       _setting.get(SettingBoxKey.disableLikeMsg, defaultValue: false);
 
+  static bool get disableDislikeFeature => _setting.get(
+    SettingBoxKey.disableDislikeFeature,
+    defaultValue: true,
+  );
+
   static bool get enableWordRe =>
       _setting.get(SettingBoxKey.enableWordRe, defaultValue: false);
 
