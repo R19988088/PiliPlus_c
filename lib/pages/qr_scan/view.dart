@@ -3,6 +3,7 @@ import 'package:PiliPlus/http/login.dart';
 import 'package:PiliPlus/utils/app_scheme.dart';
 import 'package:PiliPlus/utils/accounts.dart';
 import 'package:PiliPlus/utils/id_utils.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -76,46 +77,23 @@ class _QrScanPageState extends State<QrScanPage> {
       _cameraController?.resumeCamera();
       return;
     }
-    if (!Accounts.main.isLogin) {
-      SmartDialog.showToast('请先登录当前设备账号');
-      _handling = false;
-      _cameraController?.resumeCamera();
-      return;
-    }
-    SmartDialog.showLoading(msg: '确认中');
-    final checkRes = await LoginHttp.checkWebQRCodeLogin(qrcodeKey);
-    SmartDialog.dismiss();
-    if (checkRes['status'] != true) {
-      SmartDialog.showToast(checkRes['msg']?.toString() ?? '扫码状态上报失败');
-      if (mounted) {
-        _handling = false;
-        _cameraController?.resumeCamera();
-      }
-      return;
-    }
     final confirmed = await showConfirmDialog(
       context: context,
-      title: const Text('确认登录'),
-      content: const Text('是否使用当前账号确认这次网页登录？'),
+      title: const Text('网页登录二维码'),
+      content: const Text('该二维码需要使用官方哔哩哔哩 App 确认登录。是否打开官方 App 扫一扫？'),
     );
     if (!confirmed) {
       _handling = false;
       _cameraController?.resumeCamera();
       return;
     }
-    SmartDialog.showLoading(msg: '登录中');
-    final confirmRes = await LoginHttp.confirmWebQRCodeLogin(qrcodeKey);
-    SmartDialog.dismiss();
-    if (confirmRes['status'] == true) {
-      SmartDialog.showToast('登录确认成功');
-      Get.back();
-    } else {
-      SmartDialog.showToast(confirmRes['msg']?.toString() ?? '登录确认失败');
-      if (mounted) {
-        _handling = false;
-        _cameraController?.resumeCamera();
-      }
-    }
+    _openOfficialBiliQRCodeScanner();
+    _handling = false;
+    _cameraController?.resumeCamera();
+  }
+
+  void _openOfficialBiliQRCodeScanner() {
+    PageUtils.launchURL('bilibili://qrcode');
   }
 
   Future<void> _confirmLoginQRCode(String authCode) async {

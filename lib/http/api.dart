@@ -618,14 +618,6 @@ abstract final class Api {
   static const qrcodeConfirm =
       '${HttpString.passBaseUrl}/x/passport-tv-login/h5/qrcode/confirm';
 
-  /// 网页端二维码扫码状态上报
-  static const webQRCodeCheck =
-      '${HttpString.passBaseUrl}/x/passport-login/web/qrcode/check';
-
-  /// 网页端二维码扫码确认
-  static const webQRCodeConfirm =
-      '${HttpString.passBaseUrl}/x/passport-login/web/qrcode/confirm';
-
   /// 申请二维码(TV端)
   static const getTVCode =
       '${HttpString.passBaseUrl}/x/passport-tv-login/qrcode/auth_code';

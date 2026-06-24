@@ -94,58 +94,6 @@ abstract final class LoginHttp {
     };
   }
 
-  static Map<String, dynamic> _webQRCodeData(String qrcodeKey) => {
-    'qrcode_key': qrcodeKey,
-    'buvid': buvid,
-  };
-
-  static Options get _webQRCodeOptions => Options(
-    contentType: Headers.formUrlEncodedContentType,
-    headers: {'Buvid': buvid},
-  );
-
-  static Future<Map<String, dynamic>> checkWebQRCodeLogin(
-    String qrcodeKey,
-  ) async {
-    if (!Accounts.main.isLogin) {
-      return {'status': false, 'msg': '请先登录当前设备账号'};
-    }
-    final res = await Request().get(
-      Api.webQRCodeCheck,
-      queryParameters: _webQRCodeData(qrcodeKey),
-      options: _webQRCodeOptions,
-    );
-    final data = res.data;
-    final code = data is Map ? data['code'] : null;
-    return {
-      'status': code == 0,
-      'code': code,
-      'msg': data is Map ? data['message'] ?? data['msg'] ?? data.toString() : '$data',
-      'data': data is Map ? data['data'] : data,
-    };
-  }
-
-  static Future<Map<String, dynamic>> confirmWebQRCodeLogin(
-    String qrcodeKey,
-  ) async {
-    if (!Accounts.main.isLogin) {
-      return {'status': false, 'msg': '请先登录当前设备账号'};
-    }
-    final res = await Request().post(
-      Api.webQRCodeConfirm,
-      data: _webQRCodeData(qrcodeKey),
-      options: _webQRCodeOptions,
-    );
-    final data = res.data;
-    final code = data is Map ? data['code'] : null;
-    return {
-      'status': code == 0,
-      'code': code,
-      'msg': data is Map ? data['message'] ?? data['msg'] ?? data.toString() : '$data',
-      'data': data is Map ? data['data'] : data,
-    };
-  }
-
   static Future queryCaptcha() async {
     final res = await Request().get(Api.getCaptcha);
     if (res.data['code'] == 0) {
