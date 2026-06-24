@@ -3,7 +3,6 @@ import 'package:PiliPlus/http/login.dart';
 import 'package:PiliPlus/utils/app_scheme.dart';
 import 'package:PiliPlus/utils/accounts.dart';
 import 'package:PiliPlus/utils/id_utils.dart';
-import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -55,23 +54,68 @@ class _QrScanPageState extends State<QrScanPage> {
   }
 
   bool _isWebLoginQRCode(String value) {
+    return _extractWebLoginQRCodeKey(value) != null;
+  }
+
+  String? _extractWebLoginQRCodeKey(String value) {
     final uri = Uri.tryParse(value);
-    return uri?.queryParameters.containsKey('qrcode_key') ?? false;
+    final key = uri?.queryParameters['qrcode_key'];
+    if (key != null && key.isNotEmpty) return key;
+    final match = RegExp(
+      r'qrcode_key=([^&]+)',
+      caseSensitive: false,
+    ).firstMatch(value);
+    return match == null ? null : Uri.decodeComponent(match.group(1)!);
   }
 
   Future<void> _confirmWebLoginQRCode(String value) async {
+    final qrcodeKey = _extractWebLoginQRCodeKey(value);
+    if (qrcodeKey == null || qrcodeKey.isEmpty) {
+      SmartDialog.showToast('未识别到网页登录二维码');
+      _handling = false;
+      _cameraController?.resumeCamera();
+      return;
+    }
+    if (!Accounts.main.isLogin) {
+      SmartDialog.showToast('请先登录当前设备账号');
+      _handling = false;
+      _cameraController?.resumeCamera();
+      return;
+    }
+    SmartDialog.showLoading(msg: '确认中');
+    final checkRes = await LoginHttp.checkWebQRCodeLogin(qrcodeKey);
+    SmartDialog.dismiss();
+    if (checkRes['status'] != true) {
+      SmartDialog.showToast(checkRes['msg']?.toString() ?? '扫码状态上报失败');
+      if (mounted) {
+        _handling = false;
+        _cameraController?.resumeCamera();
+      }
+      return;
+    }
     final confirmed = await showConfirmDialog(
       context: context,
       title: const Text('确认登录'),
-      content: const Text('是否打开网页登录二维码确认页面？'),
+      content: const Text('是否使用当前账号确认这次网页登录？'),
     );
     if (!confirmed) {
       _handling = false;
       _cameraController?.resumeCamera();
       return;
     }
-    PageUtils.inAppWebview(value);
-    Get.back();
+    SmartDialog.showLoading(msg: '登录中');
+    final confirmRes = await LoginHttp.confirmWebQRCodeLogin(qrcodeKey);
+    SmartDialog.dismiss();
+    if (confirmRes['status'] == true) {
+      SmartDialog.showToast('登录确认成功');
+      Get.back();
+    } else {
+      SmartDialog.showToast(confirmRes['msg']?.toString() ?? '登录确认失败');
+      if (mounted) {
+        _handling = false;
+        _cameraController?.resumeCamera();
+      }
+    }
   }
 
   Future<void> _confirmLoginQRCode(String authCode) async {

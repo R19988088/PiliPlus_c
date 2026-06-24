@@ -27,8 +27,10 @@ assert(page.includes('auth_code=([^&]+)'), 'QR scan page must parse auth_code fr
 assert(page.includes('LoginHttp.confirmQRCodeLogin'), 'QR scan page must confirm login QR codes');
 assert(page.includes('showConfirmDialog'), 'QR scan login must ask before confirming login');
 assert(page.includes('_isWebLoginQRCode'), 'QR scan page must detect web login QR codes');
-assert(page.includes('PageUtils.inAppWebview'), 'Web login QR codes must open confirmation page fallback');
-assert(page.includes('_confirmWebLoginQRCode'), 'Web login QR codes must show an allow-login confirmation state before opening fallback');
+assert(page.includes('_extractWebLoginQRCodeKey'), 'QR scan page must extract web login qrcode_key');
+assert(page.includes('LoginHttp.checkWebQRCodeLogin'), 'Web login QR scan must mark qrcode_key as scanned');
+assert(page.includes('LoginHttp.confirmWebQRCodeLogin'), 'Web login QR scan must directly confirm qrcode_key');
+assert(!page.includes('PageUtils.inAppWebview(value)'), 'Web login QR scan must not use WebView fallback because source page cannot receive confirmation');
 assert(page.includes('PiliScheme.routePushFromUrl'), 'QR scan result must reuse existing URL/app scheme router');
 assert(page.includes('IdUtils.matchAvorBv'), 'QR scan result must handle plain BV/av content');
 assert(page.includes('PiliScheme.videoPush'), 'Plain BV/av QR scan result must open video directly');
@@ -64,5 +66,10 @@ assert(login.includes('confirmQRCodeLogin'), 'LoginHttp must expose QR login con
 assert(login.includes('Api.qrcodeConfirm'), 'QR login confirmation must use qrcodeConfirm API');
 assert(login.includes("'auth_code': authCode"), 'QR login confirmation must submit auth_code');
 assert(login.includes("'scanning_type': 1"), 'QR login confirmation must submit scanning_type=1');
+assert(login.includes('checkWebQRCodeLogin'), 'LoginHttp must expose web QR check');
+assert(login.includes('confirmWebQRCodeLogin'), 'LoginHttp must expose web QR confirm');
+assert(login.includes('Api.webQRCodeCheck'), 'Web QR check must use webQRCodeCheck API');
+assert(login.includes('Api.webQRCodeConfirm'), 'Web QR confirm must use webQRCodeConfirm API');
+assert(login.includes("'qrcode_key': qrcodeKey"), 'Web QR APIs must submit qrcode_key');
 
 console.log('QR scan shortcut contract OK');
