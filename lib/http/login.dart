@@ -110,9 +110,9 @@ abstract final class LoginHttp {
     if (!Accounts.main.isLogin) {
       return {'status': false, 'msg': '请先登录当前设备账号'};
     }
-    final res = await Request().post(
+    final res = await Request().get(
       Api.webQRCodeCheck,
-      data: _webQRCodeData(qrcodeKey),
+      queryParameters: _webQRCodeData(qrcodeKey),
       options: _webQRCodeOptions,
     );
     final data = res.data;

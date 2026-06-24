@@ -69,6 +69,7 @@ assert(login.includes("'scanning_type': 1"), 'QR login confirmation must submit 
 assert(login.includes('checkWebQRCodeLogin'), 'LoginHttp must expose web QR check');
 assert(login.includes('confirmWebQRCodeLogin'), 'LoginHttp must expose web QR confirm');
 assert(login.includes('Api.webQRCodeCheck'), 'Web QR check must use webQRCodeCheck API');
+assert(/checkWebQRCodeLogin[\s\S]*Request\(\)\.get\(\s*Api\.webQRCodeCheck/.test(login), 'Web QR check must be GET like official H5 scanner');
 assert(login.includes('Api.webQRCodeConfirm'), 'Web QR confirm must use webQRCodeConfirm API');
 assert(login.includes("'qrcode_key': qrcodeKey"), 'Web QR APIs must submit qrcode_key');
 
