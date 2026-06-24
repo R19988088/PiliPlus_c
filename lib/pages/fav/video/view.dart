@@ -7,6 +7,7 @@ import 'package:PiliPlus/models_new/fav/fav_folder/list.dart';
 import 'package:PiliPlus/pages/fav/video/controller.dart';
 import 'package:PiliPlus/pages/fav_detail/widget/fav_video_card.dart';
 import 'package:PiliPlus/common/style.dart';
+import 'package:PiliPlus/utils/bili_utils.dart';
 import 'package:PiliPlus/utils/grid.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -58,9 +59,7 @@ class _FavVideoPageState extends State<FavVideoPage>
         controller: _favController.scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          Obx(
-            () => _buildBody(_favController.loadingState.value),
-          ),
+          Obx(() => _buildBody(_favController.loadingState.value)),
           SliverPadding(
             padding: EdgeInsets.only(
               bottom: 100 + MediaQuery.viewPaddingOf(context).bottom,
@@ -82,44 +81,21 @@ class _FavVideoPageState extends State<FavVideoPage>
       Loading() => gridSkeleton,
       Success(:final response) =>
         response != null && response.isNotEmpty
-            ? _buildFolderStrip(response)
+            ? SliverPersistentHeader(
+                pinned: true,
+                delegate: _FolderStripHeaderDelegate(
+                  folders: response,
+                  selectedIndex: _favController.selectedFolderIndex.value,
+                  folderScrollController: _folderScrollController,
+                  onTap: _favController.selectFolder,
+                ),
+              )
             : HttpError(onReload: _favController.onReload),
       Error(:final errMsg) => HttpError(
         errMsg: errMsg,
         onReload: _favController.onReload,
       ),
     };
-  }
-
-  Widget _buildFolderStrip(List<FavFolderInfo> folders) {
-    final padding = MediaQuery.viewPaddingOf(context);
-    return SliverToBoxAdapter(
-      child: SizedBox(
-        height: 150,
-        child: SingleChildScrollView(
-          controller: _folderScrollController,
-          scrollDirection: Axis.horizontal,
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.only(
-            left: Style.safeSpace + padding.left,
-            right: Style.safeSpace + padding.right,
-            top: 9,
-            bottom: 8,
-          ),
-          child: Row(
-            spacing: 12,
-            children: [
-              for (final (index, item) in folders.indexed)
-                _FolderCoverItem(
-                  item: item,
-                  selected: _favController.selectedFolderIndex.value == index,
-                  onTap: () => _favController.selectFolder(index, item),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildInlineDetailBody(
@@ -165,6 +141,75 @@ class _FavVideoPageState extends State<FavVideoPage>
   }
 }
 
+class _FolderStripHeaderDelegate extends SliverPersistentHeaderDelegate {
+  const _FolderStripHeaderDelegate({
+    required this.folders,
+    required this.selectedIndex,
+    required this.folderScrollController,
+    required this.onTap,
+  });
+
+  final List<FavFolderInfo> folders;
+  final int selectedIndex;
+  final ScrollController folderScrollController;
+  final void Function(int index, FavFolderInfo folder) onTap;
+
+  @override
+  double get minExtent => 150;
+
+  @override
+  double get maxExtent => 150;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final padding = MediaQuery.viewPaddingOf(context);
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: Theme.of(context).dividerColor.withValues(alpha: 0.12),
+            ),
+          ),
+        ),
+        child: SingleChildScrollView(
+          controller: folderScrollController,
+          scrollDirection: Axis.horizontal,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.only(
+            left: Style.safeSpace + padding.left,
+            right: Style.safeSpace + padding.right,
+            top: 9,
+            bottom: 8,
+          ),
+          child: Row(
+            spacing: 12,
+            children: [
+              for (final (index, item) in folders.indexed)
+                _FolderCoverItem(
+                  item: item,
+                  selected: selectedIndex == index,
+                  onTap: () => onTap(index, item),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _FolderStripHeaderDelegate oldDelegate) {
+    return folders != oldDelegate.folders ||
+        selectedIndex != oldDelegate.selectedIndex;
+  }
+}
+
 class _FolderCoverItem extends StatelessWidget {
   const _FolderCoverItem({
     required this.item,
@@ -195,11 +240,37 @@ class _FolderCoverItem extends StatelessWidget {
                 AspectRatio(
                   aspectRatio: Style.aspectRatio,
                   child: LayoutBuilder(
-                    builder: (context, constraints) => NetworkImgLayer(
-                      src: item.cover,
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    builder: (context, constraints) => Stack(
+                      children: [
+                        NetworkImgLayer(
+                          src: item.cover,
+                          width: constraints.maxWidth,
+                          height: constraints.maxHeight,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(8),
+                          ),
+                        ),
+                        Positioned(
+                          right: 6,
+                          bottom: 6,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.45),
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(16),
+                              ),
+                            ),
+                            child: Icon(
+                              BiliUtils.isPublicFav(item.attr)
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

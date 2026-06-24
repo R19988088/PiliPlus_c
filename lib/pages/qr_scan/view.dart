@@ -21,9 +21,18 @@ class _QrScanPageState extends State<QrScanPage> {
   final MobileScannerController _scannerController = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
     formats: const [BarcodeFormat.qrCode],
+    autoStart: false,
   );
   final ImagePicker _imagePicker = ImagePicker();
   bool _handling = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scannerController.start();
+    });
+  }
 
   String? _extractLoginAuthCode(String value) {
     final uri = Uri.tryParse(value);
@@ -32,6 +41,13 @@ class _QrScanPageState extends State<QrScanPage> {
     if (query['auth_code'] case final authCode?) return authCode;
     if (query['oauthKey'] case final oauthKey?) return oauthKey;
     if (query['key'] case final key?) return key;
+    final authCodeMatch = RegExp(
+      r'auth_code=([^&]+)',
+      caseSensitive: false,
+    ).firstMatch(value);
+    if (authCodeMatch != null) {
+      return Uri.decodeComponent(authCodeMatch.group(1)!);
+    }
     return null;
   }
 
@@ -153,6 +169,37 @@ class _QrScanPageState extends State<QrScanPage> {
         children: [
           MobileScanner(
             controller: _scannerController,
+            errorBuilder: (context, error, child) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.white,
+                        size: 36,
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        error.errorDetails?.message ?? error.toString(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      const SizedBox(height: 18),
+                      FilledButton.icon(
+                        onPressed: () {
+                          _scannerController.start();
+                        },
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('重新打开相机'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
             onDetect: (capture) {
               for (final barcode in capture.barcodes) {
                 final rawValue = barcode.rawValue;
