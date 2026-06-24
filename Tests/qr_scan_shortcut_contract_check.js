@@ -6,6 +6,7 @@ function assert(cond, msg) { if (!cond) { console.error(msg); process.exit(1); }
 
 const pubspec = read('pubspec.yaml');
 assert(/mobile_scanner:\s*\^/.test(pubspec), 'pubspec.yaml must include mobile_scanner');
+assert(/qr_code_scanner_plus:\s*\^/.test(pubspec), 'pubspec.yaml must include qr_code_scanner_plus for camera scan');
 assert(/image_picker:\s*\^/.test(pubspec), 'pubspec.yaml must keep image_picker for album scan');
 
 const route = read('lib/router/app_pages.dart');
@@ -15,11 +16,10 @@ assert(route.includes("GetPage(name: '/qrScan'"), 'router must expose /qrScan ro
 const pagePath = path.join(root, 'lib/pages/qr_scan/view.dart');
 assert(fs.existsSync(pagePath), 'QR scan page file is missing');
 const page = fs.readFileSync(pagePath, 'utf8');
-assert(page.includes('MobileScanner('), 'QR scan page must use camera scanner');
-assert(page.includes('MobileScannerController'), 'QR scan page must own scanner controller');
-assert(page.includes('autoStart: false'), 'QR scan camera must start after first frame');
-assert(page.includes('_scannerController.start()'), 'QR scan page must explicitly start scanner');
-assert(page.includes('errorBuilder'), 'QR scan page must expose camera errors');
+assert(page.includes('QRView('), 'QR scan page must use QRView camera scanner');
+assert(page.includes('scannedDataStream.listen'), 'QR scan page must listen to QRView scan stream');
+assert(!page.includes('MobileScanner('), 'QR scan camera must not use MobileScanner');
+assert(page.includes('MobileScannerController'), 'QR scan page must keep image scanner controller');
 assert(page.includes('ImagePicker()'), 'QR scan page must use ImagePicker for album images');
 assert(page.includes('analyzeImage'), 'QR scan page must decode QR from selected image path');
 assert(page.includes('_extractLoginAuthCode'), 'QR scan page must detect login QR auth code');

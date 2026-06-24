@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/custom_height_widget.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -11,6 +12,7 @@ import 'package:PiliPlus/utils/extension/get_ext.dart';
 import 'package:PiliPlus/utils/extension/size_ext.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -175,6 +177,19 @@ class _HomePageState extends CommonPageState<HomePage>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: theme.colorScheme.outline),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: '扫一扫',
+                  onPressed: () => Get.toNamed('/qrScan'),
+                  icon: SvgPicture.asset(
+                    Assets.scanIcon,
+                    width: 22,
+                    height: 22,
+                    colorFilter: ColorFilter.mode(
+                      theme.colorScheme.onSecondaryContainer,
+                      BlendMode.srcIn,
                     ),
                   ),
                 ),

@@ -36,6 +36,7 @@ class _FavVideoPageState extends State<FavVideoPage>
 
   @override
   void dispose() {
+    _favController.saveCurrentFolderOffset();
     _folderScrollController
       ..removeListener(_onFolderScroll)
       ..dispose();

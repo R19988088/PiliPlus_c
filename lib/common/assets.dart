@@ -40,6 +40,7 @@ abstract final class Assets {
       'assets/images/wiliwili/bpx-svg-sprite-share.svg';
   static const wiliwiliDislike =
       'assets/images/wiliwili/comment-disagree-grey.svg';
+  static const scanIcon = 'assets/images/scan.svg';
 
   static const List<String> mpvAnime4KShaders = [
     'Anime4K_Clamp_Highlights.glsl',

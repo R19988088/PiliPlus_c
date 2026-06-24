@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart' as ms;
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart' as qr;
 
 class QrScanPage extends StatefulWidget {
   const QrScanPage({super.key});
@@ -18,20 +19,22 @@ class QrScanPage extends StatefulWidget {
 }
 
 class _QrScanPageState extends State<QrScanPage> {
-  final MobileScannerController _scannerController = MobileScannerController(
-    detectionSpeed: DetectionSpeed.noDuplicates,
-    formats: const [BarcodeFormat.qrCode],
+  final GlobalKey _qrViewKey = GlobalKey(debugLabel: 'QR');
+  qr.QRViewController? _cameraController;
+  final ms.MobileScannerController _imageScannerController =
+      ms.MobileScannerController(
+    detectionSpeed: ms.DetectionSpeed.noDuplicates,
+    formats: const [ms.BarcodeFormat.qrCode],
     autoStart: false,
   );
   final ImagePicker _imagePicker = ImagePicker();
   bool _handling = false;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scannerController.start();
-    });
+  void reassemble() {
+    super.reassemble();
+    _cameraController?.pauseCamera();
+    _cameraController?.resumeCamera();
   }
 
   String? _extractLoginAuthCode(String value) {
@@ -92,8 +95,16 @@ class _QrScanPageState extends State<QrScanPage> {
 
   @override
   void dispose() {
-    _scannerController.dispose();
+    _cameraController?.dispose();
+    _imageScannerController.dispose();
     super.dispose();
+  }
+
+  void _onQrViewCreated(qr.QRViewController controller) {
+    _cameraController = controller;
+    controller.scannedDataStream.listen((scanData) {
+      _handleRawValue(scanData.code);
+    });
   }
 
   Future<void> _handleRawValue(String? rawValue) async {
@@ -135,8 +146,8 @@ class _QrScanPageState extends State<QrScanPage> {
     final image = await _imagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
 
-    final capture = await _scannerController.analyzeImage(image.path);
-    final barcodes = capture?.barcodes ?? const <Barcode>[];
+    final capture = await _imageScannerController.analyzeImage(image.path);
+    final barcodes = capture?.barcodes ?? const <ms.Barcode>[];
     for (final barcode in barcodes) {
       final rawValue = barcode.rawValue;
       if (rawValue != null && rawValue.trim().isNotEmpty) {
@@ -167,48 +178,10 @@ class _QrScanPageState extends State<QrScanPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          MobileScanner(
-            controller: _scannerController,
-            errorBuilder: (context, error, child) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        color: Colors.white,
-                        size: 36,
-                      ),
-                      const SizedBox(height: 14),
-                      Text(
-                        error.errorDetails?.message ?? error.toString(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      const SizedBox(height: 18),
-                      FilledButton.icon(
-                        onPressed: () {
-                          _scannerController.start();
-                        },
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('重新打开相机'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-            onDetect: (capture) {
-              for (final barcode in capture.barcodes) {
-                final rawValue = barcode.rawValue;
-                if (rawValue != null && rawValue.trim().isNotEmpty) {
-                  _handleRawValue(rawValue);
-                  return;
-                }
-              }
-            },
+          qr.QRView(
+            key: _qrViewKey,
+            onQRViewCreated: _onQrViewCreated,
+            formatsAllowed: const [qr.BarcodeFormat.qrcode],
           ),
           Center(
             child: Container(
