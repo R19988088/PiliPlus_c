@@ -1,6 +1,5 @@
 import 'package:PiliPlus/http/fav.dart';
 import 'package:PiliPlus/http/loading_state.dart';
-import 'package:PiliPlus/models_new/fav/fav_detail/data.dart';
 import 'package:PiliPlus/models_new/fav/fav_folder/data.dart';
 import 'package:PiliPlus/models_new/fav/fav_folder/list.dart';
 import 'package:PiliPlus/pages/common/common_list_controller.dart';
@@ -13,8 +12,9 @@ class FavController extends CommonListController<FavFolderData, FavFolderInfo> {
   late final account = Accounts.main;
   final RxInt selectedFolderIndex = 0.obs;
   final Map<int, double> folderScrollOffsets = <int, double>{};
+  int? _selectedFolderId;
   late final InlineFavDetailController inlineDetailController =
-      Get.put(InlineFavDetailController(this));
+      Get.put(InlineFavDetailController());
 
   @override
   void onInit() {
@@ -43,37 +43,35 @@ class FavController extends CommonListController<FavFolderData, FavFolderInfo> {
   bool customHandleResponse(bool isRefresh, Success<FavFolderData> response) {
     final list = response.response.list;
     if (isRefresh && list != null && list.isNotEmpty) {
-      final selectedMediaId = inlineDetailController.mediaId;
-      var index = list.indexWhere((item) => item.id == selectedMediaId);
+      var index = list.indexWhere((item) => item.id == _selectedFolderId);
       if (index < 0) {
         index = 0;
       }
       selectedFolderIndex.value = index;
-      inlineDetailController.bindFolder(
-        list[index],
-        restoreOffset: folderScrollOffsets[list[index].id] ?? 0,
-      );
+      final folder = list[index];
+      _selectedFolderId = folder.id;
+      inlineDetailController.bindFolder(folder);
+      restoreFolderOffset(folder.id);
     }
     return false;
   }
 
   void selectFolder(int index, FavFolderInfo folder) {
     if (selectedFolderIndex.value == index &&
-        inlineDetailController.mediaId == folder.id) {
+        _selectedFolderId == folder.id) {
       return;
     }
     saveCurrentFolderOffset();
     selectedFolderIndex.value = index;
-    inlineDetailController.bindFolder(
-      folder,
-      restoreOffset: folderScrollOffsets[folder.id] ?? 0,
-    );
+    _selectedFolderId = folder.id;
+    inlineDetailController.bindFolder(folder);
+    restoreFolderOffset(folder.id);
   }
 
   void saveCurrentFolderOffset() {
-    if (!scrollController.hasClients) return;
-    folderScrollOffsets[inlineDetailController.mediaId] =
-        scrollController.offset;
+    final mediaId = _selectedFolderId;
+    if (mediaId == null || !scrollController.hasClients) return;
+    folderScrollOffsets[mediaId] = scrollController.offset;
   }
 
   void restoreFolderOffset(int mediaId) {
@@ -94,11 +92,7 @@ class FavController extends CommonListController<FavFolderData, FavFolderInfo> {
 }
 
 class InlineFavDetailController extends FavDetailController {
-  InlineFavDetailController(this.favController);
-
-  final FavController favController;
   final RxBool _inlineIsOwner = false.obs;
-  double? _pendingRestoreOffset;
 
   @override
   bool get isOwner => _inlineIsOwner.value;
@@ -108,27 +102,11 @@ class InlineFavDetailController extends FavDetailController {
     // Folder data is supplied by FavController.selectFolder.
   }
 
-  @override
-  bool customHandleResponse(bool isRefresh, Success<FavDetailData> response) {
-    final handled = super.customHandleResponse(isRefresh, response);
-    if (isRefresh && _pendingRestoreOffset != null) {
-      final offset = _pendingRestoreOffset!;
-      _pendingRestoreOffset = null;
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (!favController.scrollController.hasClients) return;
-        final max = favController.scrollController.position.maxScrollExtent;
-        favController.scrollController.jumpTo(offset.clamp(0, max).toDouble());
-      });
-    }
-    return handled;
-  }
-
-  void bindFolder(FavFolderInfo folder, {double restoreOffset = 0}) {
+  void bindFolder(FavFolderInfo folder) {
     mediaId = folder.id;
     heroTag = 'fav-inline-${folder.fid ?? folder.id}';
     folderInfo.value = folder;
     _inlineIsOwner.value = folder.mid == account.mid;
-    _pendingRestoreOffset = restoreOffset;
     onReload();
   }
 }

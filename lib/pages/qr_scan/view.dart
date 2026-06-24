@@ -78,6 +78,7 @@ class _QrScanPageState extends State<QrScanPage> {
     );
     if (!confirmed) {
       _handling = false;
+      _cameraController?.resumeCamera();
       return;
     }
 
@@ -102,6 +103,7 @@ class _QrScanPageState extends State<QrScanPage> {
 
   void _onQrViewCreated(qr.QRViewController controller) {
     _cameraController = controller;
+    controller.resumeCamera();
     controller.scannedDataStream.listen((scanData) {
       _handleRawValue(scanData.code);
     });
@@ -111,6 +113,7 @@ class _QrScanPageState extends State<QrScanPage> {
     final value = rawValue?.trim();
     if (_handling || value == null || value.isEmpty) return;
     _handling = true;
+    _cameraController?.pauseCamera();
 
     final authCode = _extractLoginAuthCode(value);
     if (authCode != null && authCode.isNotEmpty) {
@@ -137,6 +140,7 @@ class _QrScanPageState extends State<QrScanPage> {
       if (mounted) {
         await Future<void>.delayed(const Duration(milliseconds: 600));
         _handling = false;
+        _cameraController?.resumeCamera();
       }
     }
   }
