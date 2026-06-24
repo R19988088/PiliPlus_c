@@ -59,8 +59,17 @@ class _QrScanPageState extends State<QrScanPage> {
     return uri?.queryParameters.containsKey('qrcode_key') ?? false;
   }
 
-  void _openWebLoginQRCode(String value) {
-    SmartDialog.showToast('网页登录二维码将打开确认页面');
+  Future<void> _confirmWebLoginQRCode(String value) async {
+    final confirmed = await showConfirmDialog(
+      context: context,
+      title: const Text('确认登录'),
+      content: const Text('是否打开网页登录二维码确认页面？'),
+    );
+    if (!confirmed) {
+      _handling = false;
+      _cameraController?.resumeCamera();
+      return;
+    }
     PageUtils.inAppWebview(value);
     Get.back();
   }
@@ -69,6 +78,7 @@ class _QrScanPageState extends State<QrScanPage> {
     if (!Accounts.main.isLogin) {
       SmartDialog.showToast('请先登录当前设备账号');
       _handling = false;
+      _cameraController?.resumeCamera();
       return;
     }
     final confirmed = await showConfirmDialog(
@@ -90,7 +100,10 @@ class _QrScanPageState extends State<QrScanPage> {
       Get.back();
     } else {
       SmartDialog.showToast(res['msg']?.toString() ?? '登录确认失败');
-      if (mounted) _handling = false;
+      if (mounted) {
+        _handling = false;
+        _cameraController?.resumeCamera();
+      }
     }
   }
 
@@ -121,7 +134,7 @@ class _QrScanPageState extends State<QrScanPage> {
       return;
     }
     if (_isWebLoginQRCode(value)) {
-      _openWebLoginQRCode(value);
+      await _confirmWebLoginQRCode(value);
       return;
     }
 

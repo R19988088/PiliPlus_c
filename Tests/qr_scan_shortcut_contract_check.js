@@ -28,6 +28,7 @@ assert(page.includes('LoginHttp.confirmQRCodeLogin'), 'QR scan page must confirm
 assert(page.includes('showConfirmDialog'), 'QR scan login must ask before confirming login');
 assert(page.includes('_isWebLoginQRCode'), 'QR scan page must detect web login QR codes');
 assert(page.includes('PageUtils.inAppWebview'), 'Web login QR codes must open confirmation page fallback');
+assert(page.includes('_confirmWebLoginQRCode'), 'Web login QR codes must show an allow-login confirmation state before opening fallback');
 assert(page.includes('PiliScheme.routePushFromUrl'), 'QR scan result must reuse existing URL/app scheme router');
 assert(page.includes('IdUtils.matchAvorBv'), 'QR scan result must handle plain BV/av content');
 assert(page.includes('PiliScheme.videoPush'), 'Plain BV/av QR scan result must open video directly');
