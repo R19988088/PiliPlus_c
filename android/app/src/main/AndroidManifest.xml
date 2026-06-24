@@ -162,6 +162,7 @@
                 <data android:host="browser" />
                 <data android:host="user_center" />
                 <data android:host="login" />
+                <data android:host="scan" />
                 <data android:host="space" />
                 <data android:host="author" />
                 <data android:host="tag" />
@@ -237,6 +238,7 @@
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

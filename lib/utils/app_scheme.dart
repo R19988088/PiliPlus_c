@@ -39,6 +39,12 @@ abstract final class PiliScheme {
 
     listener?.cancel();
     listener = appLinks.uriLinkStream.listen(routePush);
+    appLinks.getInitialLink().then((uri) {
+      if (uri == null) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        routePush(uri);
+      });
+    });
   }
 
   static int? _videoProgress(Map<String, String> queryParameters) {
@@ -102,6 +108,9 @@ abstract final class PiliScheme {
             Get.key.currentState!.popUntil(
               (Route<dynamic> route) => route.isFirst,
             );
+            return true;
+          case 'scan':
+            PageUtils.toDupNamed('/qrScan', off: off);
             return true;
           case 'pgc':
             // bilibili://pgc/season/ep/123456?h5_awaken_params=random

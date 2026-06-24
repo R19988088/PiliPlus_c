@@ -1,6 +1,15 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:icon="@drawable/ic_shortcut_search"
+        android:shortcutId="scan"
+        android:shortcutLongLabel="@string/scan_qr"
+        android:shortcutShortLabel="@string/scan_qr">
+        <intent
+            android:action="com.example.piliplus.SHORTCUT"
+            android:data="bilibili://scan" />
+    </shortcut>
+    <shortcut
+        android:icon="@drawable/ic_shortcut_search"
         android:shortcutId="search"
         android:shortcutLongLabel="@string/search"
         android:shortcutShortLabel="@string/search">

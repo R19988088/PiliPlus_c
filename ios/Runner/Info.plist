@@ -70,10 +70,21 @@
 		<true/>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
+		<key>UIApplicationShortcutItems</key>
+		<array>
+			<dict>
+				<key>UIApplicationShortcutItemType</key>
+				<string>scan</string>
+				<key>UIApplicationShortcutItemTitle</key>
+				<string>扫一扫</string>
+				<key>UIApplicationShortcutItemIconType</key>
+				<string>UIApplicationShortcutIconTypeSearch</string>
+			</dict>
+		</array>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>请允许APP保存图片到相册</string>
+		<string>请允许APP读取相册图片用于识别二维码</string>
 		<key>NSCameraUsageDescription</key>
-		<string>App需要您的同意,才能访问相册</string>
+		<string>请允许APP使用相机扫描二维码</string>
 		<key>NSAppleMusicUsageDescription</key>
 		<string>App需要您的同意,才能访问媒体资料库</string>
 		<key>LSApplicationQueriesSchemes</key>

@@ -69,6 +69,31 @@ abstract final class LoginHttp {
     };
   }
 
+  static Future<Map<String, dynamic>> confirmQRCodeLogin(String authCode) async {
+    if (!Accounts.main.isLogin) {
+      return {'status': false, 'msg': '请先登录当前设备账号'};
+    }
+    final csrf = Accounts.main.csrf;
+    final res = await Request().post(
+      Api.qrcodeConfirm,
+      data: {
+        'auth_code': authCode,
+        'csrf': csrf,
+        'csrf_token': csrf,
+        'scanning_type': 1,
+      },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+    final data = res.data;
+    final code = data is Map ? data['code'] : null;
+    return {
+      'status': code == 0,
+      'code': code,
+      'msg': data is Map ? data['message'] ?? data['msg'] ?? data.toString() : '$data',
+      'data': data is Map ? data['data'] : data,
+    };
+  }
+
   static Future queryCaptcha() async {
     final res = await Request().get(Api.getCaptcha);
     if (res.data['code'] == 0) {
