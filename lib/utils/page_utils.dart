@@ -437,7 +437,7 @@ abstract final class PageUtils {
     }
   }
 
-  static Future<void> launchURL(
+  static Future<bool> launchURL(
     String url, {
     LaunchMode mode = LaunchMode.externalApplication,
   }) async {
@@ -445,9 +445,12 @@ abstract final class PageUtils {
       final Uri uri = Uri.parse(url);
       if (!await launchUrl(uri, mode: mode)) {
         SmartDialog.showToast('Could not launch $url');
+        return false;
       }
+      return true;
     } catch (e) {
       SmartDialog.showToast(e.toString());
+      return false;
     }
   }
 

@@ -77,23 +77,16 @@ class _QrScanPageState extends State<QrScanPage> {
       _cameraController?.resumeCamera();
       return;
     }
-    final confirmed = await showConfirmDialog(
-      context: context,
-      title: const Text('网页登录二维码'),
-      content: const Text('该二维码需要使用官方哔哩哔哩 App 确认登录。是否打开官方 App 扫一扫？'),
-    );
-    if (!confirmed) {
-      _handling = false;
-      _cameraController?.resumeCamera();
-      return;
-    }
-    _openOfficialBiliQRCodeScanner();
+    await _openOfficialBiliQRCodeScanner();
     _handling = false;
     _cameraController?.resumeCamera();
   }
 
-  void _openOfficialBiliQRCodeScanner() {
-    PageUtils.launchURL('bilibili://qrcode');
+  Future<void> _openOfficialBiliQRCodeScanner() async {
+    final opened = await PageUtils.launchURL('bilibili://qrcode');
+    if (!opened) {
+      SmartDialog.showToast('请安装或手动打开官方哔哩哔哩 App 扫一扫');
+    }
   }
 
   Future<void> _confirmLoginQRCode(String authCode) async {

@@ -29,7 +29,9 @@ assert(page.includes('showConfirmDialog'), 'QR scan login must ask before confir
 assert(page.includes('_isWebLoginQRCode'), 'QR scan page must detect web login QR codes');
 assert(page.includes('_extractWebLoginQRCodeKey'), 'QR scan page must extract web login qrcode_key');
 assert(page.includes('_openOfficialBiliQRCodeScanner'), 'Web login QR scan must guide users to official Bilibili scanner');
-assert(page.includes("PageUtils.launchURL('bilibili://qrcode')"), 'Web login QR scan must try to open official Bilibili QR scanner');
+assert(!page.includes("title: const Text('网页登录二维码')"), 'Web login QR scan must open official scanner without manual confirmation');
+assert(page.includes("await PageUtils.launchURL('bilibili://qrcode')"), 'Web login QR scan must try to open official Bilibili QR scanner');
+assert(page.includes('请安装或手动打开官方哔哩哔哩 App 扫一扫'), 'Web login QR scan must only show a fallback message when official app cannot open');
 assert(!page.includes('LoginHttp.checkWebQRCodeLogin'), 'Web login QR scan must not call unsupported direct check API');
 assert(!page.includes('LoginHttp.confirmWebQRCodeLogin'), 'Web login QR scan must not call unsupported direct confirm API');
 assert(page.includes('PiliScheme.routePushFromUrl'), 'QR scan result must reuse existing URL/app scheme router');
@@ -73,3 +75,6 @@ assert(!login.includes('Api.webQRCodeCheck'), 'Unsupported webQRCodeCheck API co
 assert(!login.includes('Api.webQRCodeConfirm'), 'Unsupported webQRCodeConfirm API constant must not be used');
 
 console.log('QR scan shortcut contract OK');
+
+const pageUtils = read('lib/utils/page_utils.dart');
+assert(/static Future<bool> launchURL/.test(pageUtils), 'PageUtils.launchURL must return whether external app opened');
