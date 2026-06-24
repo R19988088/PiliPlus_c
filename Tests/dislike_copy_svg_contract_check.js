@@ -48,7 +48,7 @@ assertIncludes(popup, 'if (!Pref.disableDislikeFeature)', 'video card popup disl
 assertIncludes(ugcView, 'if (!Pref.disableDislikeFeature)', 'video intro dislike action must be hidden by preference');
 assertMatches(
   header,
-  /if \(!Pref\.disableDislikeFeature &&[\s\S]{0,80}introController case final UgcIntroController ugc/,
+  /if \(introController case final UgcIntroController ugc[\s\S]{0,80}when !Pref\.disableDislikeFeature/,
   'header dislike action must be hidden by preference',
 );
 

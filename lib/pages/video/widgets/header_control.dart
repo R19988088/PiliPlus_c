@@ -2060,8 +2060,8 @@ class HeaderControlState extends State<HeaderControl>
                     ),
                   ),
                 ),
-                if (!Pref.disableDislikeFeature &&
-                    introController case final UgcIntroController ugc)
+                if (introController case final UgcIntroController ugc
+                    when !Pref.disableDislikeFeature)
                   SizedBox(
                     width: btnWidth,
                     height: btnHeight,

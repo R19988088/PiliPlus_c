@@ -20,8 +20,8 @@ class ActionItem extends StatelessWidget {
   }) : assert(!selectStatus || selectIcon != null),
        _isThumbsUp = onStartTriple != null;
 
-  final Icon icon;
-  final Icon? selectIcon;
+  final Widget icon;
+  final Widget? selectIcon;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final String? text;
@@ -40,11 +40,17 @@ class ActionItem extends StatelessWidget {
     late final primary = !expand && colorScheme.isLight
         ? colorScheme.inversePrimary
         : colorScheme.primary;
-    Widget child = Icon(
-      selectStatus ? selectIcon!.icon! : icon.icon,
-      size: 18,
-      color: selectStatus ? primary : icon.color ?? colorScheme.outline,
-    );
+    Widget child;
+    final currentIcon = selectStatus ? selectIcon! : icon;
+    if (currentIcon case final Icon iconWidget) {
+      child = Icon(
+        iconWidget.icon!,
+        size: 18,
+        color: selectStatus ? primary : iconWidget.color ?? colorScheme.outline,
+      );
+    } else {
+      child = currentIcon;
+    }
 
     if (animation != null) {
       child = Stack(
