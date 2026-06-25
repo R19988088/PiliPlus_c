@@ -25,6 +25,13 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
   double _offsetValue = 0.0;
   double _stretchValue = 1.0;
 
+  double _stretchForProgress(double progress) {
+    final t = progress.clamp(0.0, 1.0).toDouble();
+    return 1 +
+        Curves.easeInOutCubic.transform(t) *
+            ScrollOrRefreshMixin.navTapFeedbackMaxStretch;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -50,13 +57,7 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
           : 0.0;
 
   double get _progressStretch =>
-      widget.enabled
-          ? 1 +
-                Curves.easeInCubic.transform(
-                      widget.progress.clamp(0.0, 1.0).toDouble(),
-                    ) *
-                    ScrollOrRefreshMixin.navTapFeedbackMaxStretch
-          : 1.0;
+      widget.enabled ? _stretchForProgress(widget.progress) : 1.0;
 
   @override
   void didUpdateWidget(covariant NavTapFeedbackTransition oldWidget) {
@@ -95,10 +96,7 @@ class _NavTapFeedbackTransitionState extends State<NavTapFeedbackTransition>
       final progress =
           _offset.value / ScrollOrRefreshMixin.navTapFeedbackMaxOffset;
       _offsetValue = _offset.value;
-      _stretchValue =
-          1 +
-          Curves.easeInCubic.transform(progress.clamp(0.0, 1.0)) *
-              ScrollOrRefreshMixin.navTapFeedbackMaxStretch;
+      _stretchValue = _stretchForProgress(progress);
     });
   }
 

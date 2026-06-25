@@ -123,6 +123,41 @@ void main() {
     expect(_translateY(tester), closeTo(0, 0.01));
   });
 
+  testWidgets('导航单击反馈拉伸使用平滑连续曲线', (tester) async {
+    await tester.pumpWidget(
+      const NavTapFeedbackTransition(
+        progress: 0.25,
+        child: SizedBox(width: 10, height: 10),
+      ),
+    );
+    await tester.pump();
+    final earlyStretch = _transform(tester).storage[5];
+
+    await tester.pumpWidget(
+      const NavTapFeedbackTransition(
+        progress: 0.5,
+        child: SizedBox(width: 10, height: 10),
+      ),
+    );
+    await tester.pump();
+    final middleStretch = _transform(tester).storage[5];
+
+    await tester.pumpWidget(
+      const NavTapFeedbackTransition(
+        progress: 0.75,
+        child: SizedBox(width: 10, height: 10),
+      ),
+    );
+    await tester.pump();
+    final lateStretch = _transform(tester).storage[5];
+
+    expect(
+      middleStretch - earlyStretch,
+      closeTo(lateStretch - middleStretch, 0.01),
+    );
+    expect(middleStretch, greaterThan(1.08));
+  });
+
   testWidgets('悬浮底栏渲染液态玻璃背景滤镜层', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
