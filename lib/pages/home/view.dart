@@ -76,6 +76,7 @@ class _HomePageState extends CommonPageState<HomePage>
     );
     return ProgressiveTopBlurOverlay(
       topBar: topBar,
+      blurExtent: 128,
       body: onBuild(
         tabBarView(
           controller: _homeController.tabController,
