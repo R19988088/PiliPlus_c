@@ -111,11 +111,14 @@ void main() {
     expect(progressiveTopBlur, contains('ImageFilter.blur'));
     expect(progressiveTopBlur, contains('ShaderMask'));
     expect(progressiveTopBlur, contains('BlendMode.dstIn'));
+    expect(progressiveTopBlur, contains('class ProgressiveTopBlurOverlay'));
+    expect(progressiveTopBlur, contains('Positioned.fill(child: body)'));
     expect(progressiveTopBlur, isNot(contains('ProgressiveBlurWidget')));
     expect(progressiveTopBlur, isNot(contains('LinearGradientBlur')));
 
     final home = File('lib/pages/home/view.dart').readAsStringSync();
-    expect(home, contains('ProgressiveTopBlur'));
+    expect(home, contains('ProgressiveTopBlurOverlay'));
+    expect(home, isNot(contains('return Column(\n      children: [\n        topBar,')));
     expect(
       home,
       isNot(
@@ -124,8 +127,9 @@ void main() {
     );
 
     final dynamics = File('lib/pages/dynamics/view.dart').readAsStringSync();
-    expect(dynamics, contains('ProgressiveTopBlur'));
+    expect(dynamics, contains('ProgressiveTopBlurOverlay'));
     expect(dynamics, contains('Widget _buildTopBar('));
+    expect(dynamics, isNot(contains('Expanded(child: onBuild(child))')));
     expect(dynamics, isNot(contains('extendBodyBehindAppBar: true')));
     expect(dynamics, isNot(contains('appBar: AppBar(')));
     expect(dynamics, isNot(contains('backgroundColor: Colors.transparent')));

@@ -43,8 +43,8 @@ class ProgressiveTopBlur extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          colorScheme.surface.withValues(alpha: 0.22),
-                          colorScheme.surface.withValues(alpha: 0.10),
+                          colorScheme.surface.withValues(alpha: 0.08),
+                          colorScheme.surface.withValues(alpha: 0.03),
                           colorScheme.surface.withValues(alpha: 0),
                         ],
                         stops: const [0, 0.58, 1],
@@ -58,6 +58,32 @@ class ProgressiveTopBlur extends StatelessWidget {
           ),
         ),
         child,
+      ],
+    );
+  }
+}
+
+class ProgressiveTopBlurOverlay extends StatelessWidget {
+  const ProgressiveTopBlurOverlay({
+    super.key,
+    required this.body,
+    required this.topBar,
+  });
+
+  final Widget body;
+  final Widget topBar;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(child: body),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: ProgressiveTopBlur(child: topBar),
+        ),
       ],
     );
   }

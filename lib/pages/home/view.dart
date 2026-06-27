@@ -67,27 +67,21 @@ class _HomePageState extends CommonPageState<HomePage>
     }
     final hasSearchBar =
         !_mainController.useSideBar && MediaQuery.sizeOf(context).isPortrait;
-    final topBar = ProgressiveTopBlur(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (hasSearchBar) customAppBar(theme),
-          tabBar,
-        ],
-      ),
-    );
-    return Column(
+    final topBar = Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        topBar,
-        Expanded(
-          child: onBuild(
-            tabBarView(
-              controller: _homeController.tabController,
-              children: _homeController.tabs.map((e) => e.page).toList(),
-            ),
-          ),
-        ),
+        if (hasSearchBar) customAppBar(theme),
+        tabBar,
       ],
+    );
+    return ProgressiveTopBlurOverlay(
+      topBar: topBar,
+      body: onBuild(
+        tabBarView(
+          controller: _homeController.tabController,
+          children: _homeController.tabs.map((e) => e.page).toList(),
+        ),
+      ),
     );
   }
 
