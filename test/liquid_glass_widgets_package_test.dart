@@ -102,19 +102,17 @@ void main() {
     );
   });
 
-  test('首页和动态顶部使用 progressive_blur 渐进模糊', () {
-    final pubspec = File('pubspec.yaml').readAsStringSync();
-    expect(pubspec, contains('progressive_blur:'));
-
+  test('首页和动态顶部使用 Flutter 原生渐变模糊', () {
     final progressiveTopBlur = File(
       'lib/common/widgets/progressive_top_blur.dart',
     ).readAsStringSync();
-    expect(
-      progressiveTopBlur,
-      contains("package:progressive_blur/progressive_blur.dart"),
-    );
-    expect(progressiveTopBlur, contains('ProgressiveBlurWidget'));
-    expect(progressiveTopBlur, contains('LinearGradientBlur'));
+    expect(progressiveTopBlur, contains("import 'dart:ui';"));
+    expect(progressiveTopBlur, contains('BackdropFilter'));
+    expect(progressiveTopBlur, contains('ImageFilter.blur'));
+    expect(progressiveTopBlur, contains('ShaderMask'));
+    expect(progressiveTopBlur, contains('BlendMode.dstIn'));
+    expect(progressiveTopBlur, isNot(contains('ProgressiveBlurWidget')));
+    expect(progressiveTopBlur, isNot(contains('LinearGradientBlur')));
 
     final home = File('lib/pages/home/view.dart').readAsStringSync();
     expect(home, contains('ProgressiveTopBlur'));
@@ -131,5 +129,11 @@ void main() {
     expect(dynamics, isNot(contains('extendBodyBehindAppBar: true')));
     expect(dynamics, isNot(contains('appBar: AppBar(')));
     expect(dynamics, isNot(contains('backgroundColor: Colors.transparent')));
+
+    final dynamicsTab = File(
+      'lib/pages/dynamics_tab/view.dart',
+    ).readAsStringSync();
+    expect(dynamicsTab, isNot(contains('_kDynamicsTopOverlayHeight')));
+    expect(dynamicsTab, isNot(contains('top: 50')));
   });
 }

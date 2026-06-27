@@ -1,5 +1,6 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:progressive_blur/progressive_blur.dart';
 
 class ProgressiveTopBlur extends StatelessWidget {
   const ProgressiveTopBlur({
@@ -18,16 +19,42 @@ class ProgressiveTopBlur extends StatelessWidget {
       fit: StackFit.passthrough,
       children: [
         Positioned.fill(
-          child: ProgressiveBlurWidget(
-            sigma: sigma,
-            linearGradientBlur: const LinearGradientBlur(
-              values: [1, 0],
-              stops: [0, 1],
-              start: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+          child: IgnorePointer(
+            child: ClipRect(
+              child: ShaderMask(
+                blendMode: BlendMode.dstIn,
+                shaderCallback: (bounds) {
+                  return const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.white,
+                      Colors.white,
+                      Colors.transparent,
+                    ],
+                    stops: [0, 0.58, 1],
+                  ).createShader(bounds);
+                },
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          colorScheme.surface.withValues(alpha: 0.22),
+                          colorScheme.surface.withValues(alpha: 0.10),
+                          colorScheme.surface.withValues(alpha: 0),
+                        ],
+                        stops: const [0, 0.58, 1],
+                      ),
+                    ),
+                    child: const SizedBox.expand(),
+                  ),
+                ),
+              ),
             ),
-            tintColor: colorScheme.surface.withValues(alpha: 0.10),
-            child: const SizedBox.expand(),
           ),
         ),
         child,
