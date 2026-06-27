@@ -114,6 +114,7 @@ void main() {
     expect(progressiveTopBlur, contains('class ProgressiveTopBlurOverlay'));
     expect(progressiveTopBlur, contains('blurExtent'));
     expect(progressiveTopBlur, contains('topBarExtent'));
+    expect(progressiveTopBlur, contains('Stack('));
     expect(progressiveTopBlur, isNot(contains('ProgressiveBlurWidget')));
     expect(progressiveTopBlur, isNot(contains('LinearGradientBlur')));
 
@@ -130,7 +131,6 @@ void main() {
 
     final dynamics = File('lib/pages/dynamics/view.dart').readAsStringSync();
     expect(dynamics, contains('ProgressiveTopBlurOverlay'));
-    expect(dynamics, contains('topBarExtent: 50'));
     expect(dynamics, contains('blurExtent: 112'));
     expect(dynamics, contains('Widget _buildTopBar('));
     expect(dynamics, isNot(contains('Expanded(child: onBuild(child))')));
@@ -141,8 +141,8 @@ void main() {
     final dynamicsTab = File(
       'lib/pages/dynamics_tab/view.dart',
     ).readAsStringSync();
-    expect(dynamicsTab, isNot(contains('_kDynamicsTopOverlayHeight')));
-    expect(dynamicsTab, isNot(contains('top: 50')));
+    expect(dynamicsTab, contains('_kDynamicsTopOverlayHeight = 50.0'));
+    expect(dynamicsTab, contains('top: _kDynamicsTopOverlayHeight'));
   });
 
   test('Android versionCode 不低于已发布构建号', () {

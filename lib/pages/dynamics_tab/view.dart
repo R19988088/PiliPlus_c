@@ -19,6 +19,8 @@ import 'package:get/get.dart';
 import 'package:waterfall_flow/waterfall_flow.dart'
     hide SliverWaterfallFlowDelegateWithMaxCrossAxisExtent;
 
+const _kDynamicsTopOverlayHeight = 50.0;
+
 class DynamicsTabPage extends StatefulWidget {
   const DynamicsTabPage({super.key, required this.dynamicsType});
 
@@ -108,7 +110,10 @@ class _DynamicsTabPageState extends State<DynamicsTabPage>
               controller: controller.scrollController,
               slivers: [
                 SliverPadding(
-                  padding: const EdgeInsets.only(bottom: 100),
+                  padding: const EdgeInsets.only(
+                    top: _kDynamicsTopOverlayHeight,
+                    bottom: 100,
+                  ),
                   sliver: sliver,
                 ),
               ],

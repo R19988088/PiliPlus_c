@@ -13,40 +13,45 @@ class ProgressiveTopBlur extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return IgnorePointer(
-      child: ClipRect(
-        child: ShaderMask(
-          blendMode: BlendMode.dstIn,
-          shaderCallback: (bounds) {
-            return const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.white,
-                Colors.white,
-                Colors.transparent,
-              ],
-              stops: [0, 0.52, 1],
-            ).createShader(bounds);
-          },
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-            child: DecoratedBox(
+    return ClipRect(
+      child: IgnorePointer(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ShaderMask(
+              blendMode: BlendMode.dstIn,
+              shaderCallback: (bounds) {
+                return const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.white,
+                    Colors.white,
+                    Colors.transparent,
+                  ],
+                  stops: [0, 0.62, 1],
+                ).createShader(bounds);
+              },
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+                child: const SizedBox.expand(),
+              ),
+            ),
+            DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    colorScheme.surface.withValues(alpha: 0.16),
-                    colorScheme.surface.withValues(alpha: 0.08),
+                    colorScheme.surface.withValues(alpha: 0.32),
+                    colorScheme.surface.withValues(alpha: 0.12),
                     colorScheme.surface.withValues(alpha: 0),
                   ],
-                  stops: const [0, 0.52, 1],
+                  stops: const [0, 0.54, 1],
                 ),
               ),
-              child: const SizedBox.expand(),
             ),
-          ),
+          ],
         ),
       ),
     );
