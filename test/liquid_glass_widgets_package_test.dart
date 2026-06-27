@@ -136,4 +136,10 @@ void main() {
     expect(dynamicsTab, isNot(contains('_kDynamicsTopOverlayHeight')));
     expect(dynamicsTab, isNot(contains('top: 50')));
   });
+
+  test('Android versionCode 不低于已发布构建号', () {
+    final buildScript = File('lib/scripts/build.ps1').readAsStringSync();
+    expect(buildScript, contains("if (\$Arg -eq 'android')"));
+    expect(buildScript, contains('[Math]::Max($versionCode, 5130)'));
+  });
 }
