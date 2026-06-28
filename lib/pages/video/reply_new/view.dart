@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' show max;
+import 'dart:ui' show ImageByteFormat;
 
 import 'package:PiliPlus/common/widgets/button/toolbar_icon_button.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
@@ -349,11 +350,20 @@ class _ReplyPageState extends CommonRichTextPubPageState<ReplyPage> {
                     final plPlayerController = Get.find<VideoDetailController>(
                       tag: heroTag,
                     );
-                    final res = await plPlayerController
+                    final image = await plPlayerController
                         .plPlayerController
                         .videoPlayerController
-                        ?.screenshot(format: .png);
-                    if (res != null) {
+                        ?.screenshot();
+                    if (image != null) {
+                      final byteData = await image.toByteData(
+                        format: ImageByteFormat.png,
+                      );
+                      image.dispose();
+                      final res = byteData?.buffer.asUint8List();
+                      if (res == null) {
+                        debugPrint('null screenshot bytes');
+                        return;
+                      }
                       final path =
                           '$tmpDirPath/${Utils.generateRandomString(8)}.png';
                       await File(path).writeAsBytes(res);

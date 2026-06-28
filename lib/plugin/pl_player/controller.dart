@@ -956,11 +956,12 @@ class PlPlayerController with BlockConfigMixin {
 
     final player = await Player.create(
       configuration: PlayerConfiguration(
-        bufferSize: Pref.expandBuffer
-            ? (isLive ? 64 * 1024 * 1024 : 32 * 1024 * 1024)
-            : (isLive ? 16 * 1024 * 1024 : 4 * 1024 * 1024),
         logLevel: kDebugMode ? .warn : .error,
-        options: opt,
+        options: {
+          ...opt,
+          if (Pref.expandBuffer)
+            'buffer-size': isLive ? '67108864' : '33554432',
+        },
       ),
     );
 
@@ -1934,8 +1935,17 @@ class PlPlayerController with BlockConfigMixin {
 
   void takeScreenshot() {
     SmartDialog.showToast('截图中');
-    videoPlayerController?.screenshot(format: .png).then((value) {
+    videoPlayerController?.screenshot().then((value) async {
       if (value != null) {
+        final byteData = await value.toByteData(
+          format: ui.ImageByteFormat.png,
+        );
+        value.dispose();
+        final pngBytes = byteData?.buffer.asUint8List();
+        if (pngBytes == null) {
+          SmartDialog.showToast('截图失败');
+          return;
+        }
         SmartDialog.showToast('点击弹窗保存截图');
         showDialog(
           context: Get.context!,
@@ -1943,7 +1953,7 @@ class PlPlayerController with BlockConfigMixin {
             onTap: () {
               Get.back();
               ImageUtils.saveByteImg(
-                bytes: value,
+                bytes: pngBytes,
                 fileName: 'screenshot_${ImageUtils.time}',
               );
             },
