@@ -15,32 +15,47 @@ class ProgressiveTopBlur extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final blurFade = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: const [
+        Color(0xFFFFFFFF),
+        Color(0xE6FFFFFF),
+        Color(0x8AFFFFFF),
+        Color(0x00FFFFFF),
+      ],
+      stops: const [0, 0.38, 0.72, 1],
+    );
     return IgnorePointer(
       child: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  colorScheme.surface.withValues(alpha: 0.44),
-                  colorScheme.surface.withValues(alpha: 0.18),
-                  colorScheme.surface.withValues(alpha: 0),
-                ],
-                stops: const [0, 0.58, 1],
+        child: ShaderMask(
+          blendMode: BlendMode.dstIn,
+          shaderCallback: (rect) => blurFade.createShader(rect),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    colorScheme.surface.withValues(alpha: 0.42),
+                    colorScheme.surface.withValues(alpha: 0.16),
+                    colorScheme.surface.withValues(alpha: 0),
+                  ],
+                  stops: const [0, 0.62, 1],
+                ),
               ),
-            ),
-            child: SizedBox(
-              height: extent,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: SizedBox(
-                  height: extent * 0.5,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface.withValues(alpha: 0.2),
+              child: SizedBox(
+                height: extent,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(
+                    height: extent * 0.48,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface.withValues(alpha: 0.16),
+                      ),
                     ),
                   ),
                 ),

@@ -102,7 +102,7 @@ void main() {
     );
   });
 
-  test('首页和动态顶部使用原生背景模糊层', () {
+  test('首页和动态顶部使用单层遮罩渐变背景模糊', () {
     final progressiveTopBlur = File(
       'lib/common/widgets/progressive_top_blur.dart',
     ).readAsStringSync();
@@ -112,6 +112,9 @@ void main() {
     expect(progressiveTopBlur, contains('blurExtent'));
     expect(progressiveTopBlur, contains('Stack('));
     expect(progressiveTopBlur, contains('ClipRect'));
+    expect(progressiveTopBlur, contains('ShaderMask'));
+    expect(progressiveTopBlur, contains('BlendMode.dstIn'));
+    expect(progressiveTopBlur, contains('blurFade'));
     expect(progressiveTopBlur, contains('BackdropFilter'));
     expect(progressiveTopBlur, contains('ImageFilter.blur'));
     expect(progressiveTopBlur, contains('LinearGradient'));
@@ -123,7 +126,6 @@ void main() {
     expect(progressiveTopBlur, contains('topBarHeight'));
     expect(progressiveTopBlur, isNot(contains('SoftEdgeBlur')));
     expect(progressiveTopBlur, isNot(contains('EdgeBlur')));
-    expect(progressiveTopBlur, isNot(contains('ShaderMask')));
     expect(progressiveTopBlur, isNot(contains('ProgressiveBlurWidget')));
     expect(progressiveTopBlur, isNot(contains('LinearGradientBlur')));
 
