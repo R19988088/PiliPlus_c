@@ -7,7 +7,7 @@ try {
 
     $versionCode = [int](git rev-list --count HEAD).Trim()
     if ($Arg -eq 'android') {
-        $versionCode = [Math]::Max($versionCode, 5130)
+        $versionCode = [Math]::Max($versionCode, 5200)
     }
 
     $commitHash = (git rev-parse HEAD).Trim()
