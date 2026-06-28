@@ -1974,7 +1974,7 @@ class PlPlayerController with BlockConfigMixin {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(5),
-                      child: Image.memory(value),
+                      child: Image.memory(pngBytes),
                     ),
                   ),
                 ),
