@@ -1,58 +1,62 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:soft_edge_blur/soft_edge_blur.dart';
 
 class ProgressiveTopBlur extends StatelessWidget {
   const ProgressiveTopBlur({
     super.key,
-    this.sigma = 20,
+    required this.child,
+    required this.extent,
+    this.sigma = 24,
   });
 
+  final Widget child;
+  final double extent;
   final double sigma;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return ClipRect(
-      child: IgnorePointer(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            ShaderMask(
-              blendMode: BlendMode.dstIn,
-              shaderCallback: (bounds) {
-                return const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white,
-                    Colors.white,
-                    Colors.transparent,
-                  ],
-                  stops: [0, 0.62, 1],
-                ).createShader(bounds);
-              },
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-                child: const ColoredBox(color: Colors.transparent),
-              ),
-            ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    colorScheme.surface.withValues(alpha: 0.32),
-                    colorScheme.surface.withValues(alpha: 0.12),
-                    colorScheme.surface.withValues(alpha: 0),
-                  ],
-                  stops: const [0, 0.54, 1],
+    return SoftEdgeBlur(
+      edges: [
+        EdgeBlur(
+          type: EdgeType.topEdge,
+          size: extent,
+          sigma: sigma,
+          tintColor: colorScheme.surface.withValues(alpha: 0.18),
+          controlPoints: [
+            ControlPoint(position: 0, type: ControlPointType.visible),
+            ControlPoint(position: 0.58, type: ControlPointType.visible),
+            ControlPoint(position: 1, type: ControlPointType.transparent),
+          ],
+        ),
+      ],
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          child,
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: extent,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      colorScheme.surface.withValues(alpha: 0.16),
+                      colorScheme.surface.withValues(alpha: 0.06),
+                      colorScheme.surface.withValues(alpha: 0),
+                    ],
+                    stops: const [0, 0.58, 1],
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -63,13 +67,11 @@ class ProgressiveTopBlurOverlay extends StatelessWidget {
     super.key,
     required this.body,
     required this.topBar,
-    this.topBarExtent = 0,
     this.blurExtent = 96,
   });
 
   final Widget body;
   final Widget topBar;
-  final double topBarExtent;
   final double blurExtent;
 
   @override
@@ -78,19 +80,10 @@ class ProgressiveTopBlurOverlay extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: topBarExtent == 0
-              ? body
-              : Padding(
-                  padding: EdgeInsets.only(top: topInset + topBarExtent),
-                  child: body,
-                ),
-        ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: topInset + blurExtent,
-          child: const ProgressiveTopBlur(),
+          child: ProgressiveTopBlur(
+            extent: topInset + blurExtent,
+            child: body,
+          ),
         ),
         Positioned(
           top: topInset,
