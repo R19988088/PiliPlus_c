@@ -1,62 +1,53 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:soft_edge_blur/soft_edge_blur.dart';
 
 class ProgressiveTopBlur extends StatelessWidget {
   const ProgressiveTopBlur({
     super.key,
-    required this.child,
     required this.extent,
     this.sigma = 24,
   });
 
-  final Widget child;
   final double extent;
   final double sigma;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return SoftEdgeBlur(
-      edges: [
-        EdgeBlur(
-          type: EdgeType.topEdge,
-          size: extent,
-          sigma: sigma,
-          tintColor: colorScheme.surface.withValues(alpha: 0.18),
-          controlPoints: [
-            ControlPoint(position: 0, type: ControlPointType.visible),
-            ControlPoint(position: 0.58, type: ControlPointType.visible),
-            ControlPoint(position: 1, type: ControlPointType.transparent),
-          ],
-        ),
-      ],
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          child,
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: extent,
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      colorScheme.surface.withValues(alpha: 0.16),
-                      colorScheme.surface.withValues(alpha: 0.06),
-                      colorScheme.surface.withValues(alpha: 0),
-                    ],
-                    stops: const [0, 0.58, 1],
+    return IgnorePointer(
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  colorScheme.surface.withValues(alpha: 0.44),
+                  colorScheme.surface.withValues(alpha: 0.18),
+                  colorScheme.surface.withValues(alpha: 0),
+                ],
+                stops: const [0, 0.58, 1],
+              ),
+            ),
+            child: SizedBox(
+              height: extent,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  height: extent * 0.5,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface.withValues(alpha: 0.2),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -83,11 +74,13 @@ class ProgressiveTopBlurOverlay extends StatelessWidget {
     final topInset = MediaQuery.viewPaddingOf(context).top;
     return Stack(
       children: [
-        Positioned.fill(
-          child: ProgressiveTopBlur(
-            extent: topInset + blurExtent,
-            child: body,
-          ),
+        Positioned.fill(child: body),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: topInset + blurExtent,
+          child: ProgressiveTopBlur(extent: topInset + blurExtent),
         ),
         Positioned(
           top: topInset,
