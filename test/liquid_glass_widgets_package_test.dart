@@ -123,7 +123,10 @@ void main() {
     expect(progressiveTopBlur, contains('EdgeType.topEdge'));
     expect(progressiveTopBlur, contains('ControlPointType.visible'));
     expect(progressiveTopBlur, contains('ControlPointType.transparent'));
-    expect(progressiveTopBlur, contains('Positioned.fill(child: body)'));
+    expect(progressiveTopBlur, contains('required this.child'));
+    expect(progressiveTopBlur, contains('child: body'));
+    expect(progressiveTopBlur, contains('foreground'));
+    expect(progressiveTopBlur, contains('topBarHeight'));
     expect(progressiveTopBlur, isNot(contains('BackdropFilter')));
     expect(progressiveTopBlur, isNot(contains('ImageFilter.blur')));
     expect(progressiveTopBlur, isNot(contains('ShaderMask')));
@@ -148,6 +151,9 @@ void main() {
     final dynamics = File('lib/pages/dynamics/view.dart').readAsStringSync();
     expect(dynamics, contains('ProgressiveTopBlurOverlay'));
     expect(dynamics, contains('blurExtent: 138'));
+    expect(dynamics, contains('topBarHeight: 50'));
+    expect(dynamics, contains('foreground: foreground'));
+    expect(dynamics, contains('const SizedBox(height: 76)'));
     expect(dynamics, contains('Widget _buildTopBar('));
     expect(dynamics, isNot(contains('Expanded(child: onBuild(child))')));
     expect(dynamics, isNot(contains('extendBodyBehindAppBar: true')));

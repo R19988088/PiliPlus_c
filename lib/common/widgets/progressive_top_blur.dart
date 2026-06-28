@@ -4,10 +4,12 @@ import 'package:soft_edge_blur/soft_edge_blur.dart';
 class ProgressiveTopBlur extends StatelessWidget {
   const ProgressiveTopBlur({
     super.key,
+    required this.child,
     required this.extent,
     this.sigma = 24,
   });
 
+  final Widget child;
   final double extent;
   final double sigma;
 
@@ -28,33 +30,33 @@ class ProgressiveTopBlur extends StatelessWidget {
           ],
         ),
       ],
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              colorScheme.surface.withValues(alpha: 0.92),
-              colorScheme.surface.withValues(alpha: 0.36),
-              colorScheme.surface.withValues(alpha: 0),
-            ],
-            stops: const [0, 0.56, 1],
-          ),
-        ),
-        child: SizedBox(
-          height: extent,
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: SizedBox(
-              height: extent * 0.58,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          child,
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: extent,
+            child: IgnorePointer(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: colorScheme.surface.withValues(alpha: 0.28),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      colorScheme.surface.withValues(alpha: 0.16),
+                      colorScheme.surface.withValues(alpha: 0.06),
+                      colorScheme.surface.withValues(alpha: 0),
+                    ],
+                    stops: const [0, 0.58, 1],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -66,32 +68,40 @@ class ProgressiveTopBlurOverlay extends StatelessWidget {
     required this.body,
     required this.topBar,
     this.blurExtent = 96,
+    this.topBarHeight = 0,
+    this.foreground,
   });
 
   final Widget body;
   final Widget topBar;
   final double blurExtent;
+  final double topBarHeight;
+  final Widget? foreground;
 
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.viewPaddingOf(context).top;
     return Stack(
       children: [
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
+        Positioned.fill(
           child: ProgressiveTopBlur(
             extent: topInset + blurExtent,
+            child: body,
           ),
         ),
-        Positioned.fill(child: body),
         Positioned(
           top: topInset,
           left: 0,
           right: 0,
           child: topBar,
         ),
+        if (foreground case final foreground?)
+          Positioned(
+            top: topInset + topBarHeight,
+            left: 0,
+            right: 0,
+            child: foreground,
+          ),
       ],
     );
   }

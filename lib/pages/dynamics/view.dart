@@ -123,6 +123,7 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
 
     Widget? leading;
     List<Widget>? actions;
+    Widget? foreground;
 
     Widget child = tabBarView(
       controller: _dynamicsController.tabController,
@@ -135,10 +136,11 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
       case UpPanelPosition.top:
         child = Column(
           children: [
-            upPanelPart(theme),
+            const SizedBox(height: 76),
             Expanded(child: child),
           ],
         );
+        foreground = upPanelPart(theme);
         actions = [_createDynamicBtn(theme)];
       case UpPanelPosition.leftFixed:
         child = Row(
@@ -170,6 +172,8 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
       endDrawer: endDrawer,
       body: ProgressiveTopBlurOverlay(
         topBar: _buildTopBar(theme, leading: leading, actions: actions),
+        topBarHeight: 50,
+        foreground: foreground,
         blurExtent: 138,
         body: onBuild(child),
       ),
