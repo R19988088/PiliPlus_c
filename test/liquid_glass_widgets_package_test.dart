@@ -102,30 +102,28 @@ void main() {
     );
   });
 
-  test('首页和动态顶部使用 soft edge 渐变模糊', () {
+  test('首页和动态顶部使用白色渐变遮罩', () {
     final progressiveTopBlur = File(
       'lib/common/widgets/progressive_top_blur.dart',
     ).readAsStringSync();
-    expect(
-      progressiveTopBlur,
-      contains("package:soft_edge_blur/soft_edge_blur.dart"),
-    );
-    expect(progressiveTopBlur, contains('SoftEdgeBlur'));
-    expect(progressiveTopBlur, contains('EdgeBlur'));
-    expect(progressiveTopBlur, contains('EdgeType.topEdge'));
-    expect(progressiveTopBlur, contains('ControlPointType.visible'));
-    expect(progressiveTopBlur, contains('ControlPointType.transparent'));
     expect(progressiveTopBlur, contains('MediaQuery.viewPaddingOf(context).top'));
     expect(progressiveTopBlur, contains('class ProgressiveTopBlurOverlay'));
     expect(progressiveTopBlur, contains('blurExtent'));
     expect(progressiveTopBlur, contains('Stack('));
+    expect(progressiveTopBlur, contains('LinearGradient'));
+    expect(progressiveTopBlur, contains('Alignment.topCenter'));
+    expect(progressiveTopBlur, contains('Alignment.bottomCenter'));
+    expect(progressiveTopBlur, contains('colorScheme.surface.withValues'));
+    expect(progressiveTopBlur, isNot(contains('SoftEdgeBlur')));
+    expect(progressiveTopBlur, isNot(contains('EdgeBlur')));
     expect(progressiveTopBlur, isNot(contains('BackdropFilter')));
+    expect(progressiveTopBlur, isNot(contains('ImageFilter.blur')));
     expect(progressiveTopBlur, isNot(contains('ShaderMask')));
     expect(progressiveTopBlur, isNot(contains('ProgressiveBlurWidget')));
     expect(progressiveTopBlur, isNot(contains('LinearGradientBlur')));
 
     final pubspec = File('pubspec.yaml').readAsStringSync();
-    expect(pubspec, contains('soft_edge_blur: ^0.1.3'));
+    expect(pubspec, isNot(contains('soft_edge_blur:')));
     expect(pubspec, isNot(contains('progressive_blur:')));
 
     final home = File('lib/pages/home/view.dart').readAsStringSync();

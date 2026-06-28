@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:soft_edge_blur/soft_edge_blur.dart';
 
 class ProgressiveTopBlur extends StatelessWidget {
   const ProgressiveTopBlur({
@@ -16,48 +15,33 @@ class ProgressiveTopBlur extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return SoftEdgeBlur(
-      edges: [
-        EdgeBlur(
-          type: EdgeType.topEdge,
-          size: extent,
-          sigma: sigma,
-          tintColor: colorScheme.surface.withValues(alpha: 0.18),
-          controlPoints: [
-            ControlPoint(position: 0, type: ControlPointType.visible),
-            ControlPoint(position: 0.58, type: ControlPointType.visible),
-            ControlPoint(position: 1, type: ControlPointType.transparent),
-          ],
-        ),
-      ],
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          child,
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: extent,
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      colorScheme.surface.withValues(alpha: 0.16),
-                      colorScheme.surface.withValues(alpha: 0.06),
-                      colorScheme.surface.withValues(alpha: 0),
-                    ],
-                    stops: const [0, 0.58, 1],
-                  ),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        child,
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: extent,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    colorScheme.surface.withValues(alpha: 0.92),
+                    colorScheme.surface.withValues(alpha: 0.56),
+                    colorScheme.surface.withValues(alpha: 0),
+                  ],
+                  stops: const [0, 0.42, 1],
                 ),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
