@@ -34,7 +34,7 @@ class ProgressiveTopBlur extends StatelessWidget {
               },
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-                child: const SizedBox.expand(),
+                child: const ColoredBox(color: Colors.transparent),
               ),
             ),
             DecoratedBox(
@@ -74,13 +74,14 @@ class ProgressiveTopBlurOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topInset = MediaQuery.viewPaddingOf(context).top;
     return Stack(
       children: [
         Positioned.fill(
           child: topBarExtent == 0
               ? body
               : Padding(
-                  padding: EdgeInsets.only(top: topBarExtent),
+                  padding: EdgeInsets.only(top: topInset + topBarExtent),
                   child: body,
                 ),
         ),
@@ -88,11 +89,11 @@ class ProgressiveTopBlurOverlay extends StatelessWidget {
           top: 0,
           left: 0,
           right: 0,
-          height: blurExtent,
+          height: topInset + blurExtent,
           child: const ProgressiveTopBlur(),
         ),
         Positioned(
-          top: 0,
+          top: topInset,
           left: 0,
           right: 0,
           child: topBar,

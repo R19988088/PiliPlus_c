@@ -170,7 +170,8 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
       endDrawer: endDrawer,
       body: ProgressiveTopBlurOverlay(
         topBar: _buildTopBar(theme, leading: leading, actions: actions),
-        blurExtent: 112,
+        topBarExtent: 50,
+        blurExtent: 138,
         body: onBuild(child),
       ),
     );

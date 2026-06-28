@@ -111,6 +111,8 @@ void main() {
     expect(progressiveTopBlur, contains('ImageFilter.blur'));
     expect(progressiveTopBlur, contains('ShaderMask'));
     expect(progressiveTopBlur, contains('BlendMode.dstIn'));
+    expect(progressiveTopBlur, contains('MediaQuery.viewPaddingOf(context).top'));
+    expect(progressiveTopBlur, contains('ColoredBox(color: Colors.transparent)'));
     expect(progressiveTopBlur, contains('class ProgressiveTopBlurOverlay'));
     expect(progressiveTopBlur, contains('blurExtent'));
     expect(progressiveTopBlur, contains('topBarExtent'));
@@ -131,7 +133,8 @@ void main() {
 
     final dynamics = File('lib/pages/dynamics/view.dart').readAsStringSync();
     expect(dynamics, contains('ProgressiveTopBlurOverlay'));
-    expect(dynamics, contains('blurExtent: 112'));
+    expect(dynamics, contains('topBarExtent: 50'));
+    expect(dynamics, contains('blurExtent: 138'));
     expect(dynamics, contains('Widget _buildTopBar('));
     expect(dynamics, isNot(contains('Expanded(child: onBuild(child))')));
     expect(dynamics, isNot(contains('extendBodyBehindAppBar: true')));
@@ -141,8 +144,9 @@ void main() {
     final dynamicsTab = File(
       'lib/pages/dynamics_tab/view.dart',
     ).readAsStringSync();
-    expect(dynamicsTab, contains('_kDynamicsTopOverlayHeight = 50.0'));
-    expect(dynamicsTab, contains('top: _kDynamicsTopOverlayHeight'));
+    expect(dynamicsTab, isNot(contains('_kDynamicsTopOverlayHeight')));
+    expect(dynamicsTab, isNot(contains('MediaQuery.viewPaddingOf(context).top +')));
+    expect(dynamicsTab, contains('padding: const EdgeInsets.only(bottom: 100)'));
   });
 
   test('Android versionCode 不低于已发布构建号', () {
