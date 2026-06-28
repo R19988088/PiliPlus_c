@@ -102,28 +102,20 @@ void main() {
     );
   });
 
-  test('首页和动态顶部使用单层遮罩渐变背景模糊', () {
+  test('首页和动态顶部使用不透明占位顶栏', () {
     final progressiveTopBlur = File(
       'lib/common/widgets/progressive_top_blur.dart',
     ).readAsStringSync();
-    expect(progressiveTopBlur, contains("import 'dart:ui';"));
-    expect(progressiveTopBlur, contains('MediaQuery.viewPaddingOf(context).top'));
-    expect(progressiveTopBlur, contains('class ProgressiveTopBlurOverlay'));
-    expect(progressiveTopBlur, contains('blurExtent'));
-    expect(progressiveTopBlur, contains('Stack('));
-    expect(progressiveTopBlur, contains('ClipRect'));
-    expect(progressiveTopBlur, contains('ShaderMask'));
-    expect(progressiveTopBlur, contains('BlendMode.dstIn'));
-    expect(progressiveTopBlur, contains('blurFade'));
-    expect(progressiveTopBlur, contains('BackdropFilter'));
-    expect(progressiveTopBlur, contains('ImageFilter.blur'));
-    expect(progressiveTopBlur, contains('LinearGradient'));
-    expect(progressiveTopBlur, contains('Alignment.topCenter'));
-    expect(progressiveTopBlur, contains('Alignment.bottomCenter'));
-    expect(progressiveTopBlur, contains('colorScheme.surface.withValues'));
-    expect(progressiveTopBlur, contains('Positioned.fill(child: body)'));
-    expect(progressiveTopBlur, contains('foreground'));
-    expect(progressiveTopBlur, contains('topBarHeight'));
+    expect(progressiveTopBlur, contains('required this.child'));
+    expect(progressiveTopBlur, contains('ColoredBox'));
+    expect(progressiveTopBlur, contains('color: colorScheme.surface'));
+    expect(progressiveTopBlur, isNot(contains("import 'dart:ui';")));
+    expect(progressiveTopBlur, isNot(contains('class ProgressiveTopBlurOverlay')));
+    expect(progressiveTopBlur, isNot(contains('Stack(')));
+    expect(progressiveTopBlur, isNot(contains('ClipRect')));
+    expect(progressiveTopBlur, isNot(contains('ShaderMask')));
+    expect(progressiveTopBlur, isNot(contains('BackdropFilter')));
+    expect(progressiveTopBlur, isNot(contains('ImageFilter.blur')));
     expect(progressiveTopBlur, isNot(contains('SoftEdgeBlur')));
     expect(progressiveTopBlur, isNot(contains('EdgeBlur')));
     expect(progressiveTopBlur, isNot(contains('ProgressiveBlurWidget')));
@@ -134,24 +126,23 @@ void main() {
     expect(pubspec, isNot(contains('progressive_blur:')));
 
     final home = File('lib/pages/home/view.dart').readAsStringSync();
-    expect(home, contains('ProgressiveTopBlurOverlay'));
-    expect(home, contains('blurExtent: 128'));
-    expect(home, isNot(contains('return Column(\n      children: [\n        topBar,')));
-    expect(
-      home,
-      isNot(
-        contains('color: theme.colorScheme.surface,\n          child: tabBar'),
-      ),
-    );
+    expect(home, contains('ProgressiveTopBlur('));
+    expect(home, contains('return Column(\n      children: [\n        topBar,'));
+    expect(home, contains('Expanded(\n          child: onBuild('));
+    expect(home, isNot(contains('ProgressiveTopBlurOverlay')));
+    expect(home, isNot(contains('blurExtent: 128')));
 
     final dynamics = File('lib/pages/dynamics/view.dart').readAsStringSync();
-    expect(dynamics, contains('ProgressiveTopBlurOverlay'));
-    expect(dynamics, contains('blurExtent: 138'));
-    expect(dynamics, contains('topBarHeight: 50'));
-    expect(dynamics, contains('foreground: foreground'));
-    expect(dynamics, contains('const SizedBox(height: 76)'));
+    expect(dynamics, contains('ProgressiveTopBlur('));
+    expect(dynamics, contains('upPanelPart(theme),\n            Expanded(child: child),'));
+    expect(dynamics, contains('body: Column('));
+    expect(dynamics, contains('Expanded(child: onBuild(child))'));
     expect(dynamics, contains('Widget _buildTopBar('));
-    expect(dynamics, isNot(contains('Expanded(child: onBuild(child))')));
+    expect(dynamics, isNot(contains('ProgressiveTopBlurOverlay')));
+    expect(dynamics, isNot(contains('blurExtent: 138')));
+    expect(dynamics, isNot(contains('topBarHeight: 50')));
+    expect(dynamics, isNot(contains('foreground: foreground')));
+    expect(dynamics, isNot(contains('const SizedBox(height: 76)')));
     expect(dynamics, isNot(contains('extendBodyBehindAppBar: true')));
     expect(dynamics, isNot(contains('appBar: AppBar(')));
     expect(dynamics, isNot(contains('backgroundColor: Colors.transparent')));

@@ -123,8 +123,6 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
 
     Widget? leading;
     List<Widget>? actions;
-    Widget? foreground;
-
     Widget child = tabBarView(
       controller: _dynamicsController.tabController,
       children: DynamicsTabType.values
@@ -136,11 +134,10 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
       case UpPanelPosition.top:
         child = Column(
           children: [
-            const SizedBox(height: 76),
+            upPanelPart(theme),
             Expanded(child: child),
           ],
         );
-        foreground = upPanelPart(theme);
         actions = [_createDynamicBtn(theme)];
       case UpPanelPosition.leftFixed:
         child = Row(
@@ -170,12 +167,11 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
       resizeToAvoidBottomInset: false,
       drawer: drawer,
       endDrawer: endDrawer,
-      body: ProgressiveTopBlurOverlay(
-        topBar: _buildTopBar(theme, leading: leading, actions: actions),
-        topBarHeight: 50,
-        foreground: foreground,
-        blurExtent: 138,
-        body: onBuild(child),
+      body: Column(
+        children: [
+          _buildTopBar(theme, leading: leading, actions: actions),
+          Expanded(child: onBuild(child)),
+        ],
       ),
     );
   }
@@ -185,56 +181,58 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
     Widget? leading,
     List<Widget>? actions,
   }) {
-    return SizedBox(
-      height: 50,
-      child: Row(
-        children: [
-          if (upPanelPosition == UpPanelPosition.leftDrawer)
-            Builder(
-              builder: (context) => _drawerButton(
-                theme,
-                tooltip: '关注列表',
-                icon: Icons.menu,
-                onPressed: Scaffold.of(context).openDrawer,
-              ),
-            )
-          else if (leading != null)
-            leading,
-          Expanded(
-            child: TabBar(
-              dividerHeight: 0,
-              isScrollable: true,
-              tabAlignment: .center,
-              dividerColor: Colors.transparent,
-              labelColor: theme.colorScheme.primary,
-              indicatorColor: theme.colorScheme.primary,
-              controller: _dynamicsController.tabController,
-              unselectedLabelColor: theme.colorScheme.onSurface,
-              labelStyle: TabBarTheme.of(context).labelStyle?.copyWith(
-                    fontSize: 13,
-                  ) ??
-                  const TextStyle(fontSize: 13),
-              tabs: DynamicsTabType.values
-                  .map((e) => Tab(text: e.label))
-                  .toList(),
-              onTap: (index) {
-                if (!_dynamicsController.tabController.indexIsChanging) {
-                  _dynamicsController.animateToTop();
-                }
-              },
-            ),
-          ),
-          if (actions != null) ...actions,
-          if (upPanelPosition == UpPanelPosition.rightDrawer)
-            Builder(
-              builder: (context) => _drawerButton(
-                theme,
-                tooltip: '关注列表',
-                icon: Icons.menu_open,
-                onPressed: Scaffold.of(context).openEndDrawer,
+    return ProgressiveTopBlur(
+      child: SizedBox(
+        height: 50,
+        child: Row(
+          children: [
+            if (upPanelPosition == UpPanelPosition.leftDrawer)
+              Builder(
+                builder: (context) => _drawerButton(
+                  theme,
+                  tooltip: '关注列表',
+                  icon: Icons.menu,
+                  onPressed: Scaffold.of(context).openDrawer,
+                ),
+              )
+            else if (leading != null)
+              leading,
+            Expanded(
+              child: TabBar(
+                dividerHeight: 0,
+                isScrollable: true,
+                tabAlignment: .center,
+                dividerColor: Colors.transparent,
+                labelColor: theme.colorScheme.primary,
+                indicatorColor: theme.colorScheme.primary,
+                controller: _dynamicsController.tabController,
+                unselectedLabelColor: theme.colorScheme.onSurface,
+                labelStyle: TabBarTheme.of(context).labelStyle?.copyWith(
+                      fontSize: 13,
+                    ) ??
+                    const TextStyle(fontSize: 13),
+                tabs: DynamicsTabType.values
+                    .map((e) => Tab(text: e.label))
+                    .toList(),
+                onTap: (index) {
+                  if (!_dynamicsController.tabController.indexIsChanging) {
+                    _dynamicsController.animateToTop();
+                  }
+                },
               ),
             ),
-        ],
+            if (actions != null) ...actions,
+            if (upPanelPosition == UpPanelPosition.rightDrawer)
+              Builder(
+                builder: (context) => _drawerButton(
+                  theme,
+                  tooltip: '关注列表',
+                  icon: Icons.menu_open,
+                  onPressed: Scaffold.of(context).openEndDrawer,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
