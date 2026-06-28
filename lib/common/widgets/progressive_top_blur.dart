@@ -55,7 +55,7 @@ class ProgressiveTopBlur extends StatelessWidget {
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
