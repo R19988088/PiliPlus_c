@@ -217,10 +217,12 @@ class PlPlayerController with BlockConfigMixin {
       isLive ? _enableShowLiveDanmaku : _enableShowDanmaku;
 
   late final bool autoPiP = Pref.autoPiP;
+  late final RxBool _androidPipMode = false.obs;
   bool get isPipMode =>
-      (Platform.isAndroid && Floating().isPipMode) ||
+      (Platform.isAndroid && _androidPipMode.value) ||
       (PlatformUtils.isDesktop && isDesktopPip);
   late bool isDesktopPip = false;
+  StreamSubscription<PiPStatus>? _pipStatusSub;
   late Rect _lastWindowBounds;
 
   late final showWindowTitleBar = Pref.showWindowTitleBar;
@@ -731,6 +733,12 @@ class PlPlayerController with BlockConfigMixin {
             angleDegrees: Platform.isAndroid ? Pref.angleDegrees : null,
           )
           .listen(_onOrientationChanged);
+    }
+
+    if (Platform.isAndroid) {
+      _pipStatusSub = Floating().pipStatusStream.listen((status) {
+        _androidPipMode.value = status == PiPStatus.enabled;
+      });
     }
 
     if (!Accounts.heartbeat.isLogin || Pref.historyPause) {
@@ -1828,6 +1836,8 @@ class PlPlayerController with BlockConfigMixin {
     }
     Utils.channel.setMethodCallHandler(null);
     _timer?.cancel();
+    _pipStatusSub?.cancel();
+    _pipStatusSub = null;
     _stopBufferWatchdog();
     // _position.close();
     // _playerEventSubs?.cancel();

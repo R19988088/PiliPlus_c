@@ -214,7 +214,7 @@ class _LiveRoomPageState extends State<LiveRoomPage>
   @override
   Widget build(BuildContext context) {
     Widget child;
-    if (Platform.isAndroid && Floating().isPipMode) {
+    if (plPlayerController.isPipMode) {
       child = videoPlayerPanel(
         isFullScreen,
         width: maxWidth,
