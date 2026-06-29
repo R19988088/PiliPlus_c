@@ -152,17 +152,32 @@ void main() {
     expect(shutdownTimer, isNot(contains("title: const Text('自定义'")));
   });
 
-  test('播放器全屏控制条只保留 10px 上下空位', () {
+  test('播放器全屏控制条保留原有 5px 上下空位', () {
     final appBarAni = File(
       'lib/plugin/pl_player/widgets/app_bar_ani.dart',
     ).readAsStringSync();
 
-    expect(appBarAni, contains('static const _fullScreenVerticalGap = 10.0;'));
+    expect(appBarAni, contains('static const _fullScreenVerticalGap = 5.0;'));
     expect(appBarAni, contains('EdgeInsets.only('));
     expect(appBarAni, contains('top: isTop ? _fullScreenVerticalGap : 0.0'));
     expect(appBarAni, contains('bottom: isTop ? 0.0 : _fullScreenVerticalGap'));
     expect(appBarAni, contains('isFullScreen'));
     expect(appBarAni, contains('ViewSafeArea('));
+  });
+
+  test('播放器全屏视频内容上下留 10px 空位', () {
+    final playerView = File(
+      'lib/plugin/pl_player/view/view.dart',
+    ).readAsStringSync();
+
+    expect(
+      playerView,
+      contains('static const _fullScreenVideoVerticalGap = 10.0;'),
+    );
+    expect(
+      playerView,
+      contains('EdgeInsets.symmetric(vertical: _fullScreenVideoVerticalGap)'),
+    );
   });
 
   test('播放器全屏控制条和隐藏进度条使用统一 120px 左右空白', () {
@@ -200,6 +215,14 @@ void main() {
     expect(
       playerView,
       contains('right: isFullScreen ? AppBarAni.fullScreenHorizontalGap : 0'),
+    );
+    expect(
+      playerView,
+      contains('static const _fullScreenHiddenProgressBottom = 4.0;'),
+    );
+    expect(
+      playerView,
+      contains('bottom: isFullScreen ? _fullScreenHiddenProgressBottom : -2.2'),
     );
   });
 
