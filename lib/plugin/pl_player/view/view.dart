@@ -1785,10 +1785,10 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                         final int buffer =
                             plPlayerController.bufferedSeconds.value;
                         final progressBarColor = isFullScreen
-                            ? primary.withValues(alpha: 0.5)
+                            ? primary.withValues(alpha: 0.25)
                             : primary;
                         final bufferedProgressBarColor = isFullScreen
-                            ? bufferedBarColor.withValues(alpha: 0.5)
+                            ? bufferedBarColor.withValues(alpha: 0.2)
                             : bufferedBarColor;
                         return ProgressBar(
                           progress: Duration(seconds: value),
@@ -1797,8 +1797,12 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                           progressBarColor: progressBarColor,
                           baseBarColor: const Color(0x33FFFFFF),
                           bufferedBarColor: bufferedProgressBarColor,
-                          thumbColor: primary,
-                          thumbGlowColor: thumbGlowColor,
+                          thumbColor: isFullScreen
+                              ? primary.withValues(alpha: 0.5)
+                              : primary,
+                          thumbGlowColor: isFullScreen
+                              ? thumbGlowColor.withValues(alpha: 0.5)
+                              : thumbGlowColor,
                           barHeight: isFullScreen ? 2.45 : 3.5,
                           thumbRadius: 2.5,
                         );

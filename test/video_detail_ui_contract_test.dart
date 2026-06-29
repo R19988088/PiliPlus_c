@@ -226,7 +226,7 @@ void main() {
     );
   });
 
-  test('播放器全屏静默进度条变细且降低彩条透明度', () {
+  test('播放器全屏静默进度条彩色部分透明度减半', () {
     final playerView = File(
       'lib/plugin/pl_player/view/view.dart',
     ).readAsStringSync();
@@ -237,11 +237,19 @@ void main() {
     );
     expect(
       playerView,
-      contains('primary.withValues(alpha: 0.5)'),
+      contains('primary.withValues(alpha: 0.25)'),
     );
     expect(
       playerView,
       contains('bufferedBarColor: bufferedProgressBarColor'),
+    );
+    expect(
+      playerView,
+      contains('thumbColor: isFullScreen'),
+    );
+    expect(
+      playerView,
+      contains('thumbGlowColor: isFullScreen'),
     );
   });
 
