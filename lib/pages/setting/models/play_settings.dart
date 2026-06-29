@@ -40,8 +40,8 @@ List<SettingsModel> get playSettings => [
   NormalModel(
     onTap: _showVideoRoundCornerDialog,
     leading: const Icon(Icons.rounded_corner),
-    title: '圆角裁切',
-    getSubtitle: () => '当前:「${Pref.videoRoundCornerRadius}px」',
+    title: '全屏圆角裁切',
+    getSubtitle: () => '当前:「${Pref.fullscreenVideoRoundCornerRadius}px」',
   ),
   NormalModel(
     onTap: (context, setState) => Get.toNamed('/playSpeedSet'),
@@ -397,18 +397,18 @@ Future<void> _showVideoRoundCornerDialog(
   final res = await showDialog<double>(
     context: context,
     builder: (context) => SliderDialog(
-      title: '圆角裁切',
+      title: '全屏圆角裁切',
       min: 0.0,
-      max: 10.0,
-      divisions: 10,
+      max: 20.0,
+      divisions: 20,
       precise: 0,
-      value: Pref.videoRoundCornerRadius.toDouble(),
+      value: Pref.fullscreenVideoRoundCornerRadius.toDouble(),
       suffix: 'px',
     ),
   );
   if (res != null) {
     await GStorage.setting.put(
-      SettingBoxKey.videoRoundCornerRadius,
+      SettingBoxKey.fullscreenVideoRoundCornerRadius,
       res.toInt(),
     );
     setState();

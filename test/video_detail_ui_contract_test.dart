@@ -203,7 +203,7 @@ void main() {
     );
   });
 
-  test('播放器支持设置视频圆角裁切', () {
+  test('播放器支持设置全屏视频圆角裁切', () {
     final storageKey = File('lib/utils/storage_key.dart').readAsStringSync();
     final storagePref = File('lib/utils/storage_pref.dart').readAsStringSync();
     final playSettings = File(
@@ -215,21 +215,25 @@ void main() {
 
     expect(
       storageKey,
-      contains("videoRoundCornerRadius = 'videoRoundCornerRadius'"),
+      contains(
+        "fullscreenVideoRoundCornerRadius = 'fullscreenVideoRoundCornerRadius'",
+      ),
     );
-    expect(storagePref, contains('int get videoRoundCornerRadius'));
-    expect(storagePref, contains('defaultValue: 3'));
-    expect(playSettings, contains("title: '圆角裁切'"));
+    expect(storagePref, contains('int get fullscreenVideoRoundCornerRadius'));
+    expect(storagePref, contains('defaultValue: 10'));
+    expect(playSettings, contains("title: '全屏圆角裁切'"));
     expect(playSettings, contains('min: 0.0'));
-    expect(playSettings, contains('max: 10.0'));
+    expect(playSettings, contains('max: 20.0'));
     expect(playSettings, contains('suffix: \'px\''));
     expect(
-      playSettings.indexOf("title: '圆角裁切'"),
+      playSettings.indexOf("title: '全屏圆角裁切'"),
       lessThan(playSettings.indexOf("title: '倍速设置'")),
     );
     expect(playerView, contains('ClipRRect('));
     expect(playerView, contains('BorderRadius.circular('));
-    expect(playerView, contains('Pref.videoRoundCornerRadius'));
-    expect(playerView, contains('.clamp(0, 10)'));
+    expect(playerView, contains('isFullScreen'));
+    expect(playerView, contains('Pref.fullscreenVideoRoundCornerRadius'));
+    expect(playerView, contains('.clamp(0, 20)'));
+    expect(playerView, contains(': 0.0'));
   });
 }

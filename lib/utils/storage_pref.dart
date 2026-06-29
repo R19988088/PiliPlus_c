@@ -1039,8 +1039,10 @@ abstract final class Pref {
   static bool get removeSafeArea =>
       _setting.get(SettingBoxKey.removeSafeArea, defaultValue: false);
 
-  static int get videoRoundCornerRadius =>
-      _setting.get(SettingBoxKey.videoRoundCornerRadius, defaultValue: 3);
+  static int get fullscreenVideoRoundCornerRadius => _setting.get(
+    SettingBoxKey.fullscreenVideoRoundCornerRadius,
+    defaultValue: 10,
+  );
 
   static int get angleDegrees =>
       _setting.get(SettingBoxKey.angleDegrees, defaultValue: 30);

@@ -167,7 +167,7 @@ abstract final class SettingBoxKey {
       glassNavBlend = 'glassNavBlend',
       floatingNavBar = 'floatingNavBar',
       removeSafeArea = 'removeSafeArea',
-      videoRoundCornerRadius = 'videoRoundCornerRadius',
+      fullscreenVideoRoundCornerRadius = 'fullscreenVideoRoundCornerRadius',
       angleDegrees = 'angleDegrees';
 
   static const String minimizeOnExit = 'minimizeOnExit',

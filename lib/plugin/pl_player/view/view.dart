@@ -2089,9 +2089,11 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
             child: Obx(
               () {
                 final videoFit = plPlayerController.videoFit.value;
-                final videoRoundCornerRadius = Pref.videoRoundCornerRadius
-                    .clamp(0, 10)
-                    .toDouble();
+                final videoRoundCornerRadius = isFullScreen
+                    ? Pref.fullscreenVideoRoundCornerRadius
+                          .clamp(0, 20)
+                          .toDouble()
+                    : 0.0;
                 return Transform.flip(
                   flipX: plPlayerController.flipX.value,
                   flipY: plPlayerController.flipY.value,
