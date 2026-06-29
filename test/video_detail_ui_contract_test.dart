@@ -314,15 +314,18 @@ void main() {
     expect(videoPageView, contains('size.longestSide * _kVerticalVideoExpandedHeightRatio'));
     expect(videoPageView, contains('maxHeight - videoHeight - padding.top'));
     expect(videoPageView, contains('_kNonFullscreenHeightExpandAspectRatio = 4 / 3'));
+    expect(videoPageView, contains('_kSquarePixelAspectRatioTolerance = 0.01'));
     expect(videoPageView, contains('return aspectRatio <= _kNonFullscreenHeightExpandAspectRatio'));
+    expect(videoPageView, contains('videoAspectRatio: () => _videoAspectRatio'));
     expect(videoPageView, contains('double? get _videoAspectRatio'));
-    expect(videoPageView, isNot(contains('_correctedUgcAspectRatio')));
+    expect(videoPageView, contains('_displayAspectRatio(aspectRatio)'));
     expect(videoPageView, contains('Part? get _currentUgcPart'));
     expect(videoPageView, contains('_dimensionAspectRatio(_currentUgcPart?.dimension)'));
     expect(videoPageView, contains('_dimensionAspectRatio(videoDetailController.initialDimension)'));
     expect(videoPageView, contains('_dimensionAspectRatio(ugcIntroController.videoDetail.value.dimension)'));
-    expect(videoPageView, isNot(contains('_streamSampleAspectRatio')));
-    expect(videoPageView, isNot(contains('sampleAspectRatio > 1.01')));
+    expect(videoPageView, contains('double? get _streamSampleAspectRatio'));
+    expect(videoPageView, contains('final sar = videoDetailController.firstVideo.sar;'));
+    expect(videoPageView, contains('return aspectRatio * sampleAspectRatio;'));
     expect(videoController, contains('Dimension? initialDimension;'));
     expect(videoController, contains("initialDimension = args['dimension'];"));
     expect(pageUtils, contains("'dimension': ?dimension"));
@@ -330,7 +333,7 @@ void main() {
     expect(playerView, contains('fit: videoFit.boxFit'));
     expect(playerView, isNot(contains('_resolvedVideoFit')));
     expect(playerView, isNot(contains('aspectRatio <= 1.5')));
-    expect(playerView, isNot(contains('final double? Function()? videoAspectRatio;')));
-    expect(playerView, contains('return null;'));
+    expect(playerView, contains('final double? Function()? videoAspectRatio;'));
+    expect(playerView, contains('return widget.videoAspectRatio?.call()'));
   });
 }

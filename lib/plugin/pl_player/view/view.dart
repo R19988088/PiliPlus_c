@@ -101,6 +101,7 @@ class PLVideoPlayer extends StatefulWidget {
     this.fill = Colors.black,
     this.alignment = Alignment.center,
     this.fullScreenClipRadius = 0,
+    this.videoAspectRatio,
     super.key,
   });
 
@@ -125,6 +126,7 @@ class PLVideoPlayer extends StatefulWidget {
   final Color fill;
   final Alignment alignment;
   final double fullScreenClipRadius;
+  final double? Function()? videoAspectRatio;
 
   @override
   State<PLVideoPlayer> createState() => _PLVideoPlayerState();
@@ -2138,7 +2140,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
     if (videoFit.aspectRatio != null) {
       return videoFit.aspectRatio;
     }
-    return null;
+    return widget.videoAspectRatio?.call();
   }
 
   Widget _clipPlayerViewport(Widget child) {
