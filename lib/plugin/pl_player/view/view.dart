@@ -63,7 +63,6 @@ import 'package:PiliPlus/utils/path_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/storage.dart';
 import 'package:PiliPlus/utils/storage_key.dart';
-import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:canvas_danmaku/canvas_danmaku.dart';
 import 'package:collection/collection.dart';
@@ -2089,26 +2088,16 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
             child: Obx(
               () {
                 final videoFit = plPlayerController.videoFit.value;
-                final videoRoundCornerRadius = isFullScreen
-                    ? Pref.fullscreenVideoRoundCornerRadius
-                          .clamp(0, 20)
-                          .toDouble()
-                    : 0.0;
                 return Transform.flip(
                   flipX: plPlayerController.flipX.value,
                   flipY: plPlayerController.flipY.value,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      videoRoundCornerRadius,
-                    ),
-                    child: FittedBox(
-                      fit: videoFit.boxFit,
-                      alignment: widget.alignment,
-                      child: SimpleVideo(
-                        controller: plPlayerController.videoController!,
-                        fill: widget.fill,
-                        aspectRatio: videoFit.aspectRatio,
-                      ),
+                  child: FittedBox(
+                    fit: videoFit.boxFit,
+                    alignment: widget.alignment,
+                    child: SimpleVideo(
+                      controller: plPlayerController.videoController!,
+                      fill: widget.fill,
+                      aspectRatio: videoFit.aspectRatio,
                     ),
                   ),
                 );

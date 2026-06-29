@@ -212,6 +212,7 @@ void main() {
     final playerView = File(
       'lib/plugin/pl_player/view/view.dart',
     ).readAsStringSync();
+    final videoPageView = File('lib/pages/video/view.dart').readAsStringSync();
 
     expect(
       storageKey,
@@ -229,11 +230,25 @@ void main() {
       playSettings.indexOf("title: '全屏圆角裁切'"),
       lessThan(playSettings.indexOf("title: '倍速设置'")),
     );
-    expect(playerView, contains('ClipRRect('));
-    expect(playerView, contains('BorderRadius.circular('));
-    expect(playerView, contains('isFullScreen'));
-    expect(playerView, contains('Pref.fullscreenVideoRoundCornerRadius'));
-    expect(playerView, contains('.clamp(0, 20)'));
-    expect(playerView, contains(': 0.0'));
+    expect(videoPageView, contains('_fullscreenVideoClipRadius'));
+    expect(videoPageView, contains('ClipRRect('));
+    expect(videoPageView, contains('BorderRadius.circular('));
+    expect(videoPageView, contains('Pref.fullscreenVideoRoundCornerRadius'));
+    expect(videoPageView, contains('.clamp(0, 20)'));
+    expect(videoPageView, contains('return 0.0;'));
+    expect(playerView, isNot(contains('Pref.fullscreenVideoRoundCornerRadius')));
+    expect(playerView, isNot(contains('BorderRadius.circular(')));
+  });
+
+  test('非全屏竖屏视频增加播放器高度', () {
+    final videoPageView = File('lib/pages/video/view.dart').readAsStringSync();
+
+    expect(videoPageView, contains('_kVerticalVideoExpandedHeightRatio = 0.72'));
+    expect(videoPageView, contains('_nonFullscreenVideoHeight'));
+    expect(videoPageView, contains('isVertical.value'));
+    expect(videoPageView, contains('clampDouble('));
+    expect(videoPageView, contains('maxHeight * _kVerticalVideoExpandedHeightRatio'));
+    expect(videoPageView, contains('size.longestSide * _kVerticalVideoExpandedHeightRatio'));
+    expect(videoPageView, contains('maxHeight - videoHeight - padding.top'));
   });
 }

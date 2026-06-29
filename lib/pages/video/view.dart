@@ -74,6 +74,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:screen_brightness_platform_interface/screen_brightness_platform_interface.dart';
 
+const _kVerticalVideoExpandedHeightRatio = 0.72;
+
 class VideoDetailPageV extends StatefulWidget {
   const VideoDetailPageV({super.key});
 
@@ -525,7 +527,10 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
 
     final shortestSide = size.shortestSide;
     final minVideoHeight = shortestSide / Style.aspectRatio16x9;
-    final maxVideoHeight = max(size.longestSide * 0.65, shortestSide);
+    final maxVideoHeight = max(
+      size.longestSide * _kVerticalVideoExpandedHeightRatio,
+      shortestSide,
+    );
     videoDetailController
       ..isPortrait = isPortrait = maxHeight >= maxWidth
       ..minVideoHeight = minVideoHeight
@@ -996,11 +1001,11 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     final double height = width / Style.aspectRatio16x9;
     final videoHeight = isFullScreen
         ? maxHeight - (isWindowMode && !isPortrait ? 0 : padding.top)
-        : height;
+        : _nonFullscreenVideoHeight(height);
     if (height > maxHeight) {
       return childSplit(Style.aspectRatio16x9);
     }
-    final introHeight = maxHeight - height - padding.top;
+    final introHeight = maxHeight - videoHeight - padding.top;
     final showIntro =
         videoDetailController.isUgc && videoDetailController.showRelatedVideo;
     return Row(
@@ -1122,8 +1127,8 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     final double height = maxHeight / 2.5;
     final videoHeight = isFullScreen
         ? maxHeight - (isWindowMode && !isPortrait ? 0 : padding.top)
-        : height;
-    final bottomHeight = maxHeight - height - padding.top;
+        : _nonFullscreenVideoHeight(height);
+    final bottomHeight = maxHeight - videoHeight - padding.top;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1564,7 +1569,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
 
   Widget videoPlayer({required double width, required double height}) {
     final isFullScreen = this.isFullScreen;
-    return Stack(
+    final player = Stack(
       clipBehavior: Clip.none,
       children: [
         const Positioned.fill(child: ColoredBox(color: Colors.black)),
@@ -1717,6 +1722,33 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
           },
         ),
       ],
+    );
+    final radius = _fullscreenVideoClipRadius(isFullScreen);
+    if (radius == 0) {
+      return player;
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: player,
+    );
+  }
+
+  double _fullscreenVideoClipRadius(bool isFullScreen) {
+    if (!isFullScreen) {
+      return 0.0;
+    }
+    return Pref.fullscreenVideoRoundCornerRadius.clamp(0, 20).toDouble();
+  }
+
+  double _nonFullscreenVideoHeight(double baseHeight) {
+    if (!videoDetailController.isVertical.value) {
+      return baseHeight;
+    }
+    final maxAvailableHeight = maxHeight - padding.top;
+    return clampDouble(
+      maxHeight * _kVerticalVideoExpandedHeightRatio,
+      baseHeight,
+      maxAvailableHeight,
     );
   }
 
