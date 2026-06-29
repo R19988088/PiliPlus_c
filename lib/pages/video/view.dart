@@ -78,7 +78,6 @@ import 'package:screen_brightness_platform_interface/screen_brightness_platform_
 
 const _kVerticalVideoExpandedHeightRatio = 0.72;
 const _kNonFullscreenHeightExpandAspectRatio = 4 / 3;
-const _kStandardVideoContainerAspectRatio = 4 / 3;
 
 class VideoDetailPageV extends StatefulWidget {
   const VideoDetailPageV({super.key});
@@ -1748,11 +1747,9 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
 
   double? get _videoAspectRatio {
     if (videoDetailController.isUgc && !videoDetailController.isFileSource) {
-      final aspectRatio =
-          _dimensionAspectRatio(_currentUgcPart?.dimension) ??
+      return _dimensionAspectRatio(_currentUgcPart?.dimension) ??
           _dimensionAspectRatio(videoDetailController.initialDimension) ??
           _dimensionAspectRatio(ugcIntroController.videoDetail.value.dimension);
-      return _correctedUgcAspectRatio(aspectRatio);
     }
     return _streamAspectRatio;
   }
@@ -1777,39 +1774,9 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     return width / height;
   }
 
-  double? _correctedUgcAspectRatio(double? aspectRatio) {
-    if (aspectRatio == null) {
-      return null;
-    }
-    final sampleAspectRatio = _streamSampleAspectRatio;
-    if ((aspectRatio - _kStandardVideoContainerAspectRatio).abs() < 0.01 &&
-        sampleAspectRatio != null &&
-        sampleAspectRatio > 1.01) {
-      return aspectRatio * sampleAspectRatio;
-    }
-    return aspectRatio;
-  }
-
   double? get _streamAspectRatio {
     final width = videoDetailController.firstVideo.width;
     final height = videoDetailController.firstVideo.height;
-    if (width == null || height == null || height <= 0) {
-      return null;
-    }
-    return width / height;
-  }
-
-  double? get _streamSampleAspectRatio {
-    final sar = videoDetailController.firstVideo.sar;
-    if (sar == null || sar.isEmpty) {
-      return null;
-    }
-    final parts = sar.split(':');
-    if (parts.length != 2) {
-      return null;
-    }
-    final width = double.tryParse(parts[0]);
-    final height = double.tryParse(parts[1]);
     if (width == null || height == null || height <= 0) {
       return null;
     }
