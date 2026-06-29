@@ -38,6 +38,12 @@ List<SettingsModel> get playSettings => [
       defaultVal: true,
     ),
   NormalModel(
+    onTap: _showVideoRoundCornerDialog,
+    leading: const Icon(Icons.rounded_corner),
+    title: '圆角裁切',
+    getSubtitle: () => '当前:「${Pref.videoRoundCornerRadius}px」',
+  ),
+  NormalModel(
     onTap: (context, setState) => Get.toNamed('/playSpeedSet'),
     leading: const Icon(Icons.speed_outlined),
     title: '倍速设置',
@@ -380,6 +386,31 @@ Future<void> _showAngleDegreesDialog(
   );
   if (res != null) {
     await GStorage.setting.put(SettingBoxKey.angleDegrees, res.toInt());
+    setState();
+  }
+}
+
+Future<void> _showVideoRoundCornerDialog(
+  BuildContext context,
+  VoidCallback setState,
+) async {
+  final res = await showDialog<double>(
+    context: context,
+    builder: (context) => SliderDialog(
+      title: '圆角裁切',
+      min: 0.0,
+      max: 10.0,
+      divisions: 10,
+      precise: 0,
+      value: Pref.videoRoundCornerRadius.toDouble(),
+      suffix: 'px',
+    ),
+  );
+  if (res != null) {
+    await GStorage.setting.put(
+      SettingBoxKey.videoRoundCornerRadius,
+      res.toInt(),
+    );
     setState();
   }
 }

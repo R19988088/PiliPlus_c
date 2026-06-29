@@ -202,4 +202,34 @@ void main() {
       contains('right: isFullScreen ? AppBarAni.fullScreenHorizontalGap : 0'),
     );
   });
+
+  test('播放器支持设置视频圆角裁切', () {
+    final storageKey = File('lib/utils/storage_key.dart').readAsStringSync();
+    final storagePref = File('lib/utils/storage_pref.dart').readAsStringSync();
+    final playSettings = File(
+      'lib/pages/setting/models/play_settings.dart',
+    ).readAsStringSync();
+    final playerView = File(
+      'lib/plugin/pl_player/view/view.dart',
+    ).readAsStringSync();
+
+    expect(
+      storageKey,
+      contains("videoRoundCornerRadius = 'videoRoundCornerRadius'"),
+    );
+    expect(storagePref, contains('int get videoRoundCornerRadius'));
+    expect(storagePref, contains('defaultValue: 3'));
+    expect(playSettings, contains("title: '圆角裁切'"));
+    expect(playSettings, contains('min: 0.0'));
+    expect(playSettings, contains('max: 10.0'));
+    expect(playSettings, contains('suffix: \'px\''));
+    expect(
+      playSettings.indexOf("title: '圆角裁切'"),
+      lessThan(playSettings.indexOf("title: '倍速设置'")),
+    );
+    expect(playerView, contains('ClipRRect('));
+    expect(playerView, contains('BorderRadius.circular('));
+    expect(playerView, contains('Pref.videoRoundCornerRadius'));
+    expect(playerView, contains('.clamp(0, 10)'));
+  });
 }
