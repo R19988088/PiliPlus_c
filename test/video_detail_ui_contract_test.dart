@@ -316,7 +316,7 @@ void main() {
     expect(videoPageView, contains('_kNonFullscreenHeightExpandAspectRatio = 4 / 3'));
     expect(videoPageView, contains('_kSquarePixelAspectRatioTolerance = 0.01'));
     expect(videoPageView, contains('return aspectRatio <= _kNonFullscreenHeightExpandAspectRatio'));
-    expect(videoPageView, contains('videoAspectRatio: () => _videoAspectRatio'));
+    expect(videoPageView, isNot(contains('videoAspectRatio: () => _videoAspectRatio')));
     expect(videoPageView, contains('double? get _videoAspectRatio'));
     expect(videoPageView, contains('_displayAspectRatio(aspectRatio)'));
     expect(videoPageView, contains('Part? get _currentUgcPart'));
@@ -333,7 +333,7 @@ void main() {
     expect(playerView, contains('fit: videoFit.boxFit'));
     expect(playerView, isNot(contains('_resolvedVideoFit')));
     expect(playerView, isNot(contains('aspectRatio <= 1.5')));
-    expect(playerView, contains('final double? Function()? videoAspectRatio;'));
-    expect(playerView, contains('return widget.videoAspectRatio?.call()'));
+    expect(playerView, isNot(contains('final double? Function()? videoAspectRatio;')));
+    expect(playerView, contains('return null;'));
   });
 }
