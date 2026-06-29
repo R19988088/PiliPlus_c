@@ -577,6 +577,7 @@ abstract final class PageUtils {
       'progress': ?progress,
       'videoType': videoType,
       'isVertical': dimension?.isVertical ?? isVertical,
+      'dimension': ?dimension,
       'heroTag': Utils.makeHeroTag(cid),
       ...?extraArguments,
     };

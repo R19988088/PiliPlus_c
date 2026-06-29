@@ -1748,6 +1748,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
   double? get _videoAspectRatio {
     if (videoDetailController.isUgc && !videoDetailController.isFileSource) {
       return _dimensionAspectRatio(_currentUgcPart?.dimension) ??
+          _dimensionAspectRatio(videoDetailController.initialDimension) ??
           _dimensionAspectRatio(ugcIntroController.videoDetail.value.dimension);
     }
     return _streamAspectRatio;

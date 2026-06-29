@@ -249,6 +249,8 @@ void main() {
 
   test('非全屏非宽屏视频增加播放器高度', () {
     final videoPageView = File('lib/pages/video/view.dart').readAsStringSync();
+    final videoController = File('lib/pages/video/controller.dart').readAsStringSync();
+    final pageUtils = File('lib/utils/page_utils.dart').readAsStringSync();
 
     expect(videoPageView, contains('_kVerticalVideoExpandedHeightRatio = 0.72'));
     expect(videoPageView, contains('_nonFullscreenVideoHeight'));
@@ -265,14 +267,16 @@ void main() {
     expect(videoPageView, contains('double? get _videoAspectRatio'));
     expect(videoPageView, contains('Part? get _currentUgcPart'));
     expect(videoPageView, contains('_dimensionAspectRatio(_currentUgcPart?.dimension)'));
+    expect(videoPageView, contains('_dimensionAspectRatio(videoDetailController.initialDimension)'));
     expect(videoPageView, contains('_dimensionAspectRatio(ugcIntroController.videoDetail.value.dimension)'));
+    expect(videoController, contains('Dimension? initialDimension;'));
+    expect(videoController, contains("initialDimension = args['dimension'];"));
+    expect(pageUtils, contains("'dimension': ?dimension"));
     expect(playerView, contains('final double? Function()? videoAspectRatio;'));
     expect(playerView, contains('_resolvedVideoAspectRatio(videoFit)'));
-    expect(playerView, contains('_resolvedVideoFit(videoFit, aspectRatio)'));
-    expect(playerView, contains('videoFit != VideoFitType.ratio_16x9'));
-    expect(playerView, contains('aspectRatio > 1.0 &&'));
-    expect(playerView, contains('aspectRatio <= 1.5'));
-    expect(playerView, contains('return BoxFit.cover;'));
+    expect(playerView, contains('fit: videoFit.boxFit'));
+    expect(playerView, isNot(contains('_resolvedVideoFit')));
+    expect(playerView, isNot(contains('aspectRatio <= 1.5')));
     expect(playerView, contains('return widget.videoAspectRatio?.call()'));
   });
 }

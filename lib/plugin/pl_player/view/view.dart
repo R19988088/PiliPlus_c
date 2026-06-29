@@ -2089,12 +2089,11 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
             () {
               final videoFit = plPlayerController.videoFit.value;
               final aspectRatio = _resolvedVideoAspectRatio(videoFit);
-              final boxFit = _resolvedVideoFit(videoFit, aspectRatio);
               return Transform.flip(
                 flipX: plPlayerController.flipX.value,
                 flipY: plPlayerController.flipY.value,
                 child: FittedBox(
-                  fit: boxFit,
+                  fit: videoFit.boxFit,
                   alignment: widget.alignment,
                   child: _clipActualVideoSurface(
                     SimpleVideo(
@@ -2124,20 +2123,6 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
       return videoFit.aspectRatio;
     }
     return widget.videoAspectRatio?.call();
-  }
-
-  BoxFit _resolvedVideoFit(VideoFitType videoFit, double? aspectRatio) {
-    if (!isFullScreen ||
-        (videoFit != VideoFitType.contain &&
-            videoFit != VideoFitType.ratio_16x9)) {
-      return videoFit.boxFit;
-    }
-    if (aspectRatio != null &&
-        aspectRatio > 1.0 &&
-        aspectRatio <= 1.5) {
-      return BoxFit.cover;
-    }
-    return videoFit.boxFit;
   }
 
   Widget _clipPlayerViewport(Widget child) {
