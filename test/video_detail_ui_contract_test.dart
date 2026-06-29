@@ -254,6 +254,8 @@ void main() {
 
     expect(videoPageView, contains('_kVerticalVideoExpandedHeightRatio = 0.72'));
     expect(videoPageView, contains('_nonFullscreenVideoHeight'));
+    expect(videoPageView, contains('..videoHeight = _nonFullscreenVideoHeight('));
+    expect(videoPageView, contains('videoWidth: maxWidth'));
     expect(videoPageView, contains('_shouldExpandNonFullscreenVideoHeight'));
     expect(videoPageView, contains('required double videoWidth'));
     expect(videoPageView, contains('clampDouble('));

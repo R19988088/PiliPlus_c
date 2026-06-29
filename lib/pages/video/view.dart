@@ -538,9 +538,10 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       ..isPortrait = isPortrait = maxHeight >= maxWidth
       ..minVideoHeight = minVideoHeight
       ..maxVideoHeight = maxVideoHeight
-      ..videoHeight = videoDetailController.isVertical.value
-          ? maxVideoHeight
-          : minVideoHeight;
+      ..videoHeight = _nonFullscreenVideoHeight(
+        minVideoHeight,
+        videoWidth: maxWidth,
+      );
 
     themeData = videoDetailController.plPlayerController.darkVideoPage
         ? ThemeUtils.darkTheme
