@@ -57,12 +57,16 @@ class BottomControl extends StatelessWidget {
     final bufferedBarColor = primary.withValues(alpha: 0.4);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
+      padding: isFullScreen
+          ? const EdgeInsets.only(bottom: 12)
+          : const EdgeInsets.fromLTRB(10, 0, 10, 12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 7),
+            padding: isFullScreen
+                ? const EdgeInsets.only(bottom: 7)
+                : const EdgeInsets.fromLTRB(10, 0, 10, 7),
             child: Obx(
               () => Offstage(
                 offstage: !controller.showControls.value,

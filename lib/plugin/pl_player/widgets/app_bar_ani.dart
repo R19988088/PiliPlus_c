@@ -17,6 +17,7 @@ class AppBarAni extends StatelessWidget {
   final bool isFullScreen;
   final bool removeSafeArea;
 
+  static const fullScreenHorizontalGap = 200.0;
   static const _fullScreenVerticalGap = 5.0;
 
   static final _topPos = Tween<Offset>(
@@ -61,7 +62,11 @@ class AppBarAni extends StatelessWidget {
         child: content,
       );
       if (!removeSafeArea) {
-        content = ViewSafeArea(child: content);
+        content = ViewSafeArea(
+          left: false,
+          right: false,
+          child: content,
+        );
       }
     } else if (!removeSafeArea) {
       content = ViewSafeArea(child: content);
@@ -73,7 +78,14 @@ class AppBarAni extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: isTop ? _topDecoration : _bottomDecoration,
         ),
-        child: content,
+        child: isFullScreen
+            ? Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: fullScreenHorizontalGap,
+                ),
+                child: content,
+              )
+            : content,
       ),
     );
   }

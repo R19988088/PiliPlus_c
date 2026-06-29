@@ -1739,8 +1739,8 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
         if (!isLive)
           Positioned(
             bottom: -2.2,
-            left: 0,
-            right: 0,
+            left: isFullScreen ? AppBarAni.fullScreenHorizontalGap : 0,
+            right: isFullScreen ? AppBarAni.fullScreenHorizontalGap : 0,
             child: Obx(
               () {
                 final showControls = plPlayerController.showControls.value;

@@ -164,4 +164,42 @@ void main() {
     expect(appBarAni, contains('isFullScreen'));
     expect(appBarAni, contains('ViewSafeArea('));
   });
+
+  test('播放器全屏控制条和隐藏进度条使用统一 200px 左右空白', () {
+    final appBarAni = File(
+      'lib/plugin/pl_player/widgets/app_bar_ani.dart',
+    ).readAsStringSync();
+    final bottomControl = File(
+      'lib/plugin/pl_player/widgets/bottom_control.dart',
+    ).readAsStringSync();
+    final playerView = File(
+      'lib/plugin/pl_player/view/view.dart',
+    ).readAsStringSync();
+
+    expect(
+      appBarAni,
+      contains('static const fullScreenHorizontalGap = 200.0;'),
+    );
+    expect(
+      appBarAni,
+      contains('EdgeInsets.symmetric(\n                  horizontal: fullScreenHorizontalGap,'),
+    );
+    expect(bottomControl, contains('isFullScreen ?'));
+    expect(
+      bottomControl,
+      contains('const EdgeInsets.only(bottom: 12)'),
+    );
+    expect(
+      bottomControl,
+      contains('const EdgeInsets.only(bottom: 7)'),
+    );
+    expect(
+      playerView,
+      contains('left: isFullScreen ? AppBarAni.fullScreenHorizontalGap : 0'),
+    );
+    expect(
+      playerView,
+      contains('right: isFullScreen ? AppBarAni.fullScreenHorizontalGap : 0'),
+    );
+  });
 }
