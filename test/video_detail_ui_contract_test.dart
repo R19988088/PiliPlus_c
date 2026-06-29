@@ -218,7 +218,7 @@ void main() {
     );
     expect(
       playerView,
-      contains('static const _fullScreenHiddenProgressBottom = 7.0;'),
+      contains('static const _fullScreenHiddenProgressBottom = 1.0;'),
     );
     expect(
       playerView,
