@@ -165,7 +165,7 @@ void main() {
     expect(appBarAni, contains('ViewSafeArea('));
   });
 
-  test('播放器全屏控制条和隐藏进度条使用统一 200px 左右空白', () {
+  test('播放器全屏控制条和隐藏进度条使用统一 120px 左右空白', () {
     final appBarAni = File(
       'lib/plugin/pl_player/widgets/app_bar_ani.dart',
     ).readAsStringSync();
@@ -178,7 +178,7 @@ void main() {
 
     expect(
       appBarAni,
-      contains('static const fullScreenHorizontalGap = 200.0;'),
+      contains('static const fullScreenHorizontalGap = 120.0;'),
     );
     expect(
       appBarAni,

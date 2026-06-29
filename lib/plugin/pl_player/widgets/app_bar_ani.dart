@@ -17,7 +17,7 @@ class AppBarAni extends StatelessWidget {
   final bool isFullScreen;
   final bool removeSafeArea;
 
-  static const fullScreenHorizontalGap = 200.0;
+  static const fullScreenHorizontalGap = 120.0;
   static const _fullScreenVerticalGap = 5.0;
 
   static final _topPos = Tween<Offset>(
