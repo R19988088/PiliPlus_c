@@ -226,6 +226,25 @@ void main() {
     );
   });
 
+  test('播放器全屏静默进度条变细且降低彩条透明度', () {
+    final playerView = File(
+      'lib/plugin/pl_player/view/view.dart',
+    ).readAsStringSync();
+
+    expect(
+      playerView,
+      contains('barHeight: isFullScreen ? 2.45 : 3.5'),
+    );
+    expect(
+      playerView,
+      contains('primary.withValues(alpha: 0.5)'),
+    );
+    expect(
+      playerView,
+      contains('bufferedBarColor: bufferedProgressBarColor'),
+    );
+  });
+
   test('播放器支持设置全屏视频圆角裁切', () {
     final storageKey = File('lib/utils/storage_key.dart').readAsStringSync();
     final storagePref = File('lib/utils/storage_pref.dart').readAsStringSync();
