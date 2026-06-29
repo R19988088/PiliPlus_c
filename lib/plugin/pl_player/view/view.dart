@@ -101,6 +101,7 @@ class PLVideoPlayer extends StatefulWidget {
     this.fill = Colors.black,
     this.alignment = Alignment.center,
     this.fullScreenClipRadius = 0,
+    this.videoAspectRatio,
     super.key,
   });
 
@@ -125,6 +126,7 @@ class PLVideoPlayer extends StatefulWidget {
   final Color fill;
   final Alignment alignment;
   final double fullScreenClipRadius;
+  final double? videoAspectRatio;
 
   @override
   State<PLVideoPlayer> createState() => _PLVideoPlayerState();
@@ -2041,6 +2043,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
           }),
       ],
     );
+    final clippedChild = _clipVideoSurface(child);
     if (PlatformUtils.isDesktop) {
       return Obx(
         () => MouseRegion(
@@ -2051,11 +2054,11 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
           onHover: (_) => plPlayerController.controls = true,
           onExit: (_) => plPlayerController.controls =
               widget.videoDetailController?.showSteinEdgeInfo.value ?? false,
-          child: child,
+          child: clippedChild,
         ),
       );
     }
-    return child;
+    return clippedChild;
   }
 
   Widget get _videoWidget {
@@ -2085,6 +2088,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
           child: Obx(
             () {
               final videoFit = plPlayerController.videoFit.value;
+              final aspectRatio = _resolvedVideoAspectRatio(videoFit);
               return Transform.flip(
                 flipX: plPlayerController.flipX.value,
                 flipY: plPlayerController.flipY.value,
@@ -2094,7 +2098,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                   child: SimpleVideo(
                     controller: plPlayerController.videoController!,
                     fill: widget.fill,
-                    aspectRatio: videoFit.aspectRatio,
+                    aspectRatio: aspectRatio,
                   ),
                 ),
               );
@@ -2105,16 +2109,28 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
     );
 
     return Container(
-      clipBehavior: widget.fullScreenClipRadius > 0 ? Clip.hardEdge : Clip.none,
-      decoration: BoxDecoration(
-        color: widget.fill,
-        borderRadius: widget.fullScreenClipRadius > 0
-            ? BorderRadius.circular(widget.fullScreenClipRadius)
-            : null,
-      ),
+      color: widget.fill,
       width: maxWidth,
       height: maxHeight,
       child: video,
+    );
+  }
+
+  double? _resolvedVideoAspectRatio(VideoFitType videoFit) {
+    if (videoFit.aspectRatio != null) {
+      return videoFit.aspectRatio;
+    }
+    return widget.videoAspectRatio;
+  }
+
+  Widget _clipVideoSurface(Widget child) {
+    if (widget.fullScreenClipRadius <= 0) {
+      return child;
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(widget.fullScreenClipRadius),
+      clipBehavior: Clip.hardEdge,
+      child: child,
     );
   }
 

@@ -239,6 +239,10 @@ void main() {
     expect(videoPageView, contains('return 0.0;'));
     expect(playerView, isNot(contains('Pref.fullscreenVideoRoundCornerRadius')));
     expect(playerView, contains('fullScreenClipRadius'));
+    expect(playerView, contains('_clipVideoSurface'));
+    expect(playerView, contains('final clippedChild = _clipVideoSurface(child);'));
+    expect(playerView, contains('child: clippedChild'));
+    expect(playerView, contains('return ClipRRect('));
     expect(playerView, contains('clipBehavior: Clip.hardEdge'));
   });
 
@@ -248,11 +252,18 @@ void main() {
     expect(videoPageView, contains('_kVerticalVideoExpandedHeightRatio = 0.72'));
     expect(videoPageView, contains('_nonFullscreenVideoHeight'));
     expect(videoPageView, contains('_shouldExpandNonFullscreenVideoHeight'));
+    expect(videoPageView, contains('required double videoWidth'));
     expect(videoPageView, contains('clampDouble('));
+    expect(videoPageView, contains('videoWidth / aspectRatio'));
     expect(videoPageView, contains('maxHeight * _kVerticalVideoExpandedHeightRatio'));
     expect(videoPageView, contains('size.longestSide * _kVerticalVideoExpandedHeightRatio'));
     expect(videoPageView, contains('maxHeight - videoHeight - padding.top'));
     expect(videoPageView, contains('_kNonFullscreenHeightExpandAspectRatio = 4 / 3'));
-    expect(videoPageView, contains('return width / height <= _kNonFullscreenHeightExpandAspectRatio'));
+    expect(videoPageView, contains('return aspectRatio <= _kNonFullscreenHeightExpandAspectRatio'));
+    expect(videoPageView, contains('videoAspectRatio: _videoAspectRatio'));
+    expect(videoPageView, contains('double? get _videoAspectRatio'));
+    expect(playerView, contains('final double? videoAspectRatio;'));
+    expect(playerView, contains('_resolvedVideoAspectRatio(videoFit)'));
+    expect(playerView, contains('return widget.videoAspectRatio'));
   });
 }

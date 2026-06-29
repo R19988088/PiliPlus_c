@@ -1002,7 +1002,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     final double height = width / Style.aspectRatio16x9;
     final videoHeight = isFullScreen
         ? maxHeight - (isWindowMode && !isPortrait ? 0 : padding.top)
-        : _nonFullscreenVideoHeight(height);
+        : _nonFullscreenVideoHeight(height, videoWidth: videoWidth);
     if (height > maxHeight) {
       return childSplit(Style.aspectRatio16x9);
     }
@@ -1128,7 +1128,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     final double height = maxHeight / 2.5;
     final videoHeight = isFullScreen
         ? maxHeight - (isWindowMode && !isPortrait ? 0 : padding.top)
-        : _nonFullscreenVideoHeight(height);
+        : _nonFullscreenVideoHeight(height, videoWidth: maxWidth);
     final bottomHeight = maxHeight - videoHeight - padding.top;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1347,6 +1347,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
               videoDetailController: videoDetailController,
               introController: introController,
               fullScreenClipRadius: _fullscreenVideoClipRadius(isFullScreen),
+              videoAspectRatio: _videoAspectRatio,
               headerControl: HeaderControl(
                 key: videoDetailController.headerCtrKey,
                 isPortrait: isPortrait,
@@ -1742,11 +1743,35 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     return Pref.fullscreenVideoRoundCornerRadius.clamp(0, 20).toDouble();
   }
 
-  double _nonFullscreenVideoHeight(double baseHeight) {
+  double? get _videoAspectRatio {
+    try {
+      final width = videoDetailController.firstVideo.width;
+      final height = videoDetailController.firstVideo.height;
+      if (width == null || height == null || height <= 0) {
+        return null;
+      }
+      return width / height;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  double _nonFullscreenVideoHeight(
+    double baseHeight, {
+    required double videoWidth,
+  }) {
     if (!_shouldExpandNonFullscreenVideoHeight()) {
       return baseHeight;
     }
     final maxAvailableHeight = maxHeight - padding.top;
+    final aspectRatio = _videoAspectRatio;
+    if (aspectRatio != null) {
+      return clampDouble(
+        videoWidth / aspectRatio,
+        baseHeight,
+        maxAvailableHeight,
+      );
+    }
     return clampDouble(
       maxHeight * _kVerticalVideoExpandedHeightRatio,
       baseHeight,
@@ -1759,12 +1784,11 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       return true;
     }
     try {
-      final width = videoDetailController.firstVideo.width;
-      final height = videoDetailController.firstVideo.height;
-      if (width == null || height == null || height <= 0) {
+      final aspectRatio = _videoAspectRatio;
+      if (aspectRatio == null) {
         return false;
       }
-      return width / height <= _kNonFullscreenHeightExpandAspectRatio;
+      return aspectRatio <= _kNonFullscreenHeightExpandAspectRatio;
     } catch (_) {
       return false;
     }
