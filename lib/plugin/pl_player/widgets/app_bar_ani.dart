@@ -17,6 +17,8 @@ class AppBarAni extends StatelessWidget {
   final bool isFullScreen;
   final bool removeSafeArea;
 
+  static const _fullScreenVerticalGap = 5.0;
+
   static final _topPos = Tween<Offset>(
     begin: const Offset(0.0, -1.0),
     end: Offset.zero,
@@ -49,19 +51,29 @@ class AppBarAni extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget content = child;
+    if (isFullScreen) {
+      content = Padding(
+        padding: EdgeInsets.only(
+          top: isTop ? _fullScreenVerticalGap : 0.0,
+          bottom: isTop ? 0.0 : _fullScreenVerticalGap,
+        ),
+        child: content,
+      );
+      if (!removeSafeArea) {
+        content = ViewSafeArea(child: content);
+      }
+    } else if (!removeSafeArea) {
+      content = ViewSafeArea(child: content);
+    }
+
     return SlideTransition(
       position: controller.drive(isTop ? _topPos : _bottomPos),
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: isTop ? _topDecoration : _bottomDecoration,
         ),
-        child: removeSafeArea
-            ? child
-            : ViewSafeArea(
-                left: isFullScreen,
-                right: isFullScreen,
-                child: child,
-              ),
+        child: content,
       ),
     );
   }

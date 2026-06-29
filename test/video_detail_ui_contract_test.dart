@@ -151,4 +151,17 @@ void main() {
     expect(shutdownTimer, isNot(contains("return ListTile(\n                                dense: true,\n                                onTap: onChanged,")));
     expect(shutdownTimer, isNot(contains("title: const Text('自定义'")));
   });
+
+  test('播放器全屏控制条只保留 5px 上下空位', () {
+    final appBarAni = File(
+      'lib/plugin/pl_player/widgets/app_bar_ani.dart',
+    ).readAsStringSync();
+
+    expect(appBarAni, contains('static const _fullScreenVerticalGap = 5.0;'));
+    expect(appBarAni, contains('EdgeInsets.only('));
+    expect(appBarAni, contains('top: isTop ? _fullScreenVerticalGap : 0.0'));
+    expect(appBarAni, contains('bottom: isTop ? 0.0 : _fullScreenVerticalGap'));
+    expect(appBarAni, contains('isFullScreen'));
+    expect(appBarAni, contains('ViewSafeArea('));
+  });
 }
