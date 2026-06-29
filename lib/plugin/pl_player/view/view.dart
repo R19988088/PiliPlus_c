@@ -2043,7 +2043,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
           }),
       ],
     );
-    final clippedChild = _clipVideoSurface(child);
+    final clippedChild = _clipPlayerViewport(child);
     if (PlatformUtils.isDesktop) {
       return Obx(
         () => MouseRegion(
@@ -2089,16 +2089,19 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
             () {
               final videoFit = plPlayerController.videoFit.value;
               final aspectRatio = _resolvedVideoAspectRatio(videoFit);
+              final boxFit = _resolvedVideoFit(videoFit, aspectRatio);
               return Transform.flip(
                 flipX: plPlayerController.flipX.value,
                 flipY: plPlayerController.flipY.value,
                 child: FittedBox(
-                  fit: videoFit.boxFit,
+                  fit: boxFit,
                   alignment: widget.alignment,
-                  child: SimpleVideo(
-                    controller: plPlayerController.videoController!,
-                    fill: widget.fill,
-                    aspectRatio: aspectRatio,
+                  child: _clipActualVideoSurface(
+                    SimpleVideo(
+                      controller: plPlayerController.videoController!,
+                      fill: widget.fill,
+                      aspectRatio: aspectRatio,
+                    ),
                   ),
                 ),
               );
@@ -2123,7 +2126,30 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
     return widget.videoAspectRatio;
   }
 
-  Widget _clipVideoSurface(Widget child) {
+  BoxFit _resolvedVideoFit(VideoFitType videoFit, double? aspectRatio) {
+    if (!isFullScreen || videoFit != VideoFitType.contain) {
+      return videoFit.boxFit;
+    }
+    if (aspectRatio != null &&
+        aspectRatio > 1.0 &&
+        aspectRatio <= 4 / 3) {
+      return BoxFit.cover;
+    }
+    return videoFit.boxFit;
+  }
+
+  Widget _clipPlayerViewport(Widget child) {
+    if (widget.fullScreenClipRadius <= 0) {
+      return child;
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(widget.fullScreenClipRadius),
+      clipBehavior: Clip.hardEdge,
+      child: child,
+    );
+  }
+
+  Widget _clipActualVideoSurface(Widget child) {
     if (widget.fullScreenClipRadius <= 0) {
       return child;
     }

@@ -16,6 +16,7 @@ import 'package:PiliPlus/http/user.dart';
 import 'package:PiliPlus/models/common/episode_panel_type.dart';
 import 'package:PiliPlus/models/common/video/source_type.dart';
 import 'package:PiliPlus/models_new/pgc/pgc_info_model/result.dart';
+import 'package:PiliPlus/models_new/video/video_detail/dimension.dart';
 import 'package:PiliPlus/models_new/video/video_detail/episode.dart' as ugc;
 import 'package:PiliPlus/models_new/video/video_detail/page.dart';
 import 'package:PiliPlus/models_new/video/video_detail/ugc_season.dart';
@@ -1744,16 +1745,40 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
   }
 
   double? get _videoAspectRatio {
+    if (videoDetailController.isUgc && !videoDetailController.isFileSource) {
+      return _dimensionAspectRatio(_currentUgcPart?.dimension) ??
+          _dimensionAspectRatio(ugcIntroController.videoDetail.value.dimension);
+    }
+    return _streamAspectRatio;
+  }
+
+  Part? get _currentUgcPart {
     try {
-      final width = videoDetailController.firstVideo.width;
-      final height = videoDetailController.firstVideo.height;
-      if (width == null || height == null || height <= 0) {
-        return null;
-      }
-      return width / height;
+      final cid = videoDetailController.cid.value;
+      return ugcIntroController.videoDetail.value.pages?.firstWhereOrNull(
+        (part) => part.cid == cid,
+      );
     } catch (_) {
       return null;
     }
+  }
+
+  double? _dimensionAspectRatio(Dimension? dimension) {
+    final width = dimension?.width;
+    final height = dimension?.height;
+    if (width == null || height == null || height <= 0) {
+      return null;
+    }
+    return width / height;
+  }
+
+  double? get _streamAspectRatio {
+    final width = videoDetailController.firstVideo.width;
+    final height = videoDetailController.firstVideo.height;
+    if (width == null || height == null || height <= 0) {
+      return null;
+    }
+    return width / height;
   }
 
   double _nonFullscreenVideoHeight(
