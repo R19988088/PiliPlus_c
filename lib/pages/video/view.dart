@@ -75,6 +75,7 @@ import 'package:get/get.dart';
 import 'package:screen_brightness_platform_interface/screen_brightness_platform_interface.dart';
 
 const _kVerticalVideoExpandedHeightRatio = 0.72;
+const _kNonFullscreenHeightExpandAspectRatio = 4 / 3;
 
 class VideoDetailPageV extends StatefulWidget {
   const VideoDetailPageV({super.key});
@@ -1345,6 +1346,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
               plPlayerController: plPlayerController!,
               videoDetailController: videoDetailController,
               introController: introController,
+              fullScreenClipRadius: _fullscreenVideoClipRadius(isFullScreen),
               headerControl: HeaderControl(
                 key: videoDetailController.headerCtrKey,
                 isPortrait: isPortrait,
@@ -1741,7 +1743,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
   }
 
   double _nonFullscreenVideoHeight(double baseHeight) {
-    if (!videoDetailController.isVertical.value) {
+    if (!_shouldExpandNonFullscreenVideoHeight()) {
       return baseHeight;
     }
     final maxAvailableHeight = maxHeight - padding.top;
@@ -1750,6 +1752,22 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       baseHeight,
       maxAvailableHeight,
     );
+  }
+
+  bool _shouldExpandNonFullscreenVideoHeight() {
+    if (videoDetailController.isVertical.value) {
+      return true;
+    }
+    try {
+      final width = videoDetailController.firstVideo.width;
+      final height = videoDetailController.firstVideo.height;
+      if (width == null || height == null || height <= 0) {
+        return false;
+      }
+      return width / height <= _kNonFullscreenHeightExpandAspectRatio;
+    } catch (_) {
+      return false;
+    }
   }
 
   Widget localIntroPanel({

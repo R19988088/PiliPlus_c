@@ -100,6 +100,7 @@ class PLVideoPlayer extends StatefulWidget {
     this.showViewPoints,
     this.fill = Colors.black,
     this.alignment = Alignment.center,
+    this.fullScreenClipRadius = 0,
     super.key,
   });
 
@@ -123,6 +124,7 @@ class PLVideoPlayer extends StatefulWidget {
   final VoidCallback? showViewPoints;
   final Color fill;
   final Alignment alignment;
+  final double fullScreenClipRadius;
 
   @override
   State<PLVideoPlayer> createState() => _PLVideoPlayerState();
@@ -2057,55 +2059,62 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
   }
 
   Widget get _videoWidget {
-    return Container(
-      clipBehavior: .none,
-      width: maxWidth,
-      height: maxHeight,
-      color: widget.fill,
-      child: Obx(
-        () => MouseInteractiveViewer(
-          scaleEnabled: !plPlayerController.controlsLock.value,
-          pointerSignalFallback: _onPointerSignal,
-          onPointerPanZoomUpdate: _onPointerPanZoomUpdate,
-          onPointerPanZoomEnd: _onPointerPanZoomEnd,
-          onPointerDown: _onPointerDown,
-          onPanStart: _onPanStart,
-          onPanUpdate: _onPanUpdate,
-          onPanEnd: _onPanEnd,
-          onScaleUpdate: _onScaleUpdate,
-          scaleGestureRecognizer: _scaleGestureRecognizer,
-          panEnabled: false,
-          minScale: plPlayerController.enableShrinkVideoSize ? 0.75 : 1,
-          maxScale: 2.0,
-          boundaryMargin: plPlayerController.enableShrinkVideoSize
-              ? const .all(double.infinity)
-              : .zero,
-          panAxis: .aligned,
-          transformationController: _transformationController,
-          childKey: _videoKey,
-          child: RepaintBoundary(
-            key: _videoKey,
-            child: Obx(
-              () {
-                final videoFit = plPlayerController.videoFit.value;
-                return Transform.flip(
-                  flipX: plPlayerController.flipX.value,
-                  flipY: plPlayerController.flipY.value,
-                  child: FittedBox(
-                    fit: videoFit.boxFit,
-                    alignment: widget.alignment,
-                    child: SimpleVideo(
-                      controller: plPlayerController.videoController!,
-                      fill: widget.fill,
-                      aspectRatio: videoFit.aspectRatio,
-                    ),
+    final video = Obx(
+      () => MouseInteractiveViewer(
+        scaleEnabled: !plPlayerController.controlsLock.value,
+        pointerSignalFallback: _onPointerSignal,
+        onPointerPanZoomUpdate: _onPointerPanZoomUpdate,
+        onPointerPanZoomEnd: _onPointerPanZoomEnd,
+        onPointerDown: _onPointerDown,
+        onPanStart: _onPanStart,
+        onPanUpdate: _onPanUpdate,
+        onPanEnd: _onPanEnd,
+        onScaleUpdate: _onScaleUpdate,
+        scaleGestureRecognizer: _scaleGestureRecognizer,
+        panEnabled: false,
+        minScale: plPlayerController.enableShrinkVideoSize ? 0.75 : 1,
+        maxScale: 2.0,
+        boundaryMargin: plPlayerController.enableShrinkVideoSize
+            ? const .all(double.infinity)
+            : .zero,
+        panAxis: .aligned,
+        transformationController: _transformationController,
+        childKey: _videoKey,
+        child: RepaintBoundary(
+          key: _videoKey,
+          child: Obx(
+            () {
+              final videoFit = plPlayerController.videoFit.value;
+              return Transform.flip(
+                flipX: plPlayerController.flipX.value,
+                flipY: plPlayerController.flipY.value,
+                child: FittedBox(
+                  fit: videoFit.boxFit,
+                  alignment: widget.alignment,
+                  child: SimpleVideo(
+                    controller: plPlayerController.videoController!,
+                    fill: widget.fill,
+                    aspectRatio: videoFit.aspectRatio,
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),
+    );
+
+    return Container(
+      clipBehavior: widget.fullScreenClipRadius > 0 ? Clip.hardEdge : Clip.none,
+      decoration: BoxDecoration(
+        color: widget.fill,
+        borderRadius: widget.fullScreenClipRadius > 0
+            ? BorderRadius.circular(widget.fullScreenClipRadius)
+            : null,
+      ),
+      width: maxWidth,
+      height: maxHeight,
+      child: video,
     );
   }
 

@@ -234,21 +234,25 @@ void main() {
     expect(videoPageView, contains('ClipRRect('));
     expect(videoPageView, contains('BorderRadius.circular('));
     expect(videoPageView, contains('Pref.fullscreenVideoRoundCornerRadius'));
+    expect(videoPageView, contains('fullScreenClipRadius:'));
     expect(videoPageView, contains('.clamp(0, 20)'));
     expect(videoPageView, contains('return 0.0;'));
     expect(playerView, isNot(contains('Pref.fullscreenVideoRoundCornerRadius')));
-    expect(playerView, isNot(contains('BorderRadius.circular(')));
+    expect(playerView, contains('fullScreenClipRadius'));
+    expect(playerView, contains('clipBehavior: Clip.hardEdge'));
   });
 
-  test('非全屏竖屏视频增加播放器高度', () {
+  test('非全屏非宽屏视频增加播放器高度', () {
     final videoPageView = File('lib/pages/video/view.dart').readAsStringSync();
 
     expect(videoPageView, contains('_kVerticalVideoExpandedHeightRatio = 0.72'));
     expect(videoPageView, contains('_nonFullscreenVideoHeight'));
-    expect(videoPageView, contains('isVertical.value'));
+    expect(videoPageView, contains('_shouldExpandNonFullscreenVideoHeight'));
     expect(videoPageView, contains('clampDouble('));
     expect(videoPageView, contains('maxHeight * _kVerticalVideoExpandedHeightRatio'));
     expect(videoPageView, contains('size.longestSide * _kVerticalVideoExpandedHeightRatio'));
     expect(videoPageView, contains('maxHeight - videoHeight - padding.top'));
+    expect(videoPageView, contains('_kNonFullscreenHeightExpandAspectRatio = 4 / 3'));
+    expect(videoPageView, contains('return width / height <= _kNonFullscreenHeightExpandAspectRatio'));
   });
 }
