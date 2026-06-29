@@ -126,7 +126,7 @@ class PLVideoPlayer extends StatefulWidget {
   final Color fill;
   final Alignment alignment;
   final double fullScreenClipRadius;
-  final double? videoAspectRatio;
+  final double? Function()? videoAspectRatio;
 
   @override
   State<PLVideoPlayer> createState() => _PLVideoPlayerState();
@@ -2123,16 +2123,18 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
     if (videoFit.aspectRatio != null) {
       return videoFit.aspectRatio;
     }
-    return widget.videoAspectRatio;
+    return widget.videoAspectRatio?.call();
   }
 
   BoxFit _resolvedVideoFit(VideoFitType videoFit, double? aspectRatio) {
-    if (!isFullScreen || videoFit != VideoFitType.contain) {
+    if (!isFullScreen ||
+        (videoFit != VideoFitType.contain &&
+            videoFit != VideoFitType.ratio_16x9)) {
       return videoFit.boxFit;
     }
     if (aspectRatio != null &&
         aspectRatio > 1.0 &&
-        aspectRatio <= 4 / 3) {
+        aspectRatio <= 1.5) {
       return BoxFit.cover;
     }
     return videoFit.boxFit;

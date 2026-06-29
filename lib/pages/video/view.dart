@@ -1349,7 +1349,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
               videoDetailController: videoDetailController,
               introController: introController,
               fullScreenClipRadius: _fullscreenVideoClipRadius(isFullScreen),
-              videoAspectRatio: _videoAspectRatio,
+              videoAspectRatio: () => _videoAspectRatio,
               headerControl: HeaderControl(
                 key: videoDetailController.headerCtrKey,
                 isPortrait: isPortrait,
