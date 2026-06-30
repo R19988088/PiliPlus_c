@@ -290,8 +290,9 @@ void main() {
     expect(playerView, isNot(contains('Pref.fullscreenVideoRoundCornerRadius')));
     expect(playerView, contains('fullScreenClipRadius'));
     expect(playerView, contains('_clipActualVideoSurface'));
-    expect(playerView, contains('final clippedChild = _clipPlayerViewport(child);'));
-    expect(playerView, contains('child: clippedChild'));
+    expect(playerView, isNot(contains('_clipPlayerViewport')));
+    expect(playerView, isNot(contains('_fullScreenVideoVerticalGap')));
+    expect(playerView, isNot(contains('EdgeInsets.symmetric(vertical:')));
     expect(playerView, contains('child: _clipActualVideoSurface('));
     expect(playerView, contains('return ClipRRect('));
     expect(playerView, contains('clipBehavior: Clip.hardEdge'));

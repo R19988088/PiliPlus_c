@@ -132,7 +132,6 @@ class PLVideoPlayer extends StatefulWidget {
 
 class _PLVideoPlayerState extends State<PLVideoPlayer>
     with WidgetsBindingObserver, TickerProviderStateMixin {
-  static const _fullScreenVideoVerticalGap = 10.0;
   static const _fullScreenHiddenProgressBottom = 1.0;
 
   late AnimationController _animationController;
@@ -2054,7 +2053,6 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
           }),
       ],
     );
-    final clippedChild = _clipPlayerViewport(child);
     if (PlatformUtils.isDesktop) {
       return Obx(
         () => MouseRegion(
@@ -2065,11 +2063,11 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
           onHover: (_) => plPlayerController.controls = true,
           onExit: (_) => plPlayerController.controls =
               widget.videoDetailController?.showSteinEdgeInfo.value ?? false,
-          child: clippedChild,
+          child: child,
         ),
       );
     }
-    return clippedChild;
+    return child;
   }
 
   Widget get _videoWidget {
@@ -2125,12 +2123,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
       color: widget.fill,
       width: maxWidth,
       height: maxHeight,
-      child: Padding(
-        padding: isFullScreen
-            ? const EdgeInsets.symmetric(vertical: _fullScreenVideoVerticalGap)
-            : EdgeInsets.zero,
-        child: video,
-      ),
+      child: video,
     );
   }
 
@@ -2139,17 +2132,6 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
       return videoFit.aspectRatio;
     }
     return null;
-  }
-
-  Widget _clipPlayerViewport(Widget child) {
-    if (widget.fullScreenClipRadius <= 0) {
-      return child;
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(widget.fullScreenClipRadius),
-      clipBehavior: Clip.hardEdge,
-      child: child,
-    );
   }
 
   Widget _clipActualVideoSurface(Widget child) {
