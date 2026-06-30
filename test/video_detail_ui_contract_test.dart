@@ -281,8 +281,7 @@ void main() {
       lessThan(playSettings.indexOf("title: '倍速设置'")),
     );
     expect(videoPageView, contains('_fullscreenVideoClipRadius'));
-    expect(videoPageView, contains('ClipRRect('));
-    expect(videoPageView, contains('BorderRadius.circular('));
+    expect(videoPageView, isNot(contains('borderRadius: BorderRadius.circular(radius)')));
     expect(videoPageView, contains('Pref.fullscreenVideoRoundCornerRadius'));
     expect(videoPageView, contains('fullScreenClipRadius:'));
     expect(videoPageView, contains('.clamp(0, 20)'));
@@ -293,6 +292,8 @@ void main() {
     expect(playerView, isNot(contains('_clipPlayerViewport')));
     expect(playerView, contains('_fullScreenVideoVerticalGap = 5.0'));
     expect(playerView, contains('EdgeInsets.symmetric(vertical: _fullScreenVideoVerticalGap)'));
+    expect(playerView, contains('final video = Padding('));
+    expect(playerView, contains('child: video,\n    );'));
     expect(playerView, contains('child: _clipActualVideoSurface('));
     expect(playerView, contains('return ClipRRect('));
     expect(playerView, contains('clipBehavior: Clip.hardEdge'));

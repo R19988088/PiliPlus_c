@@ -2072,49 +2072,54 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
   }
 
   Widget get _videoWidget {
-    final video = Obx(
-      () => MouseInteractiveViewer(
-        scaleEnabled: !plPlayerController.controlsLock.value,
-        pointerSignalFallback: _onPointerSignal,
-        onPointerPanZoomUpdate: _onPointerPanZoomUpdate,
-        onPointerPanZoomEnd: _onPointerPanZoomEnd,
-        onPointerDown: _onPointerDown,
-        onPanStart: _onPanStart,
-        onPanUpdate: _onPanUpdate,
-        onPanEnd: _onPanEnd,
-        onScaleUpdate: _onScaleUpdate,
-        scaleGestureRecognizer: _scaleGestureRecognizer,
-        panEnabled: false,
-        minScale: plPlayerController.enableShrinkVideoSize ? 0.75 : 1,
-        maxScale: 2.0,
-        boundaryMargin: plPlayerController.enableShrinkVideoSize
-            ? const .all(double.infinity)
-            : .zero,
-        panAxis: .aligned,
-        transformationController: _transformationController,
-        childKey: _videoKey,
-        child: RepaintBoundary(
-          key: _videoKey,
-          child: Obx(
-            () {
-              final videoFit = plPlayerController.videoFit.value;
-              final aspectRatio = _resolvedVideoAspectRatio(videoFit);
-              return Transform.flip(
-                flipX: plPlayerController.flipX.value,
-                flipY: plPlayerController.flipY.value,
-                child: FittedBox(
-                  fit: videoFit.boxFit,
-                  alignment: widget.alignment,
-                  child: _clipActualVideoSurface(
-                    SimpleVideo(
-                      controller: plPlayerController.videoController!,
-                      fill: widget.fill,
-                      aspectRatio: aspectRatio,
+    final video = Padding(
+      padding: isFullScreen
+          ? const EdgeInsets.symmetric(vertical: _fullScreenVideoVerticalGap)
+          : EdgeInsets.zero,
+      child: Obx(
+        () => MouseInteractiveViewer(
+          scaleEnabled: !plPlayerController.controlsLock.value,
+          pointerSignalFallback: _onPointerSignal,
+          onPointerPanZoomUpdate: _onPointerPanZoomUpdate,
+          onPointerPanZoomEnd: _onPointerPanZoomEnd,
+          onPointerDown: _onPointerDown,
+          onPanStart: _onPanStart,
+          onPanUpdate: _onPanUpdate,
+          onPanEnd: _onPanEnd,
+          onScaleUpdate: _onScaleUpdate,
+          scaleGestureRecognizer: _scaleGestureRecognizer,
+          panEnabled: false,
+          minScale: plPlayerController.enableShrinkVideoSize ? 0.75 : 1,
+          maxScale: 2.0,
+          boundaryMargin: plPlayerController.enableShrinkVideoSize
+              ? const .all(double.infinity)
+              : .zero,
+          panAxis: .aligned,
+          transformationController: _transformationController,
+          childKey: _videoKey,
+          child: RepaintBoundary(
+            key: _videoKey,
+            child: Obx(
+              () {
+                final videoFit = plPlayerController.videoFit.value;
+                final aspectRatio = _resolvedVideoAspectRatio(videoFit);
+                return Transform.flip(
+                  flipX: plPlayerController.flipX.value,
+                  flipY: plPlayerController.flipY.value,
+                  child: FittedBox(
+                    fit: videoFit.boxFit,
+                    alignment: widget.alignment,
+                    child: _clipActualVideoSurface(
+                      SimpleVideo(
+                        controller: plPlayerController.videoController!,
+                        fill: widget.fill,
+                        aspectRatio: aspectRatio,
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -2124,12 +2129,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
       color: widget.fill,
       width: maxWidth,
       height: maxHeight,
-      child: Padding(
-        padding: isFullScreen
-            ? const EdgeInsets.symmetric(vertical: _fullScreenVideoVerticalGap)
-            : EdgeInsets.zero,
-        child: video,
-      ),
+      child: video,
     );
   }
 

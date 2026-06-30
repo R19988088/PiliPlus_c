@@ -1728,14 +1728,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
         ),
       ],
     );
-    final radius = _fullscreenVideoClipRadius(isFullScreen);
-    if (radius == 0) {
-      return player;
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: player,
-    );
+    return player;
   }
 
   double _fullscreenVideoClipRadius(bool isFullScreen) {
