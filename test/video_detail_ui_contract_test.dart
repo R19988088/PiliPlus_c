@@ -291,8 +291,8 @@ void main() {
     expect(playerView, contains('fullScreenClipRadius'));
     expect(playerView, contains('_clipActualVideoSurface'));
     expect(playerView, isNot(contains('_clipPlayerViewport')));
-    expect(playerView, isNot(contains('_fullScreenVideoVerticalGap')));
-    expect(playerView, isNot(contains('EdgeInsets.symmetric(vertical:')));
+    expect(playerView, contains('_fullScreenVideoVerticalGap = 5.0'));
+    expect(playerView, contains('EdgeInsets.symmetric(vertical: _fullScreenVideoVerticalGap)'));
     expect(playerView, contains('child: _clipActualVideoSurface('));
     expect(playerView, contains('return ClipRRect('));
     expect(playerView, contains('clipBehavior: Clip.hardEdge'));

@@ -132,6 +132,7 @@ class PLVideoPlayer extends StatefulWidget {
 
 class _PLVideoPlayerState extends State<PLVideoPlayer>
     with WidgetsBindingObserver, TickerProviderStateMixin {
+  static const _fullScreenVideoVerticalGap = 5.0;
   static const _fullScreenHiddenProgressBottom = 1.0;
 
   late AnimationController _animationController;
@@ -2123,7 +2124,12 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
       color: widget.fill,
       width: maxWidth,
       height: maxHeight,
-      child: video,
+      child: Padding(
+        padding: isFullScreen
+            ? const EdgeInsets.symmetric(vertical: _fullScreenVideoVerticalGap)
+            : EdgeInsets.zero,
+        child: video,
+      ),
     );
   }
 
