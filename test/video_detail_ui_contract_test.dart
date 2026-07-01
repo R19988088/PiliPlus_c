@@ -291,7 +291,7 @@ void main() {
     expect(playerView, contains('_clipActualVideoSurface'));
     expect(playerView, isNot(contains('_clipPlayerViewport')));
     expect(playerView, contains('_fullScreenVideoVerticalGap = 8.0'));
-    expect(playerView, contains('EdgeInsets.only(bottom: _fullScreenVideoVerticalGap)'));
+    expect(playerView, contains('EdgeInsets.symmetric(vertical: _fullScreenVideoVerticalGap)'));
     expect(playerView, contains('final video = Padding('));
     expect(playerView, contains('child: video,\n    );'));
     expect(playerView, contains('child: _clipActualVideoSurface('));
