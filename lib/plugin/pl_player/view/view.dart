@@ -2074,7 +2074,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
   Widget get _videoWidget {
     final video = Padding(
       padding: isFullScreen
-          ? const EdgeInsets.symmetric(vertical: _fullScreenVideoVerticalGap)
+          ? const EdgeInsets.only(bottom: _fullScreenVideoVerticalGap)
           : EdgeInsets.zero,
       child: Obx(
         () => MouseInteractiveViewer(
